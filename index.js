@@ -2,129 +2,133 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 const fs = require('fs');
-const readline = require('readline');
 const {google} = require('googleapis');
 
-
-let highlights = []
 let CLIENT
 
-// If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
-// The file token.json stores the user's access and refresh tokens, and is
-// created automatically when the authorization flow completes for the first
-// time.
 const TOKEN_PATH = 'token.json';
 
-// Load client secrets from a local file.
 fs.readFile('credentials.json', (err, content) => {
   if (err) return console.log('Error loading client secret file:', err);
-  // Authorize a client with credentials, then call the Gmail API.
-  authorize(JSON.parse(content), listLabels);
+  authorize(JSON.parse(content));
 });
 
-/**
- * Create an OAuth2 client with the given credentials, and then execute the
- * given callback function.
- * @param {Object} credentials The authorization client credentials.
- * @param {function} callback The callback to call with the authorized client.
- */
-function authorize(credentials, callback) {
+function authorize(credentials) {
   const {client_secret, client_id, redirect_uris} = credentials.installed;
   const oAuth2Client = new google.auth.OAuth2(
       client_id, client_secret, redirect_uris[0]);
 
-  // Check if we have previously stored a token.
   fs.readFile(TOKEN_PATH, (err, token) => {
-    if (err) return getNewToken(oAuth2Client, callback);
     const parsedToken = JSON.parse(token);
     oAuth2Client.setCredentials(parsedToken);
     CLIENT = oAuth2Client
-    callback(oAuth2Client);
   });
 }
 
-/**
- * Get and store new token after prompting for user authorization, and then
- * execute the given callback with the authorized OAuth2 client.
- * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
- * @param {getEventsCallback} callback The callback for the authorized client.
- */
-function getNewToken(oAuth2Client, callback) {
-  const authUrl = oAuth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: SCOPES,
-  });
-  console.log('Authorize this app by visiting this url:', authUrl);
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-  rl.question('Enter the code from that page here: ', (code) => {
-    rl.close();
-    oAuth2Client.getToken(code, (err, token) => {
-      if (err) return console.error('Error retrieving access token', err);
-      oAuth2Client.setCredentials(token);
-      // Store the token to disk for later program executions
-      fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
-        if (err) return console.error(err);
-        console.log('Token stored to', TOKEN_PATH);
-      });
-      callback(oAuth2Client);
-    });
-  });
-}
-
-/**
- * Lists the labels in the user's account.
- *
- * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
- */
-function listLabels(auth) {
+function listMessages(auth, resMain) {
   const gmail = google.gmail({version: 'v1', auth});
-  gmail.users.labels.list({
+  gmail.users.messages.list({
     userId: 'me',
+    labelIds: [
+      "INBOX"
+    ]
   }, (err, res) => {
     if (err) return console.log('The API returned an error: ' + err);
-    const labels = res.data.labels;
-    if (labels.length) {
-      highlights = [...labels];
-      // console.log(highlights);
+    const messages = res.data.messages;
+    if (messages.length) {
+      resMain(messages)
     } else {
-      console.log('No labels found.');
+      console.log('No messages found.');
     }
   });
 }
 
-function listLabels2(auth, resMain) {
+function getMessageById(auth, id, resMain) {
   const gmail = google.gmail({version: 'v1', auth});
-  gmail.users.labels.list({
+  gmail.users.messages.get({
     userId: 'me',
-  }, (err, res) => {
-    if (err) return console.log('The API returned an error: ' + err);
-    const labels = res.data.labels;
-    if (labels.length) {
-      highlights = [...labels];
-      resMain()
-    } else {
-      console.log('No labels found.');
-    }
-  });
+    id: id
+  }).then((res) => {
+    const message = res.data;
+    resMain(message)
+  }).catch((e) => {
+    console.log('error', e.errors[0].message);
+  })
 }
 
+function getMessageAttachment(auth, id, attachmentId, resMain) {
+  const gmail = google.gmail({version: 'v1', auth});
+  gmail.users.messages.attachments.get({
+    userId: 'me',
+    messageId: id,
+    id: attachmentId
+  }).then((res) => {
+    const message = res.data;
+    resMain(message)
+  }).catch((e) => {
+    console.log('error', e.errors[0].message);
+  })
+}
+
+function getMessageAttachmentId(auth, id, resMain) {
+  const gmail = google.gmail({version: 'v1', auth});
+  gmail.users.messages.get({
+    userId: 'me',
+    id: id
+  }).then((res) => {
+    const message = res.data;
+    resMain(message)
+  }).catch((e) => {
+    console.log('error', e.errors[0].message);
+  })
+  
+}
 
 const PORT = process.env.PORT || 3000
 
-
 app.use(cors()) // TODO configure before deployment
 
-app.get("/api/highlights/:amount", (req, res) => {
+app.get("/api/allMessages", (req, res) => {
   // console.log(req.params.amount);
   const p = new Promise((res, rej) => {
-    listLabels2(CLIENT, res)
+    listMessages(CLIENT, res)
   })
-  p.then(() => {
-    res.json(highlights)
+  p.then((data) => {
+    res.json(data)
+  })
+})
+
+app.get("/api/messageAttachmentId", (req, res) => {
+  const p = new Promise((res, rej) => {
+    getMessageAttachmentId(CLIENT, "174b6230de4a3adb", res)
+  })
+  p.then((data) => {
+    // const buff = Buffer.from(data.payload.parts, 'base64');  
+    // const text = buff.toString('utf-8');
+    res.json(data.payload.parts[0].body.attachmentId)
+  })
+})
+
+app.get("/api/messageAttachment", (req, res) => {
+  const p = new Promise((res, rej) => {
+    getMessageAttachment(CLIENT, "174b6230de4a3adb", "ANGjdJ8y5LyCoz4NTV8cB7PzkQlguTMgvQPpRqw0rb_xaD1PWrc1DswMp1OhthG38i-42tPPJKGP_75FIu_4n9ILaWWqJsbMhpvhlDx9QonhGAst2tB0v-HntmnfUtrSYpnl-A3Ik9SSElqcJA-z-bHOlG7E748zAopDrZJetseL8xg0z3dsM5CVBwTrFiou4e3wQyiCtjvuUeEOMl2vYivBkmsYG-KgIia7TH8qS9tDNS08G8KkHwfuJMMBcAcSQ-eFLP3Ph6YBnlCZzhqlTpmKk7Q6BC_CdMiEiqewgGnwxf7ur3fGOpuWzsUuOVrcM6q_bRpFmt-pKPgI270INSAona10yhiEri2THSEiXS-bQLzOUnVPPTsJJQAz6UN_Kr2lXjeQNrGOOO-hb7jj", res)
+  })
+  p.then((data) => {
+    const buff = Buffer.from(data.data, 'base64');  
+    const text = buff.toString('utf16le');
+    res.json(text)
+  })
+})
+
+app.get("/api/message", (req, res) => {
+  const p = new Promise((res, rej) => {
+    getMessageById(CLIENT, "174b01a44e70f8f3", res)
+  })
+  p.then((data) => {
+    // const buff = Buffer.from(data.payload.parts[0].body.data, 'base64');  
+    // const text = buff.toString('utf-8');
+    res.json(data)
   })
 })
 
