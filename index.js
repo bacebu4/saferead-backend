@@ -26,22 +26,20 @@ function authorize(credentials) {
   });
 }
 
-function listMessages(auth, resMain) {
-  const gmail = google.gmail({version: 'v1', auth});
-  gmail.users.messages.list({
-    userId: 'me',
-    labelIds: [
-      "INBOX"
-    ]
-  }, (err, res) => {
-    if (err) return console.log('The API returned an error: ' + err);
+async function listMessages(auth, resMain) {
+  try {
+    const gmail = google.gmail({version: 'v1', auth});
+    const res = await gmail.users.messages.list({
+      userId: 'me',
+    });
     const messages = res.data.messages;
     if (messages.length) {
       resMain(messages)
-    } else {
-      console.log('No messages found.');
     }
-  });
+  }
+  catch (e) {
+    console.log('No messages found');
+  }
 }
 
 function getMessageById(auth, id, resMain) {
