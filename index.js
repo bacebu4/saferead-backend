@@ -22,7 +22,6 @@ function delay(ms) {
   })
 }
 
-
 function authorize(credentials) {
   const {client_secret, client_id, redirect_uris} = credentials.installed
   const oAuth2Client = new google.auth.OAuth2(
@@ -35,18 +34,40 @@ function authorize(credentials) {
   });
 }
 
-async function listMessages(auth, resMain) {
-  try {
-    const gmail = google.gmail({version: 'v1', auth})
-    const res = await gmail.users.messages.list({
-      userId: 'me',
-    })
-    const messages = res.data.messages
-    resMain(messages)
-  }
-  catch (e) {
-    console.log('No messages found')
-  }
+function checkNewMessages() {
+  return new Promise(async (res, rej) => {
+    try {
+      const data = await listMessages(CLIENT)
+      const messages = data.messages
+      const messagesIds = messages.map((m) => m.id)
+      const amountOfMessages = data.resultSizeEstimate
+      res(messagesIds)
+    }
+    catch(e) {
+      // console.log(e);
+      console.log('No new messages')
+      res('No new messages')
+    }
+  })
+}
+
+function listMessages(auth) {
+  return new Promise(async (res, rej) => {
+    try {
+      const gmail = google.gmail({version: 'v1', auth})
+      const data = await gmail.users.messages.list({
+        userId: 'me',
+      })
+      if (!data.data.resultSizeEstimate) {
+        rej('No new messages')
+      }
+      res(data.data)
+    }
+    catch (e) {
+      console.log('No messages found')
+      rej(e)
+    }
+  })
 }
 
 async function deleteMessage(auth, id, resMain) {
@@ -108,14 +129,19 @@ const PORT = process.env.PORT || 3000
 
 app.use(cors()) // TODO configure before deployment
 
-app.get('/api/allMessages', (req, res) => {
+app.get('/api/allMessages', async (req, res) => {
   // console.log(req.params.amount)
-  const p = new Promise((res, rej) => {
-    listMessages(CLIENT, res)
-  })
-  p.then((data) => {
-    res.json(data)
-  })
+  try {
+    const data = await listMessages(CLIENT)
+    const messages = data.messages
+    const messagesIds = messages.map((m) => m.id)
+    const amountOfMessages = data.resultSizeEstimate
+    res.json(messagesIds)
+  }
+  catch(e) {
+    console.log(e);
+    res.send('No new messages')
+  }
 })
 
 
@@ -160,6 +186,9 @@ app.get('/api/deleteMessage', (req, res) => {
     res.json(data)
   })
 })
+app.post('/api/post', (req, res) => {
+  console.log('work is real');
+})
 
 app.get("*", (req, res) => {
   res.send('hey')
@@ -169,8 +198,11 @@ app.get("*", (req, res) => {
 
 app.listen(PORT, async () =>  {
   console.log('Server has been started on port 3000...');
-  while (true) {
-    await delay(30000)
-    console.log('api call');
-  }
+  // while (true) {
+  //   const data = await checkNewMessages()
+  //   if (data !== 'No new messages') {
+  //     console.log('New messages!!!');
+  //   }
+  //   await delay(5000)
+  // }
 })
