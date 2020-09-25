@@ -14,6 +14,14 @@ fs.readFile('credentials.json', (err, content) => {
   authorize(JSON.parse(content))
 })
 
+function delay(ms) {
+  return new Promise((res) => {
+    setTimeout(() => {
+      res()
+    }, ms);
+  })
+}
+
 
 function authorize(credentials) {
   const {client_secret, client_id, redirect_uris} = credentials.installed
@@ -157,6 +165,12 @@ app.get("*", (req, res) => {
   res.send('hey')
 })
 
-app.listen(PORT, () =>  {
+
+
+app.listen(PORT, async () =>  {
   console.log('Server has been started on port 3000...');
+  while (true) {
+    await delay(30000)
+    console.log('api call');
+  }
 })
