@@ -8,24 +8,6 @@ let CLIENT
 
 const TOKEN_PATH = 'token.json'
 
-function start_watch(auth) {
-  return new Promise(function (resolve, reject) {
-      const gmail = google.gmail({ version: 'v1', auth });
-      gmail.users.watch({
-          userId: 'me',
-          resource: {
-              "topicName": "projects/safe-read/topics/new"
-          }
-      }, (err, res) => {
-          if (err) {
-              return console.log('The API returned an error: ' + err);
-          } else {
-              console.log(res);
-              resolve(res);
-          }
-      });
-  })
-}
 
 fs.readFile('credentials.json', (err, content) => {
   if (err) return console.log('Error loading client secret file:', err)
@@ -42,14 +24,6 @@ function authorize(credentials) {
     const parsedToken = JSON.parse(token)
     oAuth2Client.setCredentials(parsedToken)
     CLIENT = oAuth2Client
-    // const p = new Promise((res, rej) => {
-    //   waitMessages(CLIENT, res)
-    // })
-    // p.then((data) => {
-    //   console.log(data)
-    // })
-    const data = await start_watch(CLIENT)
-    console.log(data);
   });
 }
 
@@ -64,26 +38,6 @@ async function listMessages(auth, resMain) {
   }
   catch (e) {
     console.log('No messages found')
-  }
-}
-
-async function waitMessages(auth, resMain) {
-  try {
-    console.log('started watching');
-    const gmail = google.gmail({version: 'v1', auth})
-    const request = {
-      labelIds: ['INBOX'],
-      topicName: 'projects/safe-read/topics/new'
-    }
-    const res = await gmail.users.watch({
-      userId: 'me',
-      resource: request
-    })
-    const messages = res.data
-    resMain(messages)
-  }
-  catch (e) {
-    console.log(e)
   }
 }
 
@@ -156,16 +110,6 @@ app.get('/api/allMessages', (req, res) => {
   })
 })
 
-app.get('/api/wait', (req, res) => {
-  // console.log(req.params.amount)
-  const p = new Promise((res, rej) => {
-    waitMessages(CLIENT, res)
-  })
-  p.then((data) => {
-    console.log('new event happened');
-    res.json(data)
-  })
-})
 
 app.get('/api/messageAttachmentId', (req, res) => {
   const p = new Promise((res, rej) => {
