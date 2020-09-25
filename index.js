@@ -1,49 +1,108 @@
 const express = require('express')
 const app = express()
 const cors = require('cors')
-const fs = require('fs');
-const {google} = require('googleapis');
+const fs = require('fs')
+const { google } = require('googleapis')
 
 let CLIENT
 
-const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
-const TOKEN_PATH = 'token.json';
+const TOKEN_PATH = 'token.json'
+
+function start_watch(auth) {
+  return new Promise(function (resolve, reject) {
+      const gmail = google.gmail({ version: 'v1', auth });
+      gmail.users.watch({
+          userId: 'me',
+          resource: {
+              "topicName": "projects/safe-read/topics/new"
+          }
+      }, (err, res) => {
+          if (err) {
+              return console.log('The API returned an error: ' + err);
+          } else {
+              console.log(res);
+              resolve(res);
+          }
+      });
+  })
+}
 
 fs.readFile('credentials.json', (err, content) => {
-  if (err) return console.log('Error loading client secret file:', err);
-  authorize(JSON.parse(content));
-});
+  if (err) return console.log('Error loading client secret file:', err)
+  authorize(JSON.parse(content))
+})
+
 
 function authorize(credentials) {
-  const {client_secret, client_id, redirect_uris} = credentials.installed;
+  const {client_secret, client_id, redirect_uris} = credentials.installed
   const oAuth2Client = new google.auth.OAuth2(
-      client_id, client_secret, redirect_uris[0]);
+      client_id, client_secret, redirect_uris[0])
 
-  fs.readFile(TOKEN_PATH, (err, token) => {
-    const parsedToken = JSON.parse(token);
-    oAuth2Client.setCredentials(parsedToken);
+  fs.readFile(TOKEN_PATH, async (err, token) => {
+    const parsedToken = JSON.parse(token)
+    oAuth2Client.setCredentials(parsedToken)
     CLIENT = oAuth2Client
+    // const p = new Promise((res, rej) => {
+    //   waitMessages(CLIENT, res)
+    // })
+    // p.then((data) => {
+    //   console.log(data)
+    // })
+    const data = await start_watch(CLIENT)
+    console.log(data);
   });
 }
 
 async function listMessages(auth, resMain) {
   try {
-    const gmail = google.gmail({version: 'v1', auth});
+    const gmail = google.gmail({version: 'v1', auth})
     const res = await gmail.users.messages.list({
       userId: 'me',
-    });
-    const messages = res.data.messages;
-    if (messages.length) {
-      resMain(messages)
-    }
+    })
+    const messages = res.data.messages
+    resMain(messages)
   }
   catch (e) {
-    console.log('No messages found');
+    console.log('No messages found')
+  }
+}
+
+async function waitMessages(auth, resMain) {
+  try {
+    console.log('started watching');
+    const gmail = google.gmail({version: 'v1', auth})
+    const request = {
+      labelIds: ['INBOX'],
+      topicName: 'projects/safe-read/topics/new'
+    }
+    const res = await gmail.users.watch({
+      userId: 'me',
+      resource: request
+    })
+    const messages = res.data
+    resMain(messages)
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+async function deleteMessage(auth, id, resMain) {
+  try {
+    const gmail = google.gmail({version: 'v1', auth})
+    const res = await gmail.users.messages.trash({
+      userId: 'me',
+      id: id
+    })
+    resMain(res.data)
+  }
+  catch (e) {
+    console.log(e)
   }
 }
 
 function getMessageById(auth, id, resMain) {
-  const gmail = google.gmail({version: 'v1', auth});
+  const gmail = google.gmail({version: 'v1', auth})
   gmail.users.messages.get({
     userId: 'me',
     id: id
@@ -51,34 +110,34 @@ function getMessageById(auth, id, resMain) {
     const message = res.data;
     resMain(message)
   }).catch((e) => {
-    console.log('error', e.errors[0].message);
+    console.log('error', e.errors[0].message)
   })
 }
 
 function getMessageAttachment(auth, id, attachmentId, resMain) {
-  const gmail = google.gmail({version: 'v1', auth});
+  const gmail = google.gmail({version: 'v1', auth})
   gmail.users.messages.attachments.get({
     userId: 'me',
     messageId: id,
     id: attachmentId
   }).then((res) => {
-    const message = res.data;
+    const message = res.data
     resMain(message)
   }).catch((e) => {
-    console.log('error', e.errors[0].message);
+    console.log('error', e.errors[0].message)
   })
 }
 
 function getMessageAttachmentId(auth, id, resMain) {
-  const gmail = google.gmail({version: 'v1', auth});
+  const gmail = google.gmail({version: 'v1', auth})
   gmail.users.messages.get({
     userId: 'me',
     id: id
   }).then((res) => {
-    const message = res.data;
+    const message = res.data
     resMain(message)
   }).catch((e) => {
-    console.log('error', e.errors[0].message);
+    console.log('error', e.errors[0].message)
   })
   
 }
@@ -87,8 +146,8 @@ const PORT = process.env.PORT || 3000
 
 app.use(cors()) // TODO configure before deployment
 
-app.get("/api/allMessages", (req, res) => {
-  // console.log(req.params.amount);
+app.get('/api/allMessages', (req, res) => {
+  // console.log(req.params.amount)
   const p = new Promise((res, rej) => {
     listMessages(CLIENT, res)
   })
@@ -97,35 +156,55 @@ app.get("/api/allMessages", (req, res) => {
   })
 })
 
-app.get("/api/messageAttachmentId", (req, res) => {
+app.get('/api/wait', (req, res) => {
+  // console.log(req.params.amount)
   const p = new Promise((res, rej) => {
-    getMessageAttachmentId(CLIENT, "174b6230de4a3adb", res)
+    waitMessages(CLIENT, res)
   })
   p.then((data) => {
-    // const buff = Buffer.from(data.payload.parts, 'base64');  
-    // const text = buff.toString('utf-8');
+    console.log('new event happened');
+    res.json(data)
+  })
+})
+
+app.get('/api/messageAttachmentId', (req, res) => {
+  const p = new Promise((res, rej) => {
+    getMessageAttachmentId(CLIENT, '174b6230de4a3adb', res)
+  })
+  p.then((data) => {
+    // const buff = Buffer.from(data.payload.parts, 'base64')
+    // const text = buff.toString('utf-8')
     res.json(data.payload.parts[0].body.attachmentId)
   })
 })
 
-app.get("/api/messageAttachment", (req, res) => {
+app.get('/api/messageAttachment', (req, res) => {
   const p = new Promise((res, rej) => {
-    getMessageAttachment(CLIENT, "174b6230de4a3adb", "ANGjdJ8y5LyCoz4NTV8cB7PzkQlguTMgvQPpRqw0rb_xaD1PWrc1DswMp1OhthG38i-42tPPJKGP_75FIu_4n9ILaWWqJsbMhpvhlDx9QonhGAst2tB0v-HntmnfUtrSYpnl-A3Ik9SSElqcJA-z-bHOlG7E748zAopDrZJetseL8xg0z3dsM5CVBwTrFiou4e3wQyiCtjvuUeEOMl2vYivBkmsYG-KgIia7TH8qS9tDNS08G8KkHwfuJMMBcAcSQ-eFLP3Ph6YBnlCZzhqlTpmKk7Q6BC_CdMiEiqewgGnwxf7ur3fGOpuWzsUuOVrcM6q_bRpFmt-pKPgI270INSAona10yhiEri2THSEiXS-bQLzOUnVPPTsJJQAz6UN_Kr2lXjeQNrGOOO-hb7jj", res)
+    getMessageAttachment(CLIENT, '174b6230de4a3adb', 'ANGjdJ8y5LyCoz4NTV8cB7PzkQlguTMgvQPpRqw0rb_xaD1PWrc1DswMp1OhthG38i-42tPPJKGP_75FIu_4n9ILaWWqJsbMhpvhlDx9QonhGAst2tB0v-HntmnfUtrSYpnl-A3Ik9SSElqcJA-z-bHOlG7E748zAopDrZJetseL8xg0z3dsM5CVBwTrFiou4e3wQyiCtjvuUeEOMl2vYivBkmsYG-KgIia7TH8qS9tDNS08G8KkHwfuJMMBcAcSQ-eFLP3Ph6YBnlCZzhqlTpmKk7Q6BC_CdMiEiqewgGnwxf7ur3fGOpuWzsUuOVrcM6q_bRpFmt-pKPgI270INSAona10yhiEri2THSEiXS-bQLzOUnVPPTsJJQAz6UN_Kr2lXjeQNrGOOO-hb7jj', res)
   })
   p.then((data) => {
-    const buff = Buffer.from(data.data, 'base64');  
-    const text = buff.toString('utf16le');
+    const buff = Buffer.from(data.data, 'base64') 
+    const text = buff.toString('utf16le')
     res.json(text)
   })
 })
 
-app.get("/api/message", (req, res) => {
+app.get('/api/message', (req, res) => {
   const p = new Promise((res, rej) => {
-    getMessageById(CLIENT, "174b01a44e70f8f3", res)
+    getMessageById(CLIENT, '174b01a44e70f8f3', res)
   })
   p.then((data) => {
-    // const buff = Buffer.from(data.payload.parts[0].body.data, 'base64');  
-    // const text = buff.toString('utf-8');
+    // const buff = Buffer.from(data.payload.parts[0].body.data, 'base64')
+    // const text = buff.toString('utf-8')
+    res.json(data)
+  })
+})
+
+app.get('/api/deleteMessage', (req, res) => {
+  const p = new Promise((res, rej) => {
+    deleteMessage(CLIENT, '174b01a44e70f8f3', res)
+  })
+  p.then((data) => {
     res.json(data)
   })
 })
