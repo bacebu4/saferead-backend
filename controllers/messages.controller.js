@@ -1,30 +1,22 @@
-const client = require('../index')
-const { google } = require('googleapis')
+const { messagesService } = require('../services')
 
-const getMessageById = async (req, res, next) => {
-  const auth = client.CLIENT
-  const gmail = google.gmail({version: 'v1', auth})
-  const data = await gmail.users.messages.get({
-    userId: 'me',
-    id: '174c556cbbf56472'
-  })
-  const message = data.data;
-  // const buff = Buffer.from(data.payload.parts[0].body.data, 'base64')
-  // const text = buff.toString('utf-8')
+const getMessageById = async (req, res) => {
+  const message = await messagesService.getMessageById('174c556cbbf56472')
   res.json(message)
 }
 
-const listMessages = async (req, res, next) => {
-  const auth = client.CLIENT
-  const gmail = google.gmail({version: 'v1', auth})
-  const data = await gmail.users.messages.list({
-    userId: 'me'
-  })
-  const message = data.data;
+const listMessages = async (req, res) => {
+  const message = await messagesService.listMessages()
   res.json(message)
+}
+
+const newMessageEvent = async (req, res) => {
+  await messagesService.newMessageEvent(req.body)
+  res.sendStatus(200)
 }
 
 module.exports = {
   getMessageById,
-  listMessages
+  listMessages,
+  newMessageEvent
 }

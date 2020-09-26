@@ -48,7 +48,9 @@ function getNewToken(oAuth2Client, callback) {
   });
   console.log('Authorize this app by visiting this url:', authUrl);
   const rl = readline.createInterface({
+    // eslint-disable-next-line no-undef
     input: process.stdin,
+    // eslint-disable-next-line no-undef
     output: process.stdout,
   });
   rl.question('Enter the code from that page here: ', (code) => {

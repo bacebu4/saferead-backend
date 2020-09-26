@@ -8,4 +8,6 @@ router.get('/message', messages.getMessageById)
 
 router.get('/allMessages', messages.listMessages)
 
+router.post('/post', messages.newMessageEvent)
+
 module.exports = router

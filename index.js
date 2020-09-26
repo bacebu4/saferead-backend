@@ -9,25 +9,24 @@ app.use(express.json())
 app.use('/api', routes)
 app.use(cors()) // TODO configure before deployment
 
-
 let CLIENT
 const TOKEN_PATH = 'token.json'
 
 function startWatch(auth) {
-  return new Promise(function (resolve, reject) {
-      const gmail = google.gmail({ version: 'v1', auth });
-      gmail.users.watch({
-          userId: 'me',
-          resource: {
-              "topicName": "projects/safe-read/topics/new"
-          }
-      }, (err, res) => {
-          if (err) {
-              return console.log('The API returned an error: ' + err);
-          } else {
-              resolve();
-          }
-      });
+  return new Promise(function (resolve) {
+    const gmail = google.gmail({ version: 'v1', auth });
+    gmail.users.watch({
+      userId: 'me',
+      resource: {
+          "topicName": "projects/safe-read/topics/new"
+      }
+    }, (err) => {
+      if (err) {
+          return console.log('The API returned an error: ' + err);
+      } else {
+          resolve();
+      }
+    });
   })
 }
 
@@ -50,19 +49,12 @@ function authorize(credentials) {
   });
 }
 
-
+// eslint-disable-next-line no-undef
 const PORT = process.env.PORT || 3000
-
-app.post('/api/post', (req, res) => {
-  console.log('work is real')
-  console.log(req.body)
-  res.sendStatus(200)
-})
 
 app.get("*", (req, res) => {
   res.send('hey')
 })
-
 
 app.listen(PORT, async () =>  {
   console.log('Server has been started on port 3000...');
