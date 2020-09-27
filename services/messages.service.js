@@ -2,6 +2,8 @@ const { google } = require('googleapis')
 const fs = require('fs')
 const { htmlUtils } = require('../utils')
 const { emailUtils } = require('../utils')
+const { decodeUtils } = require('../utils')
+const { txtUtils } = require('../utils')
 
 let CLIENT
 const TOKEN_PATH = 'token.json'
@@ -51,16 +53,39 @@ const getMessageById = async (id) => {
     userId: 'me',
     id: id
   })
-  const encodedHtml = data.data.payload.parts[1].body.data
-  // eslint-disable-next-line no-undef
-  const buff = Buffer.from(encodedHtml, 'base64')
-  let html = buff.toString('utf-8')
   const extractedEmail = emailUtils.extractEmail(data)
   
-  if (html.indexOf('Apple Books. <br>') !== -1) {
-    return {
-      extractedEmail,
-      ...htmlUtils.extractAll(html)
+  const encodedHtml = data.data.payload.parts[1].body.data
+  if (encodedHtml) {
+    const html = decodeUtils.decode(encodedHtml, 'utf-8')
+    const appleTagIndex = html.indexOf('Apple Books. <br>')
+    
+    if (appleTagIndex !== -1) {
+      return {
+        extractedEmail,
+        ...htmlUtils.extractAll(html)
+      }
+    }
+  } else {
+    const attachmentId = data.data.payload.parts[1].body.attachmentId
+    const mimeType = data.data.payload.parts[1].mimeType
+
+    if (attachmentId && mimeType === 'text/plain') {
+      const attachment = await gmail.users.messages.attachments.get({
+        userId: 'me',
+        messageId: id,
+        id: attachmentId
+      })
+
+      const bodyText = decodeUtils.decode(data.data.payload.parts[0].body.data, 'utf-8')
+      const attachmentText = decodeUtils.decode(attachment.data.data, 'utf16le')
+
+      return {
+        extractedEmail,
+        ...txtUtils.extractAll(bodyText, attachmentText)
+      }
+    } else {
+      return 'empty'
     }
   }
 }

@@ -7,9 +7,6 @@ const getMessageById = async (req, res) => {
 
 const listMessages = async (req, res) => {
   const messages = await messagesService.listMessages()
-  // messages.forEach((m) => {
-
-  // })
   res.json(messages)
 }
 
