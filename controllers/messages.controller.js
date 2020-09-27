@@ -1,13 +1,16 @@
 const { messagesService } = require('../services')
 
 const getMessageById = async (req, res) => {
-  const message = await messagesService.getMessageById('174c556cbbf56472')
+  const message = await messagesService.getMessageById('174cdb428b324d3b')
   res.json(message)
 }
 
 const listMessages = async (req, res) => {
-  const message = await messagesService.listMessages()
-  res.json(message)
+  const messages = await messagesService.listMessages()
+  // messages.forEach((m) => {
+
+  // })
+  res.json(messages)
 }
 
 const newMessageEvent = async (req, res) => {
