@@ -1,6 +1,7 @@
 const { google } = require('googleapis')
 const fs = require('fs')
 const { htmlUtils } = require('../utils')
+const { emailUtils } = require('../utils')
 
 let CLIENT
 const TOKEN_PATH = 'token.json'
@@ -54,9 +55,13 @@ const getMessageById = async (id) => {
   // eslint-disable-next-line no-undef
   const buff = Buffer.from(encodedHtml, 'base64')
   let html = buff.toString('utf-8')
+  const extractedEmail = emailUtils.extractEmail(data)
+  
   if (html.indexOf('Apple Books. <br>') !== -1) {
-    const extractedNotes = htmlUtils.extractNotes(html)
-    return extractedNotes
+    return {
+      extractedEmail,
+      ...htmlUtils.extractAll(html)
+    }
   }
 }
 
