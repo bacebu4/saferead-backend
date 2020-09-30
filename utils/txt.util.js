@@ -1,19 +1,47 @@
-const { extract } = require('./extract.util')
+const { extract } = require('./extract.util');
+const { decode } = require('./decode.util');
 
-const extractAll = (bodyText, attachmentText) => {
-  const extractedNotes = attachmentText.split('\n\n\n')
-  extractedNotes.pop()
+const deleteQuotes = (string) => {
+  string = string.slice(1, string.length - 1);
+  return string;
+};
 
-  const extractedTitle = bodyText.slice(0, bodyText.indexOf('\r\n'))
+const extractTxtNotes = (string) => {
+  const extractedNotes = string.split('\n\n\n');
+  extractedNotes.pop();
 
-  const extractedAuthor = extract(bodyText, '\r\n', '\r\n\r\n')
+  extractedNotes.forEach((note, i, notes) => {
+    const splittedNote = note.split('\n\n');
+    if (splittedNote.length === 2) {
+      notes[i] = {
+        extractedNote: deleteQuotes(splittedNote[0].trim()),
+        extractedComment: splittedNote[1],
+      };
+    } else {
+      notes[i] = {
+        extractedNote: deleteQuotes(note.trim()),
+      };
+    }
+  });
+  return extractedNotes;
+};
+
+const extractAll = (data, attachment) => {
+  const bodyText = decode(data.data.payload.parts[0].body.data, 'utf-8');
+  const attachmentText = decode(attachment.data.data, 'utf16le');
+
+  const extractedNotes = extractTxtNotes(attachmentText);
+
+  const extractedTitle = bodyText.slice(0, bodyText.indexOf('\r\n'));
+
+  const extractedAuthor = extract(bodyText, '\r\n', '\r\n\r\n');
   return {
     extractedAuthor,
     extractedTitle,
-    extractedNotes
-  }
-}
+    extractedNotes,
+  };
+};
 
 module.exports = {
-  extractAll
-}
+  extractAll,
+};

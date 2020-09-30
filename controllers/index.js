@@ -1,5 +1,5 @@
-const messages = require('./messages.controller')
+const messages = require('./messages.controller');
 
 module.exports = {
-  messages
-}
+  messages,
+};

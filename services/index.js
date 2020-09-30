@@ -1,5 +1,5 @@
-const messagesService = require('./messages.service')
+const messagesService = require('./messages.service');
 
 module.exports = {
-  messagesService
-}
+  messagesService,
+};

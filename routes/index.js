@@ -1,13 +1,13 @@
-const express = require('express')
+const express = require('express');
 
-const { messages } = require('../controllers')
+const { messages } = require('../controllers');
 
-const router = express.Router()
+const router = express.Router();
 
-router.get('/message', messages.getMessageById)
+router.get('/message', messages.getMessageById);
 
-router.get('/allMessages', messages.listMessages)
+router.get('/allMessages', messages.listMessages);
 
-router.post('/post', messages.newMessageEvent)
+router.post('/post', messages.newMessageEvent);
 
-module.exports = router
+module.exports = router;

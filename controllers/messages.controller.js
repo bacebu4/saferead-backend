@@ -1,22 +1,22 @@
-const { messagesService } = require('../services')
+const { messagesService } = require('../services');
 
-const getMessageById = async (req, res) => {
-  const message = await messagesService.getMessageById('174cdb428b324d3b')
-  res.json(message)
-}
+const getMessageById = async (_, res) => {
+  const message = await messagesService.getMessageById('174cdab6877d00ed');
+  res.json(message);
+};
 
-const listMessages = async (req, res) => {
-  const messages = await messagesService.listMessages()
-  res.json(messages)
-}
+const listMessages = async (_, res) => {
+  const messages = await messagesService.listMessages();
+  res.json(messages);
+};
 
 const newMessageEvent = async (req, res) => {
-  await messagesService.newMessageEvent(req.body)
-  res.sendStatus(200)
-}
+  await messagesService.newMessageEvent(req.body);
+  res.sendStatus(200);
+};
 
 module.exports = {
   getMessageById,
   listMessages,
-  newMessageEvent
-}
+  newMessageEvent,
+};

@@ -1,23 +1,22 @@
-const express = require('express')
-const app = express()
-const cors = require('cors')
-const routes = require('./routes')
-const { messagesService } = require('./services')
+const express = require('express');
 
-app.use(express.json())
-app.use('/api', routes)
-app.use(cors()) // TODO configure before deployment
+const app = express();
+const cors = require('cors');
+const routes = require('./routes');
+const { messagesService } = require('./services');
 
-messagesService.init()
+app.use(express.json());
+app.use('/api', routes);
+app.use(cors()); // TODO configure before deployment
 
-// eslint-disable-next-line no-undef
-const PORT = process.env.PORT || 3000
+messagesService.init();
 
-app.get("*", (req, res) => {
-  res.send('hey')
-})
+const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, async () =>  {
+app.get('*', (_, res) => {
+  res.send('hey');
+});
+
+app.listen(PORT, async () => {
   console.log('Server has been started on port 3000...');
-})
-
+});

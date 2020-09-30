@@ -1,18 +1,19 @@
-const { extract } = require('./extract.util')
+const { extract } = require('./extract.util');
 
 const findFromHeader = (data) => {
-  for (let header of data.data.payload.headers) {
+  // eslint-disable-next-line no-restricted-syntax
+  for (const header of data.data.payload.headers) {
     if (header.name === 'From') {
-      return header.value
+      return header.value;
     }
   }
-}
+};
 
 const extractEmail = (data) => {
-  let value = findFromHeader(data)
-  return extract(value, '<', '>')
-}
+  const value = findFromHeader(data);
+  return extract(value, '<', '>');
+};
 
 module.exports = {
-  extractEmail
-}
+  extractEmail,
+};
