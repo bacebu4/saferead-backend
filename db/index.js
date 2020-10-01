@@ -1,7 +1,9 @@
 const { createConnection } = require('typeorm');
 require('reflect-metadata');
+const { addCat } = require('./addCat');
 
-let MANAGER;
+// eslint-disable-next-line import/no-mutable-exports
+let manager;
 
 const init = async () => {
   try {
@@ -14,15 +16,17 @@ const init = async () => {
       database: 'postgres',
     });
     console.log('Connected to DB');
-    MANAGER = connection.manager;
-    const cats = await MANAGER.query('SELECT * FROM cats');
+    manager = connection.manager;
+    const cats = await manager.query('SELECT * FROM cats');
     console.log(cats);
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }
 };
+// eslint-disable-next-line import/prefer-default-export
+export { manager };
 
 module.exports = {
   init,
-  MANAGER,
+  addCat,
 };

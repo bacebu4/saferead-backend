@@ -13,6 +13,7 @@ const init = async () => {
 
   await messagesService.init();
   await db.init();
+  // await db.addCat();
 
   const PORT = process.env.PORT || 3000;
 
