@@ -4,19 +4,25 @@ const app = express();
 const cors = require('cors');
 const routes = require('./routes');
 const { messagesService } = require('./services');
+const db = require('./db');
 
-app.use(express.json());
-app.use('/api', routes);
-app.use(cors()); // TODO configure before deployment
+const init = async () => {
+  app.use(express.json());
+  app.use('/api', routes);
+  app.use(cors()); // TODO configure before deployment
 
-messagesService.init();
+  await messagesService.init();
+  await db.init();
 
-const PORT = process.env.PORT || 3000;
+  const PORT = process.env.PORT || 3000;
 
-app.get('*', (_, res) => {
-  res.send('hey');
-});
+  app.get('*', (_, res) => {
+    res.send('hey');
+  });
 
-app.listen(PORT, async () => {
-  console.log('Server has been started on port 3000...');
-});
+  app.listen(PORT, async () => {
+    console.log('Server has been started on port 3000...');
+  });
+};
+
+init();
