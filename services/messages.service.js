@@ -10,19 +10,16 @@ let CLIENT;
 const TOKEN_PATH = path.join(__dirname, 'token.json');
 
 function startWatch(auth) {
-  return new Promise((resolve) => {
-    const gmail = google.gmail({ version: 'v1', auth });
-    gmail.users.watch({
-      userId: 'me',
-      resource: {
-        topicName: 'projects/safe-read/topics/new',
-      },
-    }, (err) => {
-      if (err) {
-        return console.log(`The API returned an error: ${err}`);
-      }
-      resolve();
-    });
+  const gmail = google.gmail({ version: 'v1', auth });
+  console.log('New watching started: once in 7 days');
+  setTimeout(() => {
+    startWatch(CLIENT);
+  }, 1000 * 60 * 60 * 24 * 6);
+  return gmail.users.watch({
+    userId: 'me',
+    resource: {
+      topicName: 'projects/safe-read/topics/new',
+    },
   });
 }
 
