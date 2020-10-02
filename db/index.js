@@ -1,6 +1,6 @@
 const { createConnection } = require('typeorm');
 require('reflect-metadata');
-const { addCat } = require('./addCat');
+const { getNotes } = require('./getNotes');
 
 // eslint-disable-next-line import/no-mutable-exports
 let manager;
@@ -17,16 +17,17 @@ const init = async () => {
     });
     console.log('Connected to DB');
     manager = connection.manager;
-    const cats = await manager.query('SELECT * FROM cats');
-    console.log(cats);
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }
 };
-// eslint-disable-next-line import/prefer-default-export
-export { manager };
 
 module.exports = {
   init,
-  addCat,
+  getNotes,
+};
+
+export {
+  // eslint-disable-next-line import/prefer-default-export
+  manager,
 };

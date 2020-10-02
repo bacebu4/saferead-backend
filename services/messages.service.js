@@ -93,9 +93,21 @@ const newMessageEvent = async (body) => {
   console.log(body);
 };
 
+const newMessageEventTest = async () => {
+  console.log('work is real');
+  const messages = await listMessages();
+  console.log(messages);
+  messages.forEach(async (m) => {
+    const data = await getMessageById(m);
+    console.log(data);
+    console.log('============');
+  });
+};
+
 module.exports = {
   getMessageById,
   listMessages,
   newMessageEvent,
+  newMessageEventTest,
   init,
 };

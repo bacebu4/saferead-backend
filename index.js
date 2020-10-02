@@ -4,6 +4,7 @@ const app = express();
 const cors = require('cors');
 const routes = require('./routes');
 const { messagesService } = require('./services');
+const { notesService } = require('./services');
 const db = require('./db');
 
 const init = async () => {
@@ -13,7 +14,7 @@ const init = async () => {
 
   await messagesService.init();
   await db.init();
-  // await db.addCat();
+  console.log(await notesService.getNotes(1, 3));
 
   const PORT = process.env.PORT || 3000;
 
@@ -23,6 +24,8 @@ const init = async () => {
 
   app.listen(PORT, async () => {
     console.log('Server has been started on port 3000...');
+    // await messagesService.newMessageEventTest();
+    console.log('the end of test event');
   });
 };
 
