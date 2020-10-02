@@ -1,6 +1,7 @@
 const { createConnection } = require('typeorm');
 require('reflect-metadata');
 const { getNotes } = require('./getNotes');
+const { markAsSeen } = require('./markAsSeen');
 
 // eslint-disable-next-line import/no-mutable-exports
 let manager;
@@ -25,6 +26,7 @@ const init = async () => {
 module.exports = {
   init,
   getNotes,
+  markAsSeen,
 };
 
 export {
