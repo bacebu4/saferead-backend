@@ -5,6 +5,7 @@ const { htmlUtils } = require('../utils');
 const { emailUtils } = require('../utils');
 const { txtUtils } = require('../utils');
 const { validateUtils } = require('../utils');
+const updateService = require('./update.service');
 
 let CLIENT;
 const TOKEN_PATH = path.join(__dirname, 'token.json');
@@ -79,6 +80,15 @@ const getMessageById = async (id) => {
   return validate;
 };
 
+const deleteMessageById = async (id) => {
+  const auth = CLIENT;
+  const gmail = google.gmail({ version: 'v1', auth });
+  await gmail.users.messages.trash({
+    userId: 'me',
+    id,
+  });
+};
+
 const listMessages = async () => {
   const auth = CLIENT;
   const gmail = google.gmail({ version: 'v1', auth });
@@ -94,14 +104,21 @@ const newMessageEvent = async (body) => {
 };
 
 const newMessageEventTest = async () => {
-  console.log('work is real');
-  const messages = await listMessages();
-  console.log(messages);
-  messages.forEach(async (m) => {
-    const data = await getMessageById(m);
-    console.log(data);
-    console.log('============');
-  });
+  try {
+    console.log('work is real');
+    const messages = await listMessages();
+    console.log(messages);
+    // eslint-disable-next-line no-restricted-syntax
+    for (const m of messages) {
+      const data = await getMessageById(m);
+      if (data !== 'empty') {
+        await updateService.start(data);
+      }
+      await deleteMessageById(m);
+    }
+  } catch (error) {
+    console.log('error occurred', error);
+  }
 };
 
 module.exports = {

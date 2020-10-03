@@ -1,11 +1,13 @@
 const db = require('../db');
 
-function markAsSeen(noteId) {
+async function getRandomNotes(data, amount) {
+  const markAsSeenQueue = [];
 
-}
-
-function getRandomNotes(data, amount) {
   if (data.length <= amount) {
+    for (let i = 0; i < data.length; i += 1) {
+      markAsSeenQueue.push(db.markAsSeen(data[i].note_id));
+    }
+    await Promise.all(markAsSeenQueue);
     return data;
   }
 
@@ -20,9 +22,12 @@ function getRandomNotes(data, amount) {
       if (!usedIndexes.has(newRandomIndex)) {
         repeatedIndex = false;
         usedIndexes.add(newRandomIndex);
+        markAsSeenQueue.push(db.markAsSeen(data[newRandomIndex].note_id));
       }
     }
   }
+
+  await Promise.all(markAsSeenQueue);
 
   const newData = [];
 
@@ -34,7 +39,11 @@ function getRandomNotes(data, amount) {
 }
 
 async function getNotes(id, amount) {
-  const data = await db.getNotes(id);
+  let data = await db.getNotes(id);
+  if (!data.length) {
+    db.resetSeenFlag(id);
+    data = await db.getNotes(id);
+  }
   const randomNotes = getRandomNotes(data, amount);
   return randomNotes;
 }

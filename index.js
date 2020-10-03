@@ -14,9 +14,9 @@ const init = async () => {
 
   await messagesService.init();
   await db.init();
-  console.log(await notesService.getNotes(1, 2));
+  console.log(await notesService.getNotes(1, 3));
 
-  const PORT = process.env.PORT || 3000;
+  const PORT = process.env.PORT || 3001;
 
   app.get('*', (_, res) => {
     res.send('hey');
