@@ -40,7 +40,7 @@ async function getRandomNotes(data, amount) {
 
 async function getNotes(id, amount) {
   let data = await db.getNotes(id);
-  if (!data.length) {
+  if (data.length < amount) {
     db.resetSeenFlag(id);
     data = await db.getNotes(id);
   }

@@ -13,15 +13,25 @@ let manager;
 
 const init = async () => {
   try {
-    const connection = await createConnection({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: '123',
-      database: 'postgres',
-    });
-    console.log('Connected to DB');
+    let connection;
+    if (process.env.DATABASE_URL) {
+      connection = await createConnection({
+        type: 'postgres',
+        url: process.env.DATABASE_URL,
+      });
+      console.log('Connected to DB @ heroku');
+    } else {
+      connection = await createConnection({
+        type: 'postgres',
+        host: 'localhost',
+        port: process.env.DB_PORT,
+        username: 'postgres',
+        password: '123',
+        database: 'postgres',
+        logging: true,
+      });
+      console.log('Connected to DB locally');
+    }
     manager = connection.manager;
   } catch (error) {
     console.error('Unable to connect to the database:', error);

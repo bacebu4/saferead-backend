@@ -9,7 +9,12 @@ const getIdByEmail = async (email) => {
     from users
     where email = $1;
   `, [email]);
-  return data[0].user_id;
+
+  console.log(data);
+  if (data.length) {
+    return data[0].user_id;
+  }
+  return '';
 };
 
 module.exports = {

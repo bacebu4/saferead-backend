@@ -95,29 +95,31 @@ const listMessages = async () => {
   const data = await gmail.users.messages.list({
     userId: 'me',
   });
-  return data.data.messages.map((m) => m.id);
+  if (data.data?.messages) {
+    return data.data.messages.map((m) => m.id);
+  }
+  return [];
 };
 
-const newMessageEvent = async (body) => {
-  console.log('work is real');
-  console.log(body);
-};
-
-const newMessageEventTest = async () => {
+const newMessageEvent = async () => {
   try {
-    console.log('work is real');
+    console.log('Checking inbox');
     const messages = await listMessages();
     console.log(messages);
-    // eslint-disable-next-line no-restricted-syntax
-    for (const m of messages) {
-      const data = await getMessageById(m);
-      if (data !== 'empty') {
-        await updateService.start(data);
+    if (messages.length) {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const m of messages) {
+        const data = await getMessageById(m);
+        if (data !== 'empty') {
+          await updateService.start(data);
+        } else {
+          console.log('empty');
+        }
+        await deleteMessageById(m);
       }
-      await deleteMessageById(m);
     }
   } catch (error) {
-    console.log('error occurred', error);
+    console.log('Error occurred', error);
   }
 };
 
@@ -125,6 +127,6 @@ module.exports = {
   getMessageById,
   listMessages,
   newMessageEvent,
-  newMessageEventTest,
   init,
+  deleteMessageById,
 };

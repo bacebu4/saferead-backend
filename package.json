@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
+    "start": "cd dist && node index.js",
     "deploy": "heroku builds:create -a saferead",
     "logs": "heroku logs --tail -a saferead",
     "watch": "npx parcel watch ./index.js --out-dir ./dist --no-hmr --target node"
@@ -15,6 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "googleapis": "^39.2.0",
     "pg": "^8.3.3",

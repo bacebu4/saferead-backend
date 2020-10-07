@@ -1,0 +1,969 @@
+// modules are defined as an array
+// [ module function, map of requires ]
+//
+// map of requires is short require name -> numeric require
+//
+// anything defined in a previous bundle is accessed via the
+// orig method which is the require for previous bundles
+parcelRequire = (function (modules, cache, entry, globalName) {
+  // Save the require from previous bundle to this closure if any
+  var previousRequire = typeof parcelRequire === 'function' && parcelRequire;
+  var nodeRequire = typeof require === 'function' && require;
+
+  function newRequire(name, jumped) {
+    if (!cache[name]) {
+      if (!modules[name]) {
+        // if we cannot find the module within our internal map or
+        // cache jump to the current global require ie. the last bundle
+        // that was added to the page.
+        var currentRequire = typeof parcelRequire === 'function' && parcelRequire;
+        if (!jumped && currentRequire) {
+          return currentRequire(name, true);
+        }
+
+        // If there are other bundles on this page the require from the
+        // previous one is saved to 'previousRequire'. Repeat this as
+        // many times as there are bundles until the module is found or
+        // we exhaust the require chain.
+        if (previousRequire) {
+          return previousRequire(name, true);
+        }
+
+        // Try the node require function if it exists.
+        if (nodeRequire && typeof name === 'string') {
+          return nodeRequire(name);
+        }
+
+        var err = new Error('Cannot find module \'' + name + '\'');
+        err.code = 'MODULE_NOT_FOUND';
+        throw err;
+      }
+
+      localRequire.resolve = resolve;
+      localRequire.cache = {};
+
+      var module = cache[name] = new newRequire.Module(name);
+
+      modules[name][0].call(module.exports, localRequire, module, module.exports, this);
+    }
+
+    return cache[name].exports;
+
+    function localRequire(x){
+      return newRequire(localRequire.resolve(x));
+    }
+
+    function resolve(x){
+      return modules[name][1][x] || x;
+    }
+  }
+
+  function Module(moduleName) {
+    this.id = moduleName;
+    this.bundle = newRequire;
+    this.exports = {};
+  }
+
+  newRequire.isParcelRequire = true;
+  newRequire.Module = Module;
+  newRequire.modules = modules;
+  newRequire.cache = cache;
+  newRequire.parent = previousRequire;
+  newRequire.register = function (id, exports) {
+    modules[id] = [function (require, module) {
+      module.exports = exports;
+    }, {}];
+  };
+
+  var error;
+  for (var i = 0; i < entry.length; i++) {
+    try {
+      newRequire(entry[i]);
+    } catch (e) {
+      // Save first error but execute all entries
+      if (!error) {
+        error = e;
+      }
+    }
+  }
+
+  if (entry.length) {
+    // Expose entry point to Node, AMD or browser globals
+    // Based on https://github.com/ForbesLindesay/umd/blob/master/template.js
+    var mainExports = newRequire(entry[entry.length - 1]);
+
+    // CommonJS
+    if (typeof exports === "object" && typeof module !== "undefined") {
+      module.exports = mainExports;
+
+    // RequireJS
+    } else if (typeof define === "function" && define.amd) {
+     define(function () {
+       return mainExports;
+     });
+
+    // <script>
+    } else if (globalName) {
+      this[globalName] = mainExports;
+    }
+  }
+
+  // Override the current require with this new one
+  parcelRequire = newRequire;
+
+  if (error) {
+    // throw error from earlier, _after updating parcelRequire_
+    throw error;
+  }
+
+  return newRequire;
+})({"utils/extract.util.js":[function(require,module,exports) {
+const extract = (string, openTag, closeTag) => string.slice(string.indexOf(openTag) + openTag.length, string.indexOf(closeTag)).trim();
+
+const extractAndCut = (string, openTag, closeTag, resultArray, type) => {
+  string = string.slice(string.indexOf(openTag) + openTag.length + 1);
+  let extracted = string.slice(0, string.indexOf(closeTag));
+  string = string.slice(extracted.length);
+  extracted = extracted.trim();
+
+  if (type === 'note' && extracted) {
+    resultArray.push({
+      extractedNote: extracted
+    });
+  } else if (type === 'comment' && extracted) {
+    resultArray[resultArray.length - 1].extractedComment = extracted;
+  }
+
+  return string;
+};
+
+module.exports = {
+  extract,
+  extractAndCut
+};
+},{}],"utils/decode.util.js":[function(require,module,exports) {
+const decode = (base64, utfNumber) => {
+  const buff = Buffer.from(base64, 'base64');
+  return buff.toString(utfNumber);
+};
+
+module.exports = {
+  decode
+};
+},{}],"utils/html.util.js":[function(require,module,exports) {
+const {
+  extract,
+  extractAndCut
+} = require('./extract.util');
+
+const {
+  decode
+} = require('./decode.util');
+/* eslint-disable no-useless-escape */
+
+
+const extractNotes = html => {
+  const openTag = '<p class=\"annotationrepresentativetext\">\r\n';
+  const closeTag = '</p>\r\n';
+  const openCommentTag = '<p class=\"annotationnote\">\r\n';
+  const extractedNotes = [];
+
+  while (html.indexOf(openTag) !== -1) {
+    html = extractAndCut(html, openTag, closeTag, extractedNotes, 'note');
+    html = extractAndCut(html, openCommentTag, closeTag, extractedNotes, 'comment');
+  }
+
+  return extractedNotes;
+};
+
+const extractTitle = html => {
+  const openTag = '<h1 class=\"booktitle\" style=\"margin-top:-5px;\" width=\"80%\">';
+  const closeTag = '</h1>';
+  return extract(html, openTag, closeTag);
+};
+
+const extractAuthor = html => {
+  const openTag = '<h2 style=\"margin-top:-20px; font-family:Helvetica Neue, Arial, Sans-Serif;font-weight:normal;font-size:23px;color:rgb(26,26,26);line-height:26px; word-break: break-word; text-align:center; margin-bottom:46px;\">';
+  const closeTag = '</h2>';
+  return extract(html, openTag, closeTag);
+};
+
+const extractAll = data => {
+  const encodedHtml = data.data.payload.parts[1].body.data;
+  const html = decode(encodedHtml, 'utf-8');
+  return {
+    extractedAuthor: extractAuthor(html),
+    extractedTitle: extractTitle(html),
+    extractedNotes: extractNotes(html)
+  };
+};
+
+module.exports = {
+  extractAll
+};
+},{"./extract.util":"utils/extract.util.js","./decode.util":"utils/decode.util.js"}],"utils/email.util.js":[function(require,module,exports) {
+const {
+  extract
+} = require('./extract.util');
+
+const findFromHeader = data => {
+  // eslint-disable-next-line no-restricted-syntax
+  for (const header of data.data.payload.headers) {
+    if (header.name === 'From') {
+      return header.value;
+    }
+  }
+};
+
+const extractEmail = data => {
+  const value = findFromHeader(data);
+  return extract(value, '<', '>');
+};
+
+module.exports = {
+  extractEmail
+};
+},{"./extract.util":"utils/extract.util.js"}],"utils/txt.util.js":[function(require,module,exports) {
+const {
+  extract
+} = require('./extract.util');
+
+const {
+  decode
+} = require('./decode.util');
+
+const deleteQuotes = string => {
+  string = string.slice(1, string.length - 1);
+  return string;
+};
+
+const extractTxtNotes = string => {
+  const extractedNotes = string.split('\n\n\n');
+  extractedNotes.pop();
+  extractedNotes.forEach((note, i, notes) => {
+    const splittedNote = note.split('\n\n');
+
+    if (splittedNote.length === 2) {
+      notes[i] = {
+        extractedNote: deleteQuotes(splittedNote[0].trim()),
+        extractedComment: splittedNote[1]
+      };
+    } else {
+      notes[i] = {
+        extractedNote: deleteQuotes(note.trim())
+      };
+    }
+  });
+  return extractedNotes;
+};
+
+const extractAll = (data, attachment) => {
+  const bodyText = decode(data.data.payload.parts[0].body.data, 'utf-8');
+  const attachmentText = decode(attachment.data.data, 'utf16le');
+  const extractedNotes = extractTxtNotes(attachmentText);
+  const extractedTitle = bodyText.slice(0, bodyText.indexOf('\r\n'));
+  const extractedAuthor = extract(bodyText, '\r\n', '\r\n\r\n');
+  return {
+    extractedAuthor,
+    extractedTitle,
+    extractedNotes
+  };
+};
+
+module.exports = {
+  extractAll
+};
+},{"./extract.util":"utils/extract.util.js","./decode.util":"utils/decode.util.js"}],"utils/validate.util.js":[function(require,module,exports) {
+const {
+  decode
+} = require('./decode.util');
+
+const validate = data => {
+  var _data$data$payload$pa;
+
+  let encodedHtml;
+
+  if (((_data$data$payload$pa = data.data.payload.parts) === null || _data$data$payload$pa === void 0 ? void 0 : _data$data$payload$pa.length) > 1) {
+    encodedHtml = data.data.payload.parts[1].body.data;
+  }
+
+  if (encodedHtml) {
+    const html = decode(encodedHtml, 'utf-8');
+    const appleTagIndex = Math.max(html.indexOf('Apple Books. <br>'), html.indexOf('Книги. <br>'));
+
+    if (appleTagIndex !== -1) {
+      return 'ibooks';
+    }
+  } else {
+    var _data$data$payload$pa2;
+
+    let attachmentId;
+    let mimeType;
+
+    if (((_data$data$payload$pa2 = data.data.payload.parts) === null || _data$data$payload$pa2 === void 0 ? void 0 : _data$data$payload$pa2.length) > 1) {
+      var _data$data$payload$pa3;
+
+      attachmentId = (_data$data$payload$pa3 = data.data.payload.parts[1].body) === null || _data$data$payload$pa3 === void 0 ? void 0 : _data$data$payload$pa3.attachmentId;
+      mimeType = data.data.payload.parts[1].mimeType;
+    }
+
+    if (attachmentId && mimeType === 'text/plain') {
+      return 'litres';
+    }
+  }
+
+  return 'empty';
+};
+
+module.exports = {
+  validate
+};
+},{"./decode.util":"utils/decode.util.js"}],"utils/index.js":[function(require,module,exports) {
+const htmlUtils = require('./html.util');
+
+const emailUtils = require('./email.util');
+
+const decodeUtils = require('./decode.util');
+
+const txtUtils = require('./txt.util');
+
+const validateUtils = require('./validate.util');
+
+module.exports = {
+  htmlUtils,
+  emailUtils,
+  decodeUtils,
+  txtUtils,
+  validateUtils
+};
+},{"./html.util":"utils/html.util.js","./email.util":"utils/email.util.js","./decode.util":"utils/decode.util.js","./txt.util":"utils/txt.util.js","./validate.util":"utils/validate.util.js"}],"db/getNotes.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+const getNotes = async id => {
+  const raw = await _index.manager.query(
+  /* sql */
+  `
+    select note_text, comment_text, book_title, author_full_name, n.note_id
+    from users
+        join notes n on users.user_id = n.user_id
+        join books b on n.book_id = b.book_id
+        join authors a on b.author_id = a.author_id
+        left join comments c on n.note_id = c.note_id
+    where users.user_id = $1 and seen = false;
+  `, [id]);
+  return raw;
+};
+
+module.exports = {
+  getNotes
+};
+},{"./index":"db/index.js"}],"db/getIdByEmail.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+const getIdByEmail = async email => {
+  if (email.includes('@me.com')) {
+    email = email.replace('@me.com', '@icloud.com');
+  }
+
+  const data = await _index.manager.query(
+  /* sql */
+  `
+    select user_id
+    from users
+    where email = $1;
+  `, [email]);
+  console.log(data);
+
+  if (data.length) {
+    return data[0].user_id;
+  }
+
+  return '';
+};
+
+module.exports = {
+  getIdByEmail
+};
+},{"./index":"db/index.js"}],"db/markAsSeen.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+const markAsSeen = async id => {
+  await _index.manager.query(
+  /* sql */
+  `
+    update notes
+    set seen = true
+    where note_id = $1;
+  `, [id]);
+};
+
+module.exports = {
+  markAsSeen
+};
+},{"./index":"db/index.js"}],"db/resetSeenFlag.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+const resetSeenFlag = async id => {
+  await _index.manager.query(
+  /* sql */
+  `
+    update notes
+    set seen = false
+    where user_id = $1;
+  `, [id]);
+};
+
+module.exports = {
+  resetSeenFlag
+};
+},{"./index":"db/index.js"}],"db/addAuthor.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+const addAuthor = async author => {
+  let data = await _index.manager.query(
+  /* sql */
+  `
+    select author_id
+    from authors
+    where author_full_name = $1;
+  `, [author]);
+
+  if (data.length) {
+    return data[0].author_id;
+  }
+
+  await _index.manager.query(
+  /* sql */
+  `
+    insert into authors(author_full_name) values ($1);
+  `, [author]);
+  data = await _index.manager.query(
+  /* sql */
+  `
+    SELECT currval(pg_get_serial_sequence('authors','author_id'));
+  `);
+  return data[0].currval;
+};
+
+module.exports = {
+  addAuthor
+};
+},{"./index":"db/index.js"}],"db/addBook.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+const addBook = async (authorId, title) => {
+  let data = await _index.manager.query(
+  /* sql */
+  `
+    select book_id
+    from books
+    where book_title = $1;
+  `, [title]);
+
+  if (data.length) {
+    return data[0].book_id;
+  }
+
+  await _index.manager.query(
+  /* sql */
+  `
+    insert into books(author_id, book_title) VALUES ($1, $2);
+  `, [authorId, title]);
+  data = await _index.manager.query(
+  /* sql */
+  `
+    SELECT currval(pg_get_serial_sequence('books','book_id'));
+  `);
+  return data[0].currval;
+};
+
+module.exports = {
+  addBook
+};
+},{"./index":"db/index.js"}],"db/addNotes.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+const addNote = async (userId, bookId, note) => {
+  await _index.manager.query(
+  /* sql */
+  `
+    insert into notes(user_id, book_id, createdAt, updatedAt, note_text, seen)
+    VALUES ($1, $2, now(), now(), $3, false);
+  `, [userId, bookId, note.extractedNote]);
+
+  if (note === null || note === void 0 ? void 0 : note.extractedComment) {
+    const data = await _index.manager.query(
+    /* sql */
+    `
+      SELECT currval(pg_get_serial_sequence('notes','note_id'));
+    `);
+    await _index.manager.query(
+    /* sql */
+    `
+      insert into comments(note_id, comment_text, createdAt, updatedAt) VALUES ($1, $2, now(), now());
+  `, [data[0].currval, note.extractedComment]);
+  }
+};
+
+const addNotes = async (userId, bookId, notes) => {
+  // eslint-disable-next-line no-restricted-syntax
+  for (const note of notes) {
+    await addNote(userId, bookId, note);
+  }
+};
+
+module.exports = {
+  addNotes
+};
+},{"./index":"db/index.js"}],"db/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.manager = void 0;
+
+const {
+  createConnection
+} = require('typeorm');
+
+require('reflect-metadata');
+
+const {
+  getNotes
+} = require('./getNotes');
+
+const {
+  getIdByEmail
+} = require('./getIdByEmail');
+
+const {
+  markAsSeen
+} = require('./markAsSeen');
+
+const {
+  resetSeenFlag
+} = require('./resetSeenFlag');
+
+const {
+  addAuthor
+} = require('./addAuthor');
+
+const {
+  addBook
+} = require('./addBook');
+
+const {
+  addNotes
+} = require('./addNotes'); // eslint-disable-next-line import/no-mutable-exports
+
+
+let manager;
+exports.manager = manager;
+
+const init = async () => {
+  try {
+    let connection;
+
+    if (process.env.DATABASE_URL) {
+      connection = await createConnection({
+        type: 'postgres',
+        url: process.env.DATABASE_URL
+      });
+      console.log('Connected to DB @ heroku');
+    } else {
+      connection = await createConnection({
+        type: 'postgres',
+        host: 'localhost',
+        port: process.env.DB_PORT,
+        username: 'postgres',
+        password: '123',
+        database: 'postgres',
+        logging: true
+      });
+      console.log('Connected to DB locally');
+    }
+
+    exports.manager = manager = connection.manager;
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+  }
+};
+
+module.exports = {
+  init,
+  getNotes,
+  markAsSeen,
+  resetSeenFlag,
+  addAuthor,
+  addBook,
+  addNotes,
+  getIdByEmail
+};
+},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js"}],"services/update.service.js":[function(require,module,exports) {
+const db = require('../db');
+
+const messageService = require('./messages.service');
+
+async function start(data, id) {
+  try {
+    const authorId = await db.addAuthor(data.extractedAuthor);
+    console.log('authorId: ', authorId);
+    const bookId = await db.addBook(authorId, data.extractedTitle);
+    console.log('bookId: ', bookId);
+    const userId = await db.getIdByEmail(data.extractedEmail);
+
+    if (userId) {
+      await db.addNotes(userId, bookId, data.extractedNotes);
+    } else {
+      console.log('User was not found');
+    }
+  } catch (error) {
+    console.log('Error during adding note to db. The message will be deleted');
+    console.log(error);
+    messageService.deleteMessageById(id);
+  }
+}
+
+module.exports = {
+  start
+};
+},{"../db":"db/index.js","./messages.service":"services/messages.service.js"}],"services/messages.service.js":[function(require,module,exports) {
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+const {
+  google
+} = require('googleapis');
+
+const fs = require('fs');
+
+const path = require('path');
+
+const {
+  htmlUtils
+} = require('../utils');
+
+const {
+  emailUtils
+} = require('../utils');
+
+const {
+  txtUtils
+} = require('../utils');
+
+const {
+  validateUtils
+} = require('../utils');
+
+const updateService = require('./update.service');
+
+let CLIENT;
+const TOKEN_PATH = path.join(__dirname, 'token.json');
+
+function startWatch(auth) {
+  const gmail = google.gmail({
+    version: 'v1',
+    auth
+  });
+  console.log('New watching started: once in 7 days');
+  setTimeout(() => {
+    startWatch(CLIENT);
+  }, 1000 * 60 * 60 * 24 * 6);
+  return gmail.users.watch({
+    userId: 'me',
+    resource: {
+      topicName: 'projects/safe-read/topics/new'
+    }
+  });
+}
+
+function authorize(credentials) {
+  // eslint-disable-next-line camelcase
+  const {
+    client_secret,
+    client_id,
+    redirect_uris
+  } = credentials.installed;
+  const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+  fs.readFile(TOKEN_PATH, async (err, token) => {
+    const parsedToken = JSON.parse(token);
+    oAuth2Client.setCredentials(parsedToken);
+    CLIENT = oAuth2Client;
+    await startWatch(CLIENT);
+  });
+}
+
+const init = () => {
+  const pathToCredentials = path.join(__dirname, 'credentials.json');
+  fs.readFile(pathToCredentials, (err, content) => {
+    if (err) return console.log('Error loading client secret file:', pathToCredentials);
+    authorize(JSON.parse(content));
+  });
+};
+
+const getMessageById = async id => {
+  const auth = CLIENT;
+  const gmail = google.gmail({
+    version: 'v1',
+    auth
+  });
+  const data = await gmail.users.messages.get({
+    userId: 'me',
+    id
+  });
+  const extractedEmail = emailUtils.extractEmail(data);
+  const validate = validateUtils.validate(data);
+
+  if (validate === 'ibooks') {
+    return _objectSpread({
+      extractedEmail
+    }, htmlUtils.extractAll(data));
+  }
+
+  if (validate === 'litres') {
+    var _data$data$payload$pa;
+
+    const attachmentId = (_data$data$payload$pa = data.data.payload.parts[1].body) === null || _data$data$payload$pa === void 0 ? void 0 : _data$data$payload$pa.attachmentId;
+    const attachment = await gmail.users.messages.attachments.get({
+      userId: 'me',
+      messageId: id,
+      id: attachmentId
+    });
+    return _objectSpread({
+      extractedEmail
+    }, txtUtils.extractAll(data, attachment));
+  }
+
+  return validate;
+};
+
+const deleteMessageById = async id => {
+  const auth = CLIENT;
+  const gmail = google.gmail({
+    version: 'v1',
+    auth
+  });
+  await gmail.users.messages.trash({
+    userId: 'me',
+    id
+  });
+};
+
+const listMessages = async () => {
+  var _data$data;
+
+  const auth = CLIENT;
+  const gmail = google.gmail({
+    version: 'v1',
+    auth
+  });
+  const data = await gmail.users.messages.list({
+    userId: 'me'
+  });
+
+  if ((_data$data = data.data) === null || _data$data === void 0 ? void 0 : _data$data.messages) {
+    return data.data.messages.map(m => m.id);
+  }
+
+  return [];
+};
+
+const newMessageEvent = async () => {
+  try {
+    console.log('Checking inbox');
+    const messages = await listMessages();
+    console.log(messages);
+
+    if (messages.length) {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const m of messages) {
+        const data = await getMessageById(m);
+
+        if (data !== 'empty') {
+          await updateService.start(data);
+        } else {
+          console.log('empty');
+        }
+
+        await deleteMessageById(m);
+      }
+    }
+  } catch (error) {
+    console.log('Error occurred', error);
+  }
+};
+
+module.exports = {
+  getMessageById,
+  listMessages,
+  newMessageEvent,
+  init,
+  deleteMessageById
+};
+},{"../utils":"utils/index.js","./update.service":"services/update.service.js"}],"services/notes.service.js":[function(require,module,exports) {
+const db = require('../db');
+
+async function getRandomNotes(data, amount) {
+  const markAsSeenQueue = [];
+
+  if (data.length <= amount) {
+    for (let i = 0; i < data.length; i += 1) {
+      markAsSeenQueue.push(db.markAsSeen(data[i].note_id));
+    }
+
+    await Promise.all(markAsSeenQueue);
+    return data;
+  }
+
+  const usedIndexes = new Set();
+
+  for (let i = 0; i < amount; i += 1) {
+    let repeatedIndex = true;
+    let newRandomIndex;
+
+    while (repeatedIndex) {
+      newRandomIndex = Math.floor(Math.random() * (amount + 1));
+
+      if (!usedIndexes.has(newRandomIndex)) {
+        repeatedIndex = false;
+        usedIndexes.add(newRandomIndex);
+        markAsSeenQueue.push(db.markAsSeen(data[newRandomIndex].note_id));
+      }
+    }
+  }
+
+  await Promise.all(markAsSeenQueue);
+  const newData = [];
+  usedIndexes.forEach(i => {
+    newData.push(data[i]);
+  });
+  return newData;
+}
+
+async function getNotes(id, amount) {
+  let data = await db.getNotes(id);
+
+  if (data.length < amount) {
+    db.resetSeenFlag(id);
+    data = await db.getNotes(id);
+  }
+
+  const randomNotes = getRandomNotes(data, amount);
+  return randomNotes;
+}
+
+module.exports = {
+  getNotes
+};
+},{"../db":"db/index.js"}],"services/index.js":[function(require,module,exports) {
+const messagesService = require('./messages.service');
+
+const notesService = require('./notes.service');
+
+const updateService = require('./update.service');
+
+module.exports = {
+  messagesService,
+  notesService,
+  updateService
+};
+},{"./messages.service":"services/messages.service.js","./notes.service":"services/notes.service.js","./update.service":"services/update.service.js"}],"controllers/messages.controller.js":[function(require,module,exports) {
+const {
+  messagesService
+} = require('../services');
+
+const getMessageById = async (_, res) => {
+  const message = await messagesService.getMessageById('17502beb3b41933c');
+  res.json(message);
+};
+
+const listMessages = async (_, res) => {
+  const messages = await messagesService.listMessages();
+  res.json(messages);
+};
+
+const newMessageEvent = async (req, res) => {
+  await messagesService.newMessageEvent(req.body);
+  res.sendStatus(200);
+};
+
+module.exports = {
+  getMessageById,
+  listMessages,
+  newMessageEvent
+};
+},{"../services":"services/index.js"}],"controllers/index.js":[function(require,module,exports) {
+const messages = require('./messages.controller');
+
+module.exports = {
+  messages
+};
+},{"./messages.controller":"controllers/messages.controller.js"}],"routes/index.js":[function(require,module,exports) {
+const express = require('express');
+
+const {
+  messages
+} = require('../controllers');
+
+const router = express.Router();
+router.get('/message', messages.getMessageById);
+router.get('/allMessages', messages.listMessages);
+router.post('/post', messages.newMessageEvent);
+module.exports = router;
+},{"../controllers":"controllers/index.js"}],"index.js":[function(require,module,exports) {
+require('dotenv').config();
+
+const express = require('express');
+
+const app = express();
+
+const cors = require('cors');
+
+const routes = require('./routes');
+
+const {
+  messagesService
+} = require('./services'); // const { notesService } = require('./services');
+
+
+const db = require('./db');
+
+const init = async () => {
+  app.use(express.json());
+  app.use('/api', routes);
+  app.use(cors()); // TODO configure before deployment
+
+  await messagesService.init();
+  await db.init(); // console.log(await notesService.getNotes(1, 3));
+
+  const PORT = process.env.PORT || 3000;
+  app.get('*', (_, res) => {
+    res.send('hey');
+  });
+  app.listen(PORT, async () => {
+    console.log('Server has been started on port 3000...');
+    await messagesService.newMessageEvent(); // console.log('the end of test event');
+  });
+};
+
+init();
+},{"./routes":"routes/index.js","./services":"services/index.js","./db":"db/index.js"}]},{},["index.js"], null)
+//# sourceMappingURL=/index.js.map

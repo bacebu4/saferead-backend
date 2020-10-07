@@ -1,7 +1,7 @@
 const { messagesService } = require('../services');
 
 const getMessageById = async (_, res) => {
-  const message = await messagesService.getMessageById('174cdab6877d00ed');
+  const message = await messagesService.getMessageById('17502beb3b41933c');
   res.json(message);
 };
 

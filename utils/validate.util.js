@@ -7,7 +7,7 @@ const validate = (data) => {
   }
   if (encodedHtml) {
     const html = decode(encodedHtml, 'utf-8');
-    const appleTagIndex = html.indexOf('Apple Books. <br>');
+    const appleTagIndex = Math.max(html.indexOf('Apple Books. <br>'), html.indexOf('Книги. <br>'));
     if (appleTagIndex !== -1) {
       return 'ibooks';
     }
