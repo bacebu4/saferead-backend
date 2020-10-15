@@ -98,6 +98,7 @@ const listMessages = async () => {
   if (data.data?.messages) {
     return data.data.messages.map((m) => m.id);
   }
+  console.log('No new messages');
   return [];
 };
 
@@ -105,21 +106,34 @@ const newMessageEvent = async () => {
   try {
     console.log('Checking inbox');
     const messages = await listMessages();
-    console.log(messages);
     if (messages.length) {
-      // eslint-disable-next-line no-restricted-syntax
-      for (const m of messages) {
-        const data = await getMessageById(m);
-        if (data !== 'empty') {
-          await updateService.start(data);
+      const getMessageQueue = [];
+      const updatingQueue = [];
+      const deletingQueue = [];
+
+      messages.forEach((m) => {
+        getMessageQueue.push(getMessageById(m));
+      });
+      const data = await Promise.all(getMessageQueue);
+      data.forEach((d) => {
+        if (d !== 'empty') {
+          updatingQueue.push(updateService.start(d));
         } else {
           console.log('empty');
         }
-        await deleteMessageById(m);
-      }
+      });
+      await Promise.all(updatingQueue);
+
+      messages.forEach((m) => {
+        deletingQueue.push(deleteMessageById(m));
+      });
+
+      await Promise.all(deletingQueue);
     }
   } catch (error) {
     console.log('Error occurred', error);
+  } finally {
+    console.log('Event ended');
   }
 };
 

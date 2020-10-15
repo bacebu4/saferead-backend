@@ -1,7 +1,9 @@
 import { manager } from './index';
 
+const { v4: uuidv4 } = require('uuid');
+
 const addBook = async (authorId, title) => {
-  let data = await manager.query(/* sql */`
+  const data = await manager.query(/* sql */`
     select book_id
     from books
     where book_title = $1;
@@ -11,13 +13,13 @@ const addBook = async (authorId, title) => {
     return data[0].book_id;
   }
 
+  const newGeneratedId = uuidv4();
+
   await manager.query(/* sql */`
-    insert into books(author_id, book_title) VALUES ($1, $2);
-  `, [authorId, title]);
-  data = await manager.query(/* sql */`
-    SELECT currval(pg_get_serial_sequence('books','book_id'));
-  `);
-  return data[0].currval;
+    insert into books(book_id, author_id, book_title) VALUES ($1, $2, $3);
+  `, [newGeneratedId, authorId, title]);
+
+  return newGeneratedId;
 };
 
 module.exports = {

@@ -429,8 +429,12 @@ module.exports = {
 
 var _index = require("./index");
 
+const {
+  v4: uuidv4
+} = require('uuid');
+
 const addAuthor = async author => {
-  let data = await _index.manager.query(
+  const data = await _index.manager.query(
   /* sql */
   `
     select author_id
@@ -442,17 +446,13 @@ const addAuthor = async author => {
     return data[0].author_id;
   }
 
+  const newGeneratedId = uuidv4();
   await _index.manager.query(
   /* sql */
   `
-    insert into authors(author_full_name) values ($1);
-  `, [author]);
-  data = await _index.manager.query(
-  /* sql */
-  `
-    SELECT currval(pg_get_serial_sequence('authors','author_id'));
-  `);
-  return data[0].currval;
+    insert into authors(author_id, author_full_name) values ($1, $2);
+  `, [newGeneratedId, author]);
+  return newGeneratedId;
 };
 
 module.exports = {
@@ -463,8 +463,12 @@ module.exports = {
 
 var _index = require("./index");
 
+const {
+  v4: uuidv4
+} = require('uuid');
+
 const addBook = async (authorId, title) => {
-  let data = await _index.manager.query(
+  const data = await _index.manager.query(
   /* sql */
   `
     select book_id
@@ -476,17 +480,13 @@ const addBook = async (authorId, title) => {
     return data[0].book_id;
   }
 
+  const newGeneratedId = uuidv4();
   await _index.manager.query(
   /* sql */
   `
-    insert into books(author_id, book_title) VALUES ($1, $2);
-  `, [authorId, title]);
-  data = await _index.manager.query(
-  /* sql */
-  `
-    SELECT currval(pg_get_serial_sequence('books','book_id'));
-  `);
-  return data[0].currval;
+    insert into books(book_id, author_id, book_title) VALUES ($1, $2, $3);
+  `, [newGeneratedId, authorId, title]);
+  return newGeneratedId;
 };
 
 module.exports = {
@@ -497,29 +497,31 @@ module.exports = {
 
 var _index = require("./index");
 
+const {
+  v4: uuidv4
+} = require('uuid');
+
 const addNote = async (userId, bookId, note) => {
+  const newGeneratedNoteId = uuidv4();
   await _index.manager.query(
   /* sql */
   `
-    insert into notes(user_id, book_id, createdAt, updatedAt, note_text, seen)
-    VALUES ($1, $2, now(), now(), $3, false);
-  `, [userId, bookId, note.extractedNote]);
+    insert into notes(user_id, book_id, createdAt, updatedAt, note_text, seen, note_id)
+    VALUES ($1, $2, now(), now(), $3, false, $4);
+  `, [userId, bookId, note.extractedNote, newGeneratedNoteId]);
 
   if (note === null || note === void 0 ? void 0 : note.extractedComment) {
-    const data = await _index.manager.query(
-    /* sql */
-    `
-      SELECT currval(pg_get_serial_sequence('notes','note_id'));
-    `);
+    const newGeneratedCommentId = uuidv4();
     await _index.manager.query(
     /* sql */
     `
-      insert into comments(note_id, comment_text, createdAt, updatedAt) VALUES ($1, $2, now(), now());
-  `, [data[0].currval, note.extractedComment]);
+      insert into comments(note_id, comment_text, createdAt, updatedAt, comment_id) VALUES ($1, $2, now(), now(), $3);
+  `, [newGeneratedNoteId, note.extractedComment, newGeneratedCommentId]);
   }
 };
 
 const addNotes = async (userId, bookId, notes) => {
+  // TODO delete restricted syntax
   // eslint-disable-next-line no-restricted-syntax
   for (const note of notes) {
     await addNote(userId, bookId, note);

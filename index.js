@@ -26,7 +26,6 @@ const init = async () => {
   app.listen(PORT, async () => {
     console.log('Server has been started on port 3000...');
     await messagesService.newMessageEvent();
-    // console.log('the end of test event');
   });
 };
 
