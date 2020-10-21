@@ -594,8 +594,8 @@ const init = async () => {
         port: process.env.DB_PORT,
         username: 'postgres',
         password: '123',
-        database: 'postgres',
-        logging: true
+        database: 'postgres' // logging: true,
+
       });
       console.log('Connected to DB locally');
     }
@@ -833,7 +833,7 @@ module.exports = {
 const db = require('../db');
 
 async function getRandomNotes(data, amount) {
-  const markAsSeenQueue = [];
+  const markAsSeenQueue = []; // fallback when amount of notes less than needed amount
 
   if (data.length <= amount) {
     for (let i = 0; i < data.length; i += 1) {
@@ -851,7 +851,7 @@ async function getRandomNotes(data, amount) {
     let newRandomIndex;
 
     while (repeatedIndex) {
-      newRandomIndex = Math.floor(Math.random() * (amount + 1));
+      newRandomIndex = Math.floor(Math.random() * data.length);
 
       if (!usedIndexes.has(newRandomIndex)) {
         repeatedIndex = false;
@@ -873,7 +873,7 @@ async function getNotes(id, amount) {
   let data = await db.getNotes(id);
 
   if (data.length < amount) {
-    db.resetSeenFlag(id);
+    await db.resetSeenFlag(id);
     data = await db.getNotes(id);
   }
 
@@ -927,6 +927,7 @@ const {
 } = require('../services');
 
 const getDailyNotes = async (_, res) => {
+  res.set('Access-Control-Allow-Origin', '*');
   const notes = await notesService.getNotes('1', 3);
   res.json(notes);
 };

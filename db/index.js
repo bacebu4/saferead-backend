@@ -28,7 +28,7 @@ const init = async () => {
         username: 'postgres',
         password: '123',
         database: 'postgres',
-        logging: true,
+        // logging: true,
       });
       console.log('Connected to DB locally');
     }

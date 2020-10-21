@@ -3,6 +3,7 @@ const db = require('../db');
 async function getRandomNotes(data, amount) {
   const markAsSeenQueue = [];
 
+  // fallback when amount of notes less than needed amount
   if (data.length <= amount) {
     for (let i = 0; i < data.length; i += 1) {
       markAsSeenQueue.push(db.markAsSeen(data[i].note_id));
@@ -16,9 +17,8 @@ async function getRandomNotes(data, amount) {
   for (let i = 0; i < amount; i += 1) {
     let repeatedIndex = true;
     let newRandomIndex;
-
     while (repeatedIndex) {
-      newRandomIndex = Math.floor(Math.random() * (amount + 1));
+      newRandomIndex = Math.floor(Math.random() * (data.length));
       if (!usedIndexes.has(newRandomIndex)) {
         repeatedIndex = false;
         usedIndexes.add(newRandomIndex);
@@ -41,7 +41,7 @@ async function getRandomNotes(data, amount) {
 async function getNotes(id, amount) {
   let data = await db.getNotes(id);
   if (data.length < amount) {
-    db.resetSeenFlag(id);
+    await db.resetSeenFlag(id);
     data = await db.getNotes(id);
   }
   const randomNotes = getRandomNotes(data, amount);
