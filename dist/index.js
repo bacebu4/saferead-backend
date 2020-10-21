@@ -921,22 +921,40 @@ module.exports = {
   listMessages,
   newMessageEvent
 };
+},{"../services":"services/index.js"}],"controllers/notes.controller.js":[function(require,module,exports) {
+const {
+  notesService
+} = require('../services');
+
+const getDailyNotes = async (_, res) => {
+  const notes = await notesService.getNotes('1', 3);
+  res.json(notes);
+};
+
+module.exports = {
+  getDailyNotes
+};
 },{"../services":"services/index.js"}],"controllers/index.js":[function(require,module,exports) {
 const messages = require('./messages.controller');
 
+const notes = require('./notes.controller');
+
 module.exports = {
+  notes,
   messages
 };
-},{"./messages.controller":"controllers/messages.controller.js"}],"routes/index.js":[function(require,module,exports) {
+},{"./messages.controller":"controllers/messages.controller.js","./notes.controller":"controllers/notes.controller.js"}],"routes/index.js":[function(require,module,exports) {
 const express = require('express');
 
 const {
-  messages
+  messages,
+  notes
 } = require('../controllers');
 
 const router = express.Router();
 router.get('/message', messages.getMessageById);
 router.get('/allMessages', messages.listMessages);
+router.get('/getDailyNotes', notes.getDailyNotes);
 router.post('/post', messages.newMessageEvent);
 module.exports = router;
 },{"../controllers":"controllers/index.js"}],"index.js":[function(require,module,exports) {
