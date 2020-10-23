@@ -11,7 +11,8 @@
     "logs": "heroku logs --tail -a saferead",
     "watch": "npx parcel watch ./index.js --out-dir ./dist --no-hmr --target node",
     "server:stop": "heroku maintenance:on -a saferead",
-    "server:start": "heroku maintenance:off -a saferead"
+    "server:start": "heroku maintenance:off -a saferead",
+    "fullstart": "npm run watch & npm run dev"
   },
   "keywords": [],
   "author": "",
