@@ -1,6 +1,6 @@
 # Backend for Saferead project
 
-An Express server for API requests
+An Express server for API requests for Saferead
 
 <br>
 
