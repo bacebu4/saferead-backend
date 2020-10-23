@@ -10,15 +10,9 @@ An Express server for API requests
 npm i
 ```
 
-## How to run
+## How to run for development
 
-1. Run the following command in terminal
-
-```bash
-npm run watch
-```
-
-2. Run the next script in the second terminal
+Run the following command in terminal
 
 ```bash
 npm run dev
