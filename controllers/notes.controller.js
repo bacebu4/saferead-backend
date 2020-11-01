@@ -1,9 +1,10 @@
-const { notesService } = require('../services');
+const { notesService } = require("../services");
 
-const getDailyNotes = async (_, res) => {
-  res.set('Access-Control-Allow-Origin', '*');
-  const notes = await notesService.getNotes('1', 3);
-  res.json(notes);
+const getDailyNotes = async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  const notes = await notesService.getNotes(req.query.id);
+  const notesWithTags = await notesService.getNotesWithTags(notes);
+  res.json(notesWithTags);
 };
 
 module.exports = {

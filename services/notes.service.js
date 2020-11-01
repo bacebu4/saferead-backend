@@ -1,4 +1,4 @@
-const db = require('../db');
+const db = require("../db");
 
 async function getRandomNotes(data, amount) {
   const markAsSeenQueue = [];
@@ -18,7 +18,7 @@ async function getRandomNotes(data, amount) {
     let repeatedIndex = true;
     let newRandomIndex;
     while (repeatedIndex) {
-      newRandomIndex = Math.floor(Math.random() * (data.length));
+      newRandomIndex = Math.floor(Math.random() * data.length);
       if (!usedIndexes.has(newRandomIndex)) {
         repeatedIndex = false;
         usedIndexes.add(newRandomIndex);
@@ -38,16 +38,32 @@ async function getRandomNotes(data, amount) {
   return newData;
 }
 
-async function getNotes(id, amount) {
+async function getNotes(id) {
+  const amount = await db.getAmount(id);
   let data = await db.getNotes(id);
   if (data.length < amount) {
     await db.resetSeenFlag(id);
     data = await db.getNotes(id);
   }
-  const randomNotes = getRandomNotes(data, amount);
+
+  const randomNotes = await getRandomNotes(data, amount);
   return randomNotes;
+}
+
+async function getNotesWithTags(notes) {
+  const noteWithTags = [...notes];
+  const tagQueue = [];
+  notes.forEach((note) => {
+    tagQueue.push(db.getTagNotes(note.note_id));
+  });
+  const tags = await Promise.all(tagQueue);
+  tags.forEach((t, i) => {
+    noteWithTags[i].tags = t;
+  });
+  return noteWithTags;
 }
 
 module.exports = {
   getNotes,
+  getNotesWithTags,
 };

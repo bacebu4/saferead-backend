@@ -8,6 +8,7 @@
     "consistent-return": "off",
     "max-len": "off",
     "no-param-reassign": "off",
-    "no-await-in-loop": "warn"
+    "no-await-in-loop": "warn",
+    "quotes": "off"
   }
 }

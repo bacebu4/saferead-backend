@@ -531,6 +531,45 @@ const addNotes = async (userId, bookId, notes) => {
 module.exports = {
   addNotes
 };
+},{"./index":"db/index.js"}],"db/getTagNotes.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+const getTagNotes = async id => {
+  const raw = await _index.manager.query(
+  /* sql */
+  `
+    select *
+    from notes_tags
+    join tags t on notes_tags.tag_id = t.tag_id
+    where note_id = $1;
+  `, [id]);
+  return raw;
+};
+
+module.exports = {
+  getTagNotes
+};
+},{"./index":"db/index.js"}],"db/getAmount.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+const getAmount = async id => {
+  const raw = await _index.manager.query(
+  /* sql */
+  `
+    select review_amount
+    from users
+    where users.user_id = $1
+  `, [id]);
+  return raw[0].review_amount;
+};
+
+module.exports = {
+  getAmount
+};
 },{"./index":"db/index.js"}],"db/index.js":[function(require,module,exports) {
 "use strict";
 
@@ -541,37 +580,45 @@ exports.manager = void 0;
 
 const {
   createConnection
-} = require('typeorm');
+} = require("typeorm");
 
-require('reflect-metadata');
+require("reflect-metadata");
 
 const {
   getNotes
-} = require('./getNotes');
+} = require("./getNotes");
 
 const {
   getIdByEmail
-} = require('./getIdByEmail');
+} = require("./getIdByEmail");
 
 const {
   markAsSeen
-} = require('./markAsSeen');
+} = require("./markAsSeen");
 
 const {
   resetSeenFlag
-} = require('./resetSeenFlag');
+} = require("./resetSeenFlag");
 
 const {
   addAuthor
-} = require('./addAuthor');
+} = require("./addAuthor");
 
 const {
   addBook
-} = require('./addBook');
+} = require("./addBook");
 
 const {
   addNotes
-} = require('./addNotes'); // eslint-disable-next-line import/no-mutable-exports
+} = require("./addNotes");
+
+const {
+  getTagNotes
+} = require("./getTagNotes");
+
+const {
+  getAmount
+} = require("./getAmount"); // eslint-disable-next-line import/no-mutable-exports
 
 
 let manager;
@@ -583,26 +630,26 @@ const init = async () => {
 
     if (process.env.DATABASE_URL) {
       connection = await createConnection({
-        type: 'postgres',
+        type: "postgres",
         url: process.env.DATABASE_URL
       });
-      console.log('Connected to DB @ heroku');
+      console.log("Connected to DB @ heroku");
     } else {
       connection = await createConnection({
-        type: 'postgres',
-        host: 'localhost',
+        type: "postgres",
+        host: "localhost",
         port: process.env.DB_PORT,
-        username: 'postgres',
-        password: '123',
-        database: 'postgres' // logging: true,
+        username: "postgres",
+        password: "123",
+        database: "postgres" // logging: true,
 
       });
-      console.log('Connected to DB locally');
+      console.log("Connected to DB locally");
     }
 
     exports.manager = manager = connection.manager;
   } catch (error) {
-    console.error('Unable to connect to the database:', error);
+    console.error("Unable to connect to the database:", error);
   }
 };
 
@@ -614,9 +661,11 @@ module.exports = {
   addAuthor,
   addBook,
   addNotes,
-  getIdByEmail
+  getIdByEmail,
+  getTagNotes,
+  getAmount
 };
-},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js"}],"services/update.service.js":[function(require,module,exports) {
+},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js"}],"services/update.service.js":[function(require,module,exports) {
 const db = require('../db');
 
 const messageService = require('./messages.service');
@@ -830,7 +879,7 @@ module.exports = {
   deleteMessageById
 };
 },{"../utils":"utils/index.js","./update.service":"services/update.service.js"}],"services/notes.service.js":[function(require,module,exports) {
-const db = require('../db');
+const db = require("../db");
 
 async function getRandomNotes(data, amount) {
   const markAsSeenQueue = []; // fallback when amount of notes less than needed amount
@@ -869,7 +918,8 @@ async function getRandomNotes(data, amount) {
   return newData;
 }
 
-async function getNotes(id, amount) {
+async function getNotes(id) {
+  const amount = await db.getAmount(id);
   let data = await db.getNotes(id);
 
   if (data.length < amount) {
@@ -877,12 +927,26 @@ async function getNotes(id, amount) {
     data = await db.getNotes(id);
   }
 
-  const randomNotes = getRandomNotes(data, amount);
+  const randomNotes = await getRandomNotes(data, amount);
   return randomNotes;
 }
 
+async function getNotesWithTags(notes) {
+  const noteWithTags = [...notes];
+  const tagQueue = [];
+  notes.forEach(note => {
+    tagQueue.push(db.getTagNotes(note.note_id));
+  });
+  const tags = await Promise.all(tagQueue);
+  tags.forEach((t, i) => {
+    noteWithTags[i].tags = t;
+  });
+  return noteWithTags;
+}
+
 module.exports = {
-  getNotes
+  getNotes,
+  getNotesWithTags
 };
 },{"../db":"db/index.js"}],"services/index.js":[function(require,module,exports) {
 const messagesService = require('./messages.service');
@@ -924,12 +988,13 @@ module.exports = {
 },{"../services":"services/index.js"}],"controllers/notes.controller.js":[function(require,module,exports) {
 const {
   notesService
-} = require('../services');
+} = require("../services");
 
-const getDailyNotes = async (_, res) => {
-  res.set('Access-Control-Allow-Origin', '*');
-  const notes = await notesService.getNotes('1', 3);
-  res.json(notes);
+const getDailyNotes = async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  const notes = await notesService.getNotes(req.query.id);
+  const notesWithTags = await notesService.getNotesWithTags(notes);
+  res.json(notesWithTags);
 };
 
 module.exports = {
