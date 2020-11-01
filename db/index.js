@@ -9,6 +9,9 @@ const { addBook } = require("./addBook");
 const { addNotes } = require("./addNotes");
 const { getTagNotes } = require("./getTagNotes");
 const { getAmount } = require("./getAmount");
+const { getAllTags } = require("./getAllTags");
+const { getAccountInfo } = require("./getAccountInfo");
+const { getLatestBooks } = require("./getLatestBooks");
 
 // eslint-disable-next-line import/no-mutable-exports
 let manager;
@@ -51,6 +54,9 @@ module.exports = {
   getIdByEmail,
   getTagNotes,
   getAmount,
+  getAllTags,
+  getAccountInfo,
+  getLatestBooks,
 };
 
 export {

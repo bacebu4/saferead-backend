@@ -570,6 +570,68 @@ const getAmount = async id => {
 module.exports = {
   getAmount
 };
+},{"./index":"db/index.js"}],"db/getAllTags.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+const getAllTags = async id => {
+  const raw = await _index.manager.query(
+  /* sql */
+  `
+    select tag_id, tag_name, hue
+    from tags
+    where user_id = $1
+  `, [id]);
+  return raw;
+};
+
+module.exports = {
+  getAllTags
+};
+},{"./index":"db/index.js"}],"db/getAccountInfo.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+const getAccountInfo = async id => {
+  const raw = await _index.manager.query(
+  /* sql */
+  `
+    select *
+    from users
+    where user_id = $1
+  `, [id]);
+  return raw;
+};
+
+module.exports = {
+  getAccountInfo
+};
+},{"./index":"db/index.js"}],"db/getLatestBooks.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+const getLatestBooks = async id => {
+  const raw = await _index.manager.query(
+  /* sql */
+  `
+    select distinct book_title, author_full_name, book_id from (
+      select distinct book_title, author_full_name, createdAt, b.book_id from notes
+          join books b on notes.book_id = b.book_id
+          join authors a on a.author_id = b.author_id
+          where user_id = $1
+          order by createdAt desc
+      ) as t
+    limit 10
+  `, [id]);
+  return raw;
+};
+
+module.exports = {
+  getLatestBooks
+};
 },{"./index":"db/index.js"}],"db/index.js":[function(require,module,exports) {
 "use strict";
 
@@ -618,7 +680,19 @@ const {
 
 const {
   getAmount
-} = require("./getAmount"); // eslint-disable-next-line import/no-mutable-exports
+} = require("./getAmount");
+
+const {
+  getAllTags
+} = require("./getAllTags");
+
+const {
+  getAccountInfo
+} = require("./getAccountInfo");
+
+const {
+  getLatestBooks
+} = require("./getLatestBooks"); // eslint-disable-next-line import/no-mutable-exports
 
 
 let manager;
@@ -663,9 +737,12 @@ module.exports = {
   addNotes,
   getIdByEmail,
   getTagNotes,
-  getAmount
+  getAmount,
+  getAllTags,
+  getAccountInfo,
+  getLatestBooks
 };
-},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js"}],"services/update.service.js":[function(require,module,exports) {
+},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js"}],"services/update.service.js":[function(require,module,exports) {
 const db = require('../db');
 
 const messageService = require('./messages.service');
@@ -948,19 +1025,55 @@ module.exports = {
   getNotes,
   getNotesWithTags
 };
+},{"../db":"db/index.js"}],"services/info.service.js":[function(require,module,exports) {
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+
+/* eslint-disable object-curly-newline */
+
+/* eslint-disable camelcase */
+const db = require("../db");
+
+async function getInitInfo(id) {
+  const tags = await db.getAllTags(id);
+  const allAccountInfo = await db.getAccountInfo(id);
+
+  const _allAccountInfo$ = allAccountInfo[0],
+        {
+    user_id,
+    createdat,
+    email
+  } = _allAccountInfo$,
+        accountInfo = _objectWithoutProperties(_allAccountInfo$, ["user_id", "createdat", "email"]);
+
+  const latestBooks = await db.getLatestBooks(id);
+  return {
+    tags,
+    accountInfo,
+    latestBooks
+  };
+}
+
+module.exports = {
+  getInitInfo
+};
 },{"../db":"db/index.js"}],"services/index.js":[function(require,module,exports) {
-const messagesService = require('./messages.service');
+const messagesService = require("./messages.service");
 
-const notesService = require('./notes.service');
+const notesService = require("./notes.service");
 
-const updateService = require('./update.service');
+const updateService = require("./update.service");
+
+const infoService = require("./info.service");
 
 module.exports = {
   messagesService,
   notesService,
-  updateService
+  updateService,
+  infoService
 };
-},{"./messages.service":"services/messages.service.js","./notes.service":"services/notes.service.js","./update.service":"services/update.service.js"}],"controllers/messages.controller.js":[function(require,module,exports) {
+},{"./messages.service":"services/messages.service.js","./notes.service":"services/notes.service.js","./update.service":"services/update.service.js","./info.service":"services/info.service.js"}],"controllers/messages.controller.js":[function(require,module,exports) {
 const {
   messagesService
 } = require('../services');
@@ -1000,28 +1113,47 @@ const getDailyNotes = async (req, res) => {
 module.exports = {
   getDailyNotes
 };
-},{"../services":"services/index.js"}],"controllers/index.js":[function(require,module,exports) {
-const messages = require('./messages.controller');
+},{"../services":"services/index.js"}],"controllers/info.controller.js":[function(require,module,exports) {
+const {
+  infoService
+} = require("../services");
 
-const notes = require('./notes.controller');
+const getInitInfo = async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  const info = await infoService.getInitInfo(req.query.id);
+  res.json(info);
+};
+
+module.exports = {
+  getInitInfo
+};
+},{"../services":"services/index.js"}],"controllers/index.js":[function(require,module,exports) {
+const messages = require("./messages.controller");
+
+const notes = require("./notes.controller");
+
+const info = require("./info.controller");
 
 module.exports = {
   notes,
-  messages
+  messages,
+  info
 };
-},{"./messages.controller":"controllers/messages.controller.js","./notes.controller":"controllers/notes.controller.js"}],"routes/index.js":[function(require,module,exports) {
-const express = require('express');
+},{"./messages.controller":"controllers/messages.controller.js","./notes.controller":"controllers/notes.controller.js","./info.controller":"controllers/info.controller.js"}],"routes/index.js":[function(require,module,exports) {
+const express = require("express");
 
 const {
   messages,
-  notes
-} = require('../controllers');
+  notes,
+  info
+} = require("../controllers");
 
 const router = express.Router();
-router.get('/message', messages.getMessageById);
-router.get('/allMessages', messages.listMessages);
-router.get('/getDailyNotes', notes.getDailyNotes);
-router.post('/post', messages.newMessageEvent);
+router.get("/message", messages.getMessageById);
+router.get("/allMessages", messages.listMessages);
+router.get("/getDailyNotes", notes.getDailyNotes);
+router.get("/getInitInfo", info.getInitInfo);
+router.post("/post", messages.newMessageEvent);
 module.exports = router;
 },{"../controllers":"controllers/index.js"}],"index.js":[function(require,module,exports) {
 require('dotenv').config();
