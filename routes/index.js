@@ -1,5 +1,6 @@
 /* eslint-disable object-curly-newline */
 const express = require("express");
+const verify = require("./verifyToken");
 
 const { messages, notes, info, register, login } = require("../controllers");
 
@@ -11,7 +12,7 @@ router.get("/allMessages", messages.listMessages);
 
 router.get("/getDailyNotes", notes.getDailyNotes);
 
-router.get("/getInitInfo", info.getInitInfo);
+router.get("/getInitInfo", verify, info.getInitInfo);
 
 router.post("/post", messages.newMessageEvent);
 

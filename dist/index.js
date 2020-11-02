@@ -117,7 +117,26 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"utils/extract.util.js":[function(require,module,exports) {
+})({"routes/verifyToken.js":[function(require,module,exports) {
+/* eslint-disable func-names */
+const jwt = require("jsonwebtoken");
+
+module.exports = function (req, res, next) {
+  const token = req.header("auth-token");
+
+  if (!token) {
+    return res.status(401).send("Access denied");
+  }
+
+  try {
+    const isVerified = jwt.verify(token, process.env.TOKEN_SECRET);
+    req.user = isVerified;
+    next();
+  } catch (error) {
+    res.status(400).send("Not valid");
+  }
+};
+},{}],"utils/extract.util.js":[function(require,module,exports) {
 const extract = (string, openTag, closeTag) => string.slice(string.indexOf(openTag) + openTag.length, string.indexOf(closeTag)).trim();
 
 const extractAndCut = (string, openTag, closeTag, resultArray, type) => {
@@ -1320,6 +1339,8 @@ module.exports = {
 /* eslint-disable object-curly-newline */
 const express = require("express");
 
+const verify = require("./verifyToken");
+
 const {
   messages,
   notes,
@@ -1332,12 +1353,12 @@ const router = express.Router();
 router.get("/message", messages.getMessageById);
 router.get("/allMessages", messages.listMessages);
 router.get("/getDailyNotes", notes.getDailyNotes);
-router.get("/getInitInfo", info.getInitInfo);
+router.get("/getInitInfo", verify, info.getInitInfo);
 router.post("/post", messages.newMessageEvent);
 router.post("/register", register.register);
 router.post("/login", login.login);
 module.exports = router;
-},{"../controllers":"controllers/index.js"}],"index.js":[function(require,module,exports) {
+},{"./verifyToken":"routes/verifyToken.js","../controllers":"controllers/index.js"}],"index.js":[function(require,module,exports) {
 require('dotenv').config();
 
 const express = require('express');
