@@ -1124,6 +1124,8 @@ const {
   v4: uuidv4
 } = require("uuid");
 
+const jwt = require("jsonwebtoken");
+
 const db = require("../db");
 
 async function register(payload) {
@@ -1136,8 +1138,11 @@ async function register(payload) {
   const salt = await bcrypt.genSalt(10);
   const hashUid = await bcrypt.hash(payload.uid, salt);
   const newUserId = uuidv4();
-  const data = await db.addUser(newUserId, payload.email, hashUid);
-  return data;
+  await db.addUser(newUserId, payload.email, hashUid);
+  const token = jwt.sign({
+    id: newUserId
+  }, process.env.TOKEN_SECRET);
+  return token;
 }
 
 module.exports = {
@@ -1286,7 +1291,8 @@ const login = async (req, res) => {
   if (token === "Not valid") {
     res.status(400).send("Not valid");
   } else {
-    res.json(token);
+    // res.json(token);
+    res.header("auth-token", token).send("Logged in");
   }
 };
 
