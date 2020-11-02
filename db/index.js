@@ -12,6 +12,7 @@ const { getAmount } = require("./getAmount");
 const { getAllTags } = require("./getAllTags");
 const { getAccountInfo } = require("./getAccountInfo");
 const { getLatestBooks } = require("./getLatestBooks");
+const { addUser } = require("./addUser");
 
 // eslint-disable-next-line import/no-mutable-exports
 let manager;
@@ -57,6 +58,7 @@ module.exports = {
   getAllTags,
   getAccountInfo,
   getLatestBooks,
+  addUser,
 };
 
 export {
