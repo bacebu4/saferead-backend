@@ -6,7 +6,6 @@ const db = require("../db");
 
 async function register(payload) {
   const findResults = await db.getIdByEmail(payload.email);
-  console.log(findResults);
   if (findResults !== "") {
     return "Email is already taken";
   }

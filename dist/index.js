@@ -387,6 +387,34 @@ const getIdByEmail = async email => {
 module.exports = {
   getIdByEmail
 };
+},{"./index":"db/index.js"}],"db/getIdUidByEmail.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+const getIdUidByEmail = async email => {
+  if (email.includes("@me.com")) {
+    email = email.replace("@me.com", "@icloud.com");
+  }
+
+  const data = await _index.manager.query(
+  /* sql */
+  `
+    select user_id, uid
+    from users
+    where email = $1;
+  `, [email]);
+
+  if (data.length) {
+    return data[0];
+  }
+
+  return "";
+};
+
+module.exports = {
+  getIdUidByEmail
+};
 },{"./index":"db/index.js"}],"db/markAsSeen.js":[function(require,module,exports) {
 "use strict";
 
@@ -673,6 +701,10 @@ const {
 } = require("./getIdByEmail");
 
 const {
+  getIdUidByEmail
+} = require("./getIdUidByEmail");
+
+const {
   markAsSeen
 } = require("./markAsSeen");
 
@@ -763,9 +795,10 @@ module.exports = {
   getAllTags,
   getAccountInfo,
   getLatestBooks,
-  addUser
+  addUser,
+  getIdUidByEmail
 };
-},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js"}],"services/update.service.js":[function(require,module,exports) {
+},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdUidByEmail":"db/getIdUidByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js"}],"services/update.service.js":[function(require,module,exports) {
 const db = require('../db');
 
 const messageService = require('./messages.service');
@@ -1095,7 +1128,6 @@ const db = require("../db");
 
 async function register(payload) {
   const findResults = await db.getIdByEmail(payload.email);
-  console.log(findResults);
 
   if (findResults !== "") {
     return "Email is already taken";
@@ -1111,6 +1143,28 @@ async function register(payload) {
 module.exports = {
   register
 };
+},{"../db":"db/index.js"}],"services/login.service.js":[function(require,module,exports) {
+/* eslint-disable object-curly-newline */
+
+/* eslint-disable camelcase */
+const bcrypt = require("bcryptjs");
+
+const db = require("../db");
+
+async function login(payload) {
+  const findResults = await db.getIdUidByEmail(payload.email);
+
+  if (findResults === "") {
+    return "Email was not found";
+  }
+
+  const isValid = await bcrypt.compare(payload.uid, findResults.uid);
+  return isValid;
+}
+
+module.exports = {
+  login
+};
 },{"../db":"db/index.js"}],"services/index.js":[function(require,module,exports) {
 const messagesService = require("./messages.service");
 
@@ -1122,14 +1176,17 @@ const infoService = require("./info.service");
 
 const registerService = require("./register.service");
 
+const loginService = require("./login.service");
+
 module.exports = {
   messagesService,
   notesService,
   updateService,
   infoService,
+  loginService,
   registerService
 };
-},{"./messages.service":"services/messages.service.js","./notes.service":"services/notes.service.js","./update.service":"services/update.service.js","./info.service":"services/info.service.js","./register.service":"services/register.service.js"}],"controllers/messages.controller.js":[function(require,module,exports) {
+},{"./messages.service":"services/messages.service.js","./notes.service":"services/notes.service.js","./update.service":"services/update.service.js","./info.service":"services/info.service.js","./register.service":"services/register.service.js","./login.service":"services/login.service.js"}],"controllers/messages.controller.js":[function(require,module,exports) {
 const {
   messagesService
 } = require('../services');
@@ -1202,6 +1259,25 @@ const register = async (req, res) => {
 module.exports = {
   register
 };
+},{"../services":"services/index.js"}],"controllers/login.controller.js":[function(require,module,exports) {
+const {
+  loginService
+} = require("../services");
+
+const login = async (req, res) => {
+  // res.set("Access-Control-Allow-Origin", "*");
+  const token = await loginService.login(req.body);
+
+  if (token === "Email is already taken") {
+    res.status(400).send("Email is already taken");
+  } else {
+    res.json(token);
+  }
+};
+
+module.exports = {
+  login
+};
 },{"../services":"services/index.js"}],"controllers/index.js":[function(require,module,exports) {
 const messages = require("./messages.controller");
 
@@ -1211,13 +1287,16 @@ const info = require("./info.controller");
 
 const register = require("./register.controller");
 
+const login = require("./login.controller");
+
 module.exports = {
   notes,
   messages,
   info,
+  login,
   register
 };
-},{"./messages.controller":"controllers/messages.controller.js","./notes.controller":"controllers/notes.controller.js","./info.controller":"controllers/info.controller.js","./register.controller":"controllers/register.controller.js"}],"routes/index.js":[function(require,module,exports) {
+},{"./messages.controller":"controllers/messages.controller.js","./notes.controller":"controllers/notes.controller.js","./info.controller":"controllers/info.controller.js","./register.controller":"controllers/register.controller.js","./login.controller":"controllers/login.controller.js"}],"routes/index.js":[function(require,module,exports) {
 /* eslint-disable object-curly-newline */
 const express = require("express");
 
@@ -1225,7 +1304,8 @@ const {
   messages,
   notes,
   info,
-  register
+  register,
+  login
 } = require("../controllers");
 
 const router = express.Router();
@@ -1235,6 +1315,7 @@ router.get("/getDailyNotes", notes.getDailyNotes);
 router.get("/getInitInfo", info.getInitInfo);
 router.post("/post", messages.newMessageEvent);
 router.post("/register", register.register);
+router.post("/login", login.login);
 module.exports = router;
 },{"../controllers":"controllers/index.js"}],"index.js":[function(require,module,exports) {
 require('dotenv').config();

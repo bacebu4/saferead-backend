@@ -2,6 +2,7 @@ const { createConnection } = require("typeorm");
 require("reflect-metadata");
 const { getNotes } = require("./getNotes");
 const { getIdByEmail } = require("./getIdByEmail");
+const { getIdUidByEmail } = require("./getIdUidByEmail");
 const { markAsSeen } = require("./markAsSeen");
 const { resetSeenFlag } = require("./resetSeenFlag");
 const { addAuthor } = require("./addAuthor");
@@ -59,6 +60,7 @@ module.exports = {
   getAccountInfo,
   getLatestBooks,
   addUser,
+  getIdUidByEmail,
 };
 
 export {
