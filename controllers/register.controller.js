@@ -6,7 +6,7 @@ const register = async (req, res) => {
   if (token === "Email is already taken") {
     res.status(400).send("Email is already taken");
   } else {
-    res.json(token);
+    res.header("auth-token", token).send("Registered");
   }
 };
 

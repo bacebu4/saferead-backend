@@ -1271,7 +1271,7 @@ const register = async (req, res) => {
   if (token === "Email is already taken") {
     res.status(400).send("Email is already taken");
   } else {
-    res.json(token);
+    res.header("auth-token", token).send("Registered");
   }
 };
 
@@ -1291,7 +1291,6 @@ const login = async (req, res) => {
   if (token === "Not valid") {
     res.status(400).send("Not valid");
   } else {
-    // res.json(token);
     res.header("auth-token", token).send("Logged in");
   }
 };
