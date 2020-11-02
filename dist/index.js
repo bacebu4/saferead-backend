@@ -1149,17 +1149,31 @@ module.exports = {
 /* eslint-disable camelcase */
 const bcrypt = require("bcryptjs");
 
+const jwt = require("jsonwebtoken");
+
 const db = require("../db");
 
 async function login(payload) {
-  const findResults = await db.getIdUidByEmail(payload.email);
+  try {
+    const findResults = await db.getIdUidByEmail(payload.email);
 
-  if (findResults === "") {
-    return "Email was not found";
+    if (findResults === "") {
+      throw new Error("not valid");
+    }
+
+    const isValid = await bcrypt.compare(payload.uid, findResults.uid);
+
+    if (!isValid) {
+      throw new Error("not valid");
+    }
+
+    const token = jwt.sign({
+      id: findResults.user_id
+    }, process.env.TOKEN_SECRET);
+    return token;
+  } catch (error) {
+    return "Not valid";
   }
-
-  const isValid = await bcrypt.compare(payload.uid, findResults.uid);
-  return isValid;
 }
 
 module.exports = {
@@ -1260,6 +1274,7 @@ module.exports = {
   register
 };
 },{"../services":"services/index.js"}],"controllers/login.controller.js":[function(require,module,exports) {
+/* eslint-disable operator-linebreak */
 const {
   loginService
 } = require("../services");
@@ -1268,8 +1283,8 @@ const login = async (req, res) => {
   // res.set("Access-Control-Allow-Origin", "*");
   const token = await loginService.login(req.body);
 
-  if (token === "Email is already taken") {
-    res.status(400).send("Email is already taken");
+  if (token === "Not valid") {
+    res.status(400).send("Not valid");
   } else {
     res.json(token);
   }

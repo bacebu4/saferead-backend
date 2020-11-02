@@ -1,10 +1,11 @@
+/* eslint-disable operator-linebreak */
 const { loginService } = require("../services");
 
 const login = async (req, res) => {
   // res.set("Access-Control-Allow-Origin", "*");
   const token = await loginService.login(req.body);
-  if (token === "Email is already taken") {
-    res.status(400).send("Email is already taken");
+  if (token === "Not valid") {
+    res.status(400).send("Not valid");
   } else {
     res.json(token);
   }
