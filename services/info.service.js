@@ -3,7 +3,6 @@
 const db = require("../db");
 
 async function getInitInfo(id) {
-  console.log(id);
   const tags = await db.getAllTags(id);
   const allAccountInfo = await db.getAccountInfo(id);
   const { user_id, createdat, email, ...accountInfo } = allAccountInfo[0];

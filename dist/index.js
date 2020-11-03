@@ -1111,7 +1111,6 @@ function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) r
 const db = require("../db");
 
 async function getInitInfo(id) {
-  console.log(id);
   const tags = await db.getAllTags(id);
   const allAccountInfo = await db.getAccountInfo(id);
 
@@ -1196,7 +1195,6 @@ async function login(payload) {
       throw new Error("not valid");
     }
 
-    console.log(findResults);
     const token = jwt.sign({
       id: findResults.user_id
     }, process.env.TOKEN_SECRET);
