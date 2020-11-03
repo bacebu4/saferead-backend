@@ -1111,6 +1111,7 @@ function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) r
 const db = require("../db");
 
 async function getInitInfo(id) {
+  console.log(id);
   const tags = await db.getAllTags(id);
   const allAccountInfo = await db.getAccountInfo(id);
 
@@ -1148,20 +1149,24 @@ const jwt = require("jsonwebtoken");
 const db = require("../db");
 
 async function register(payload) {
-  const findResults = await db.getIdByEmail(payload.email);
+  try {
+    const findResults = await db.getIdByEmail(payload.email);
 
-  if (findResults !== "") {
-    return "Email is already taken";
+    if (findResults !== "") {
+      throw new Error("Not valid");
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashUid = await bcrypt.hash(payload.uid, salt);
+    const newUserId = uuidv4();
+    await db.addUser(newUserId, payload.email, hashUid);
+    const token = jwt.sign({
+      id: newUserId
+    }, process.env.TOKEN_SECRET);
+    return token;
+  } catch (error) {
+    return "Not valid";
   }
-
-  const salt = await bcrypt.genSalt(10);
-  const hashUid = await bcrypt.hash(payload.uid, salt);
-  const newUserId = uuidv4();
-  await db.addUser(newUserId, payload.email, hashUid);
-  const token = jwt.sign({
-    id: newUserId
-  }, process.env.TOKEN_SECRET);
-  return token;
 }
 
 module.exports = {
@@ -1191,6 +1196,7 @@ async function login(payload) {
       throw new Error("not valid");
     }
 
+    console.log(findResults);
     const token = jwt.sign({
       id: findResults.user_id
     }, process.env.TOKEN_SECRET);
@@ -1256,7 +1262,7 @@ const {
 
 const getDailyNotes = async (req, res) => {
   res.set("Access-Control-Allow-Origin", "*");
-  const notes = await notesService.getNotes(req.query.id);
+  const notes = await notesService.getNotes(req.user.id);
   const notesWithTags = await notesService.getNotesWithTags(notes);
   res.json(notesWithTags);
 };
@@ -1271,7 +1277,7 @@ const {
 
 const getInitInfo = async (req, res) => {
   res.set("Access-Control-Allow-Origin", "*");
-  const info = await infoService.getInitInfo(req.query.id);
+  const info = await infoService.getInitInfo(req.user.id);
   res.json(info);
 };
 
@@ -1287,10 +1293,10 @@ const register = async (req, res) => {
   // res.set("Access-Control-Allow-Origin", "*");
   const token = await registerService.register(req.body);
 
-  if (token === "Email is already taken") {
-    res.status(400).send("Email is already taken");
+  if (token === "Not valid") {
+    res.status(400).send("Not valid");
   } else {
-    res.header("auth-token", token).send("Registered");
+    res.json(token);
   }
 };
 
@@ -1310,7 +1316,7 @@ const login = async (req, res) => {
   if (token === "Not valid") {
     res.status(400).send("Not valid");
   } else {
-    res.header("auth-token", token).send("Logged in");
+    res.json(token);
   }
 };
 
@@ -1352,7 +1358,7 @@ const {
 const router = express.Router();
 router.get("/message", messages.getMessageById);
 router.get("/allMessages", messages.listMessages);
-router.get("/getDailyNotes", notes.getDailyNotes);
+router.get("/getDailyNotes", verify, notes.getDailyNotes);
 router.get("/getInitInfo", verify, info.getInitInfo);
 router.post("/post", messages.newMessageEvent);
 router.post("/register", register.register);

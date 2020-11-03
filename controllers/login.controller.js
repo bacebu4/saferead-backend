@@ -7,7 +7,7 @@ const login = async (req, res) => {
   if (token === "Not valid") {
     res.status(400).send("Not valid");
   } else {
-    res.header("auth-token", token).send("Logged in");
+    res.json(token);
   }
 };
 

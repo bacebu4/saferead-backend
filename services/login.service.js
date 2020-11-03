@@ -14,6 +14,7 @@ async function login(payload) {
     if (!isValid) {
       throw new Error("not valid");
     }
+    console.log(findResults);
     const token = jwt.sign(
       { id: findResults.user_id },
       process.env.TOKEN_SECRET,

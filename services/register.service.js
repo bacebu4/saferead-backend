@@ -6,16 +6,20 @@ const jwt = require("jsonwebtoken");
 const db = require("../db");
 
 async function register(payload) {
-  const findResults = await db.getIdByEmail(payload.email);
-  if (findResults !== "") {
-    return "Email is already taken";
+  try {
+    const findResults = await db.getIdByEmail(payload.email);
+    if (findResults !== "") {
+      throw new Error("Not valid");
+    }
+    const salt = await bcrypt.genSalt(10);
+    const hashUid = await bcrypt.hash(payload.uid, salt);
+    const newUserId = uuidv4();
+    await db.addUser(newUserId, payload.email, hashUid);
+    const token = jwt.sign({ id: newUserId }, process.env.TOKEN_SECRET);
+    return token;
+  } catch (error) {
+    return "Not valid";
   }
-  const salt = await bcrypt.genSalt(10);
-  const hashUid = await bcrypt.hash(payload.uid, salt);
-  const newUserId = uuidv4();
-  await db.addUser(newUserId, payload.email, hashUid);
-  const token = jwt.sign({ id: newUserId }, process.env.TOKEN_SECRET);
-  return token;
 }
 
 module.exports = {

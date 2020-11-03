@@ -3,10 +3,10 @@ const { registerService } = require("../services");
 const register = async (req, res) => {
   // res.set("Access-Control-Allow-Origin", "*");
   const token = await registerService.register(req.body);
-  if (token === "Email is already taken") {
-    res.status(400).send("Email is already taken");
+  if (token === "Not valid") {
+    res.status(400).send("Not valid");
   } else {
-    res.header("auth-token", token).send("Registered");
+    res.json(token);
   }
 };
 

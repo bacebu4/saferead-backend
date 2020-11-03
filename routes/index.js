@@ -10,7 +10,7 @@ router.get("/message", messages.getMessageById);
 
 router.get("/allMessages", messages.listMessages);
 
-router.get("/getDailyNotes", notes.getDailyNotes);
+router.get("/getDailyNotes", verify, notes.getDailyNotes);
 
 router.get("/getInitInfo", verify, info.getInitInfo);
 
