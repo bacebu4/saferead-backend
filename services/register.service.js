@@ -12,9 +12,9 @@ async function register(payload) {
       throw new Error("Not valid");
     }
     const salt = await bcrypt.genSalt(10);
-    const hashUid = await bcrypt.hash(payload.uid, salt);
+    const hashPassword = await bcrypt.hash(payload.password, salt);
     const newUserId = uuidv4();
-    await db.addUser(newUserId, payload.email, hashUid);
+    await db.addUser(newUserId, payload.email, hashPassword);
     const token = jwt.sign({ id: newUserId }, process.env.TOKEN_SECRET);
     return token;
   } catch (error) {

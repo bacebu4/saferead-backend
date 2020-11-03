@@ -10,7 +10,10 @@ async function login(payload) {
     if (findResults === "") {
       throw new Error("not valid");
     }
-    const isValid = await bcrypt.compare(payload.uid, findResults.uid);
+    const isValid = await bcrypt.compare(
+      payload.password,
+      findResults.password,
+    );
     if (!isValid) {
       throw new Error("not valid");
     }

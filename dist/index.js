@@ -419,7 +419,7 @@ const getIdUidByEmail = async email => {
   const data = await _index.manager.query(
   /* sql */
   `
-    select user_id, uid
+    select user_id, password
     from users
     where email = $1;
   `, [email]);
@@ -683,14 +683,14 @@ module.exports = {
 
 var _index = require("./index");
 
-const addUser = async (id, email, hashUid) => {
+const addUser = async (id, email, password) => {
   const data = await _index.manager.query(
   /* sql */
   `
     insert into 
-    users(user_id, review_amount, streak, missed, current, reviewed, createdAt, email, uid) 
+    users(user_id, review_amount, streak, missed, current, reviewed, createdAt, email, password) 
     VALUES ($1, 3, 0, 0, 0, false, now(), $2, $3)
-  `, [id, email, hashUid]);
+  `, [id, email, password]);
   return data;
 };
 
@@ -1156,9 +1156,9 @@ async function register(payload) {
     }
 
     const salt = await bcrypt.genSalt(10);
-    const hashUid = await bcrypt.hash(payload.uid, salt);
+    const hashPassword = await bcrypt.hash(payload.password, salt);
     const newUserId = uuidv4();
-    await db.addUser(newUserId, payload.email, hashUid);
+    await db.addUser(newUserId, payload.email, hashPassword);
     const token = jwt.sign({
       id: newUserId
     }, process.env.TOKEN_SECRET);
@@ -1189,7 +1189,7 @@ async function login(payload) {
       throw new Error("not valid");
     }
 
-    const isValid = await bcrypt.compare(payload.uid, findResults.uid);
+    const isValid = await bcrypt.compare(payload.password, findResults.password);
 
     if (!isValid) {
       throw new Error("not valid");

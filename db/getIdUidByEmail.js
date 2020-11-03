@@ -6,7 +6,7 @@ const getIdUidByEmail = async (email) => {
   }
   const data = await manager.query(
     /* sql */ `
-    select user_id, uid
+    select user_id, password
     from users
     where email = $1;
   `,
