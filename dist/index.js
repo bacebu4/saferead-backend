@@ -406,12 +406,12 @@ const getIdByEmail = async email => {
 module.exports = {
   getIdByEmail
 };
-},{"./index":"db/index.js"}],"db/getIdUidByEmail.js":[function(require,module,exports) {
+},{"./index":"db/index.js"}],"db/getIdPasswordByEmail.js":[function(require,module,exports) {
 "use strict";
 
 var _index = require("./index");
 
-const getIdUidByEmail = async email => {
+const getIdPasswordByEmail = async email => {
   if (email.includes("@me.com")) {
     email = email.replace("@me.com", "@icloud.com");
   }
@@ -432,7 +432,7 @@ const getIdUidByEmail = async email => {
 };
 
 module.exports = {
-  getIdUidByEmail
+  getIdPasswordByEmail
 };
 },{"./index":"db/index.js"}],"db/markAsSeen.js":[function(require,module,exports) {
 "use strict";
@@ -720,8 +720,8 @@ const {
 } = require("./getIdByEmail");
 
 const {
-  getIdUidByEmail
-} = require("./getIdUidByEmail");
+  getIdPasswordByEmail
+} = require("./getIdPasswordByEmail");
 
 const {
   markAsSeen
@@ -815,9 +815,9 @@ module.exports = {
   getAccountInfo,
   getLatestBooks,
   addUser,
-  getIdUidByEmail
+  getIdPasswordByEmail
 };
-},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdUidByEmail":"db/getIdUidByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js"}],"services/update.service.js":[function(require,module,exports) {
+},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js"}],"services/update.service.js":[function(require,module,exports) {
 const db = require('../db');
 
 const messageService = require('./messages.service');
@@ -1183,7 +1183,7 @@ const db = require("../db");
 
 async function login(payload) {
   try {
-    const findResults = await db.getIdUidByEmail(payload.email);
+    const findResults = await db.getIdPasswordByEmail(payload.email);
 
     if (findResults === "") {
       throw new Error("not valid");

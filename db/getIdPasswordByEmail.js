@@ -1,6 +1,6 @@
 import { manager } from "./index";
 
-const getIdUidByEmail = async (email) => {
+const getIdPasswordByEmail = async (email) => {
   if (email.includes("@me.com")) {
     email = email.replace("@me.com", "@icloud.com");
   }
@@ -20,5 +20,5 @@ const getIdUidByEmail = async (email) => {
 };
 
 module.exports = {
-  getIdUidByEmail,
+  getIdPasswordByEmail,
 };

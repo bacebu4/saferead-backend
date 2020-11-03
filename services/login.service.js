@@ -6,7 +6,7 @@ const db = require("../db");
 
 async function login(payload) {
   try {
-    const findResults = await db.getIdUidByEmail(payload.email);
+    const findResults = await db.getIdPasswordByEmail(payload.email);
     if (findResults === "") {
       throw new Error("not valid");
     }
