@@ -2,7 +2,14 @@
 const express = require("express");
 const verify = require("./verifyToken");
 
-const { messages, notes, info, register, login } = require("../controllers");
+const {
+  messages,
+  notes,
+  info,
+  register,
+  login,
+  tags,
+} = require("../controllers");
 
 const router = express.Router();
 
@@ -13,6 +20,8 @@ router.get("/allMessages", messages.listMessages);
 router.get("/getDailyNotes", verify, notes.getDailyNotes);
 
 router.get("/getInitInfo", verify, info.getInitInfo);
+
+router.post("/addExistingTag", verify, tags.addExistingTag);
 
 router.post("/post", messages.newMessageEvent);
 

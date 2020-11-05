@@ -697,6 +697,25 @@ const addUser = async (id, email, password) => {
 module.exports = {
   addUser
 };
+},{"./index":"db/index.js"}],"db/addExistingTag.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+/* eslint-disable camelcase */
+const addExistingTag = async (tag_id, note_id) => {
+  const data = await _index.manager.query(
+  /* sql */
+  `
+    insert into notes_tags(tag_id, note_id) 
+    VALUES ($1, $2);
+  `, [tag_id, note_id]);
+  return data;
+};
+
+module.exports = {
+  addExistingTag
+};
 },{"./index":"db/index.js"}],"db/index.js":[function(require,module,exports) {
 "use strict";
 
@@ -765,7 +784,11 @@ const {
 
 const {
   addUser
-} = require("./addUser"); // eslint-disable-next-line import/no-mutable-exports
+} = require("./addUser");
+
+const {
+  addExistingTag
+} = require("./addExistingTag"); // eslint-disable-next-line import/no-mutable-exports
 
 
 let manager;
@@ -815,9 +838,10 @@ module.exports = {
   getAccountInfo,
   getLatestBooks,
   addUser,
-  getIdPasswordByEmail
+  getIdPasswordByEmail,
+  addExistingTag
 };
-},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js"}],"services/update.service.js":[function(require,module,exports) {
+},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js"}],"services/update.service.js":[function(require,module,exports) {
 const db = require('../db');
 
 const messageService = require('./messages.service');
@@ -1207,6 +1231,23 @@ async function login(payload) {
 module.exports = {
   login
 };
+},{"../db":"db/index.js"}],"services/tags.service.js":[function(require,module,exports) {
+/* eslint-disable object-curly-newline */
+
+/* eslint-disable camelcase */
+const db = require("../db");
+
+async function addExistingTag(payload) {
+  try {
+    await db.addExistingTag(payload.tag_id, payload.note_id);
+  } catch (error) {
+    throw new Error();
+  }
+}
+
+module.exports = {
+  addExistingTag
+};
 },{"../db":"db/index.js"}],"services/index.js":[function(require,module,exports) {
 const messagesService = require("./messages.service");
 
@@ -1220,15 +1261,18 @@ const registerService = require("./register.service");
 
 const loginService = require("./login.service");
 
+const tagsService = require("./tags.service");
+
 module.exports = {
   messagesService,
   notesService,
   updateService,
   infoService,
+  tagsService,
   loginService,
   registerService
 };
-},{"./messages.service":"services/messages.service.js","./notes.service":"services/notes.service.js","./update.service":"services/update.service.js","./info.service":"services/info.service.js","./register.service":"services/register.service.js","./login.service":"services/login.service.js"}],"controllers/messages.controller.js":[function(require,module,exports) {
+},{"./messages.service":"services/messages.service.js","./notes.service":"services/notes.service.js","./update.service":"services/update.service.js","./info.service":"services/info.service.js","./register.service":"services/register.service.js","./login.service":"services/login.service.js","./tags.service":"services/tags.service.js"}],"controllers/messages.controller.js":[function(require,module,exports) {
 const {
   messagesService
 } = require('../services');
@@ -1321,6 +1365,25 @@ const login = async (req, res) => {
 module.exports = {
   login
 };
+},{"../services":"services/index.js"}],"controllers/tags.controller.js":[function(require,module,exports) {
+const {
+  tagsService
+} = require("../services");
+
+const addExistingTag = async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+
+  try {
+    await tagsService.addExistingTag(req.body);
+    res.status(201).send("Added existing tag");
+  } catch (error) {
+    res.status(500).send("Something went wrong");
+  }
+};
+
+module.exports = {
+  addExistingTag
+};
 },{"../services":"services/index.js"}],"controllers/index.js":[function(require,module,exports) {
 const messages = require("./messages.controller");
 
@@ -1332,14 +1395,17 @@ const register = require("./register.controller");
 
 const login = require("./login.controller");
 
+const tags = require("./tags.controller");
+
 module.exports = {
   notes,
   messages,
   info,
   login,
-  register
+  register,
+  tags
 };
-},{"./messages.controller":"controllers/messages.controller.js","./notes.controller":"controllers/notes.controller.js","./info.controller":"controllers/info.controller.js","./register.controller":"controllers/register.controller.js","./login.controller":"controllers/login.controller.js"}],"routes/index.js":[function(require,module,exports) {
+},{"./messages.controller":"controllers/messages.controller.js","./notes.controller":"controllers/notes.controller.js","./info.controller":"controllers/info.controller.js","./register.controller":"controllers/register.controller.js","./login.controller":"controllers/login.controller.js","./tags.controller":"controllers/tags.controller.js"}],"routes/index.js":[function(require,module,exports) {
 /* eslint-disable object-curly-newline */
 const express = require("express");
 
@@ -1350,7 +1416,8 @@ const {
   notes,
   info,
   register,
-  login
+  login,
+  tags
 } = require("../controllers");
 
 const router = express.Router();
@@ -1358,6 +1425,7 @@ router.get("/message", messages.getMessageById);
 router.get("/allMessages", messages.listMessages);
 router.get("/getDailyNotes", verify, notes.getDailyNotes);
 router.get("/getInitInfo", verify, info.getInitInfo);
+router.post("/addExistingTag", verify, tags.addExistingTag);
 router.post("/post", messages.newMessageEvent);
 router.post("/register", register.register);
 router.post("/login", login.login);
