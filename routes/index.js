@@ -23,6 +23,8 @@ router.get("/getInitInfo", verify, info.getInitInfo);
 
 router.post("/addExistingTag", verify, tags.addExistingTag);
 
+router.post("/addNewTag", verify, tags.addNewTag);
+
 router.post("/post", messages.newMessageEvent);
 
 router.post("/register", register.register);

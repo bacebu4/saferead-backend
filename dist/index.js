@@ -716,6 +716,25 @@ const addExistingTag = async (tag_id, note_id) => {
 module.exports = {
   addExistingTag
 };
+},{"./index":"db/index.js"}],"db/addNewTag.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+/* eslint-disable camelcase */
+const addNewTag = async (user_id, payload) => {
+  const data = await _index.manager.query(
+  /* sql */
+  `
+    insert into tags(tag_id, tag_name, hue, user_id) 
+    VALUES ($1, $2, $3, $4)
+  `, [payload.tag_id, payload.tag_name, payload.hue, user_id]);
+  return data;
+};
+
+module.exports = {
+  addNewTag
+};
 },{"./index":"db/index.js"}],"db/index.js":[function(require,module,exports) {
 "use strict";
 
@@ -788,7 +807,11 @@ const {
 
 const {
   addExistingTag
-} = require("./addExistingTag"); // eslint-disable-next-line import/no-mutable-exports
+} = require("./addExistingTag");
+
+const {
+  addNewTag
+} = require("./addNewTag"); // eslint-disable-next-line import/no-mutable-exports
 
 
 let manager;
@@ -839,9 +862,10 @@ module.exports = {
   getLatestBooks,
   addUser,
   getIdPasswordByEmail,
-  addExistingTag
+  addExistingTag,
+  addNewTag
 };
-},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js"}],"services/update.service.js":[function(require,module,exports) {
+},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js","./addNewTag":"db/addNewTag.js"}],"services/update.service.js":[function(require,module,exports) {
 const db = require('../db');
 
 const messageService = require('./messages.service');
@@ -1245,7 +1269,17 @@ async function addExistingTag(payload) {
   }
 }
 
+async function addNewTag(userId, payload) {
+  try {
+    await db.addNewTag(userId, payload);
+    await db.addExistingTag(payload.tag_id, payload.note_id);
+  } catch (error) {
+    throw new Error();
+  }
+}
+
 module.exports = {
+  addNewTag,
   addExistingTag
 };
 },{"../db":"db/index.js"}],"services/index.js":[function(require,module,exports) {
@@ -1381,8 +1415,20 @@ const addExistingTag = async (req, res) => {
   }
 };
 
+const addNewTag = async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+
+  try {
+    await tagsService.addNewTag(req.user.id, req.body);
+    res.status(201).send("Added new tag");
+  } catch (error) {
+    res.status(500).send("Something went wrong");
+  }
+};
+
 module.exports = {
-  addExistingTag
+  addExistingTag,
+  addNewTag
 };
 },{"../services":"services/index.js"}],"controllers/index.js":[function(require,module,exports) {
 const messages = require("./messages.controller");
@@ -1426,6 +1472,7 @@ router.get("/allMessages", messages.listMessages);
 router.get("/getDailyNotes", verify, notes.getDailyNotes);
 router.get("/getInitInfo", verify, info.getInitInfo);
 router.post("/addExistingTag", verify, tags.addExistingTag);
+router.post("/addNewTag", verify, tags.addNewTag);
 router.post("/post", messages.newMessageEvent);
 router.post("/register", register.register);
 router.post("/login", login.login);
