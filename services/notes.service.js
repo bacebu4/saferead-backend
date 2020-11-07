@@ -63,7 +63,17 @@ async function getNotesWithTags(notes) {
   return noteWithTags;
 }
 
+async function searchNotes(id, substring) {
+  try {
+    const notes = await db.searchNotes(id, substring);
+    return notes;
+  } catch (error) {
+    throw new Error();
+  }
+}
+
 module.exports = {
   getNotes,
   getNotesWithTags,
+  searchNotes,
 };

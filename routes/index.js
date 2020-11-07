@@ -19,6 +19,8 @@ router.get("/allMessages", messages.listMessages);
 
 router.get("/getDailyNotes", verify, notes.getDailyNotes);
 
+router.post("/searchNotes", verify, notes.searchNotes);
+
 router.get("/getInitInfo", verify, info.getInitInfo);
 
 router.post("/addExistingTag", verify, tags.addExistingTag);
