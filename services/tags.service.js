@@ -19,7 +19,16 @@ async function addNewTag(userId, payload) {
   }
 }
 
+async function deleteTagFromNote(note_id, tag_id) {
+  try {
+    await db.deleteTagFromNote(note_id, tag_id);
+  } catch (error) {
+    throw new Error();
+  }
+}
+
 module.exports = {
+  deleteTagFromNote,
   addNewTag,
   addExistingTag,
 };

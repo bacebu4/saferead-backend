@@ -25,6 +25,8 @@ router.post("/addExistingTag", verify, tags.addExistingTag);
 
 router.post("/addNewTag", verify, tags.addNewTag);
 
+router.delete("/deleteTagFromNote", verify, tags.deleteTagFromNote);
+
 router.post("/post", messages.newMessageEvent);
 
 router.post("/register", register.register);
