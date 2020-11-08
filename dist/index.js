@@ -778,6 +778,25 @@ const searchNotes = async (id, substring) => {
 module.exports = {
   searchNotes
 };
+},{"./index":"db/index.js"}],"db/deleteNote.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+/* eslint-disable camelcase */
+const deleteNote = async note_id => {
+  const data = await _index.manager.query(
+  /* sql */
+  `
+    delete from notes
+    where note_id = $1;
+  `, [note_id]);
+  return data;
+};
+
+module.exports = {
+  deleteNote
+};
 },{"./index":"db/index.js"}],"db/index.js":[function(require,module,exports) {
 "use strict";
 
@@ -862,7 +881,11 @@ const {
 
 const {
   searchNotes
-} = require("./searchNotes"); // eslint-disable-next-line import/no-mutable-exports
+} = require("./searchNotes");
+
+const {
+  deleteNote
+} = require("./deleteNote"); // eslint-disable-next-line import/no-mutable-exports
 
 
 let manager;
@@ -916,9 +939,10 @@ module.exports = {
   addExistingTag,
   addNewTag,
   deleteTagFromNote,
-  searchNotes
+  searchNotes,
+  deleteNote
 };
-},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js","./addNewTag":"db/addNewTag.js","./deleteTagFromNote":"db/deleteTagFromNote.js","./searchNotes":"db/searchNotes.js"}],"services/update.service.js":[function(require,module,exports) {
+},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js","./addNewTag":"db/addNewTag.js","./deleteTagFromNote":"db/deleteTagFromNote.js","./searchNotes":"db/searchNotes.js","./deleteNote":"db/deleteNote.js"}],"services/update.service.js":[function(require,module,exports) {
 const db = require('../db');
 
 const messageService = require('./messages.service');
@@ -1206,10 +1230,19 @@ async function searchNotes(id, substring) {
   }
 }
 
+async function deleteNote(id) {
+  try {
+    await db.deleteNote(id);
+  } catch (error) {
+    throw new Error("Error deleting note");
+  }
+}
+
 module.exports = {
   getNotes,
   getNotesWithTags,
-  searchNotes
+  searchNotes,
+  deleteNote
 };
 },{"../db":"db/index.js"}],"services/info.service.js":[function(require,module,exports) {
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
@@ -1426,9 +1459,21 @@ const searchNotes = async (req, res) => {
   }
 };
 
+const deleteNote = async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+
+  try {
+    await notesService.deleteNote(req.body.id);
+    res.status(204).send("Successfully deleted");
+  } catch (error) {
+    res.status(500).send("Something went wrong");
+  }
+};
+
 module.exports = {
   getDailyNotes,
-  searchNotes
+  searchNotes,
+  deleteNote
 };
 },{"../services":"services/index.js"}],"controllers/info.controller.js":[function(require,module,exports) {
 const {
@@ -1567,6 +1612,7 @@ router.get("/message", messages.getMessageById);
 router.get("/allMessages", messages.listMessages);
 router.get("/getDailyNotes", verify, notes.getDailyNotes);
 router.post("/searchNotes", verify, notes.searchNotes);
+router.delete("/deleteNote", verify, notes.deleteNote);
 router.get("/getInitInfo", verify, info.getInitInfo);
 router.post("/addExistingTag", verify, tags.addExistingTag);
 router.post("/addNewTag", verify, tags.addNewTag);

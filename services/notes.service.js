@@ -72,8 +72,17 @@ async function searchNotes(id, substring) {
   }
 }
 
+async function deleteNote(id) {
+  try {
+    await db.deleteNote(id);
+  } catch (error) {
+    throw new Error("Error deleting note");
+  }
+}
+
 module.exports = {
   getNotes,
   getNotesWithTags,
   searchNotes,
+  deleteNote,
 };

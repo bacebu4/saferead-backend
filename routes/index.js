@@ -21,6 +21,8 @@ router.get("/getDailyNotes", verify, notes.getDailyNotes);
 
 router.post("/searchNotes", verify, notes.searchNotes);
 
+router.delete("/deleteNote", verify, notes.deleteNote);
+
 router.get("/getInitInfo", verify, info.getInitInfo);
 
 router.post("/addExistingTag", verify, tags.addExistingTag);
