@@ -797,6 +797,26 @@ const deleteNote = async note_id => {
 module.exports = {
   deleteNote
 };
+},{"./index":"db/index.js"}],"db/updateTag.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+/* eslint-disable camelcase */
+const updateTag = async (tag_name, tag_id) => {
+  const data = await _index.manager.query(
+  /* sql */
+  `
+    update tags
+    set tag_name = $1
+    where tag_id = $2;
+  `, [tag_name, tag_id]);
+  return data;
+};
+
+module.exports = {
+  updateTag
+};
 },{"./index":"db/index.js"}],"db/index.js":[function(require,module,exports) {
 "use strict";
 
@@ -885,7 +905,11 @@ const {
 
 const {
   deleteNote
-} = require("./deleteNote"); // eslint-disable-next-line import/no-mutable-exports
+} = require("./deleteNote");
+
+const {
+  updateTag
+} = require("./updateTag"); // eslint-disable-next-line import/no-mutable-exports
 
 
 let manager;
@@ -940,9 +964,10 @@ module.exports = {
   addNewTag,
   deleteTagFromNote,
   searchNotes,
-  deleteNote
+  deleteNote,
+  updateTag
 };
-},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js","./addNewTag":"db/addNewTag.js","./deleteTagFromNote":"db/deleteTagFromNote.js","./searchNotes":"db/searchNotes.js","./deleteNote":"db/deleteNote.js"}],"services/update.service.js":[function(require,module,exports) {
+},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js","./addNewTag":"db/addNewTag.js","./deleteTagFromNote":"db/deleteTagFromNote.js","./searchNotes":"db/searchNotes.js","./deleteNote":"db/deleteNote.js","./updateTag":"db/updateTag.js"}],"services/update.service.js":[function(require,module,exports) {
 const db = require('../db');
 
 const messageService = require('./messages.service');
@@ -1383,10 +1408,19 @@ async function deleteTagFromNote(note_id, tag_id) {
   }
 }
 
+async function updateTag(tag_id, tag_name) {
+  try {
+    await db.updateTag(tag_name, tag_id);
+  } catch (error) {
+    throw new Error();
+  }
+}
+
 module.exports = {
   deleteTagFromNote,
   addNewTag,
-  addExistingTag
+  addExistingTag,
+  updateTag
 };
 },{"../db":"db/index.js"}],"services/index.js":[function(require,module,exports) {
 const messagesService = require("./messages.service");
@@ -1567,10 +1601,22 @@ const deleteTagFromNote = async (req, res) => {
   }
 };
 
+const updateTag = async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+
+  try {
+    await tagsService.updateTag(req.body.tag_id, req.body.tag_name);
+    res.status(204).send("Updated  tag");
+  } catch (error) {
+    res.status(500).send("Something went wrong");
+  }
+};
+
 module.exports = {
   addExistingTag,
   addNewTag,
-  deleteTagFromNote
+  deleteTagFromNote,
+  updateTag
 };
 },{"../services":"services/index.js"}],"controllers/index.js":[function(require,module,exports) {
 const messages = require("./messages.controller");
@@ -1618,6 +1664,7 @@ router.get("/getInitInfo", verify, info.getInitInfo);
 router.post("/addExistingTag", verify, tags.addExistingTag);
 router.post("/addNewTag", verify, tags.addNewTag);
 router.delete("/deleteTagFromNote", verify, tags.deleteTagFromNote);
+router.put("/updateTag", verify, tags.updateTag);
 router.post("/post", messages.newMessageEvent);
 router.post("/register", register.register);
 router.post("/login", login.login);
