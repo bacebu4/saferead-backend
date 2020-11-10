@@ -59,6 +59,7 @@ async function getNotesWithTags(notes) {
   const tags = await Promise.all(tagQueue);
   tags.forEach((t, i) => {
     noteWithTags[i].tags = t;
+    noteWithTags[i].deleted = false;
   });
   return noteWithTags;
 }
