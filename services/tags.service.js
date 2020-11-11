@@ -27,9 +27,9 @@ async function deleteTagFromNote(note_id, tag_id) {
   }
 }
 
-async function updateTag(tag_id, tag_name) {
+async function updateTag(tag_id, tag_name, hue) {
   try {
-    await db.updateTag(tag_name, tag_id);
+    await db.updateTag(tag_name, tag_id, hue);
   } catch (error) {
     throw new Error();
   }

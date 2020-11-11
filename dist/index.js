@@ -803,14 +803,14 @@ module.exports = {
 var _index = require("./index");
 
 /* eslint-disable camelcase */
-const updateTag = async (tag_name, tag_id) => {
+const updateTag = async (tag_name, tag_id, hue) => {
   const data = await _index.manager.query(
   /* sql */
   `
     update tags
-    set tag_name = $1
-    where tag_id = $2;
-  `, [tag_name, tag_id]);
+    set tag_name = $1, hue = $2
+    where tag_id = $3;
+  `, [tag_name, hue, tag_id]);
   return data;
 };
 
@@ -1408,9 +1408,9 @@ async function deleteTagFromNote(note_id, tag_id) {
   }
 }
 
-async function updateTag(tag_id, tag_name) {
+async function updateTag(tag_id, tag_name, hue) {
   try {
-    await db.updateTag(tag_name, tag_id);
+    await db.updateTag(tag_name, tag_id, hue);
   } catch (error) {
     throw new Error();
   }
@@ -1605,7 +1605,7 @@ const updateTag = async (req, res) => {
   res.set("Access-Control-Allow-Origin", "*");
 
   try {
-    await tagsService.updateTag(req.body.tag_id, req.body.tag_name);
+    await tagsService.updateTag(req.body.tag_id, req.body.tag_name, req.body.hue);
     res.status(204).send("Updated  tag");
   } catch (error) {
     res.status(500).send("Something went wrong");
