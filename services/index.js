@@ -5,6 +5,7 @@ const infoService = require("./info.service");
 const registerService = require("./register.service");
 const loginService = require("./login.service");
 const tagsService = require("./tags.service");
+const commentsService = require("./comments.service");
 
 module.exports = {
   messagesService,
@@ -14,4 +15,5 @@ module.exports = {
   tagsService,
   loginService,
   registerService,
+  commentsService,
 };

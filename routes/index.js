@@ -9,6 +9,7 @@ const {
   register,
   login,
   tags,
+  comments,
 } = require("../controllers");
 
 const router = express.Router();
@@ -24,6 +25,8 @@ router.post("/searchNotes", verify, notes.searchNotes);
 router.delete("/deleteNote", verify, notes.deleteNote);
 
 router.put("/updateNote", verify, notes.updateNote);
+
+router.put("/updateComment", verify, comments.updateComment);
 
 router.get("/getInitInfo", verify, info.getInitInfo);
 

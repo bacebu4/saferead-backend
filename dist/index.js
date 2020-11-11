@@ -1482,6 +1482,21 @@ module.exports = {
   addExistingTag,
   updateTag
 };
+},{"../db":"db/index.js"}],"services/comments.service.js":[function(require,module,exports) {
+/* eslint-disable camelcase */
+const db = require("../db");
+
+async function updateComment(comment_id, comment_text) {
+  try {
+    await db.updateComment(comment_id, comment_text);
+  } catch (error) {
+    throw new Error("Error updating comment");
+  }
+}
+
+module.exports = {
+  updateComment
+};
 },{"../db":"db/index.js"}],"services/index.js":[function(require,module,exports) {
 const messagesService = require("./messages.service");
 
@@ -1497,6 +1512,8 @@ const loginService = require("./login.service");
 
 const tagsService = require("./tags.service");
 
+const commentsService = require("./comments.service");
+
 module.exports = {
   messagesService,
   notesService,
@@ -1504,9 +1521,10 @@ module.exports = {
   infoService,
   tagsService,
   loginService,
-  registerService
+  registerService,
+  commentsService
 };
-},{"./messages.service":"services/messages.service.js","./notes.service":"services/notes.service.js","./update.service":"services/update.service.js","./info.service":"services/info.service.js","./register.service":"services/register.service.js","./login.service":"services/login.service.js","./tags.service":"services/tags.service.js"}],"controllers/messages.controller.js":[function(require,module,exports) {
+},{"./messages.service":"services/messages.service.js","./notes.service":"services/notes.service.js","./update.service":"services/update.service.js","./info.service":"services/info.service.js","./register.service":"services/register.service.js","./login.service":"services/login.service.js","./tags.service":"services/tags.service.js","./comments.service":"services/comments.service.js"}],"controllers/messages.controller.js":[function(require,module,exports) {
 const {
   messagesService
 } = require('../services');
@@ -1690,6 +1708,25 @@ module.exports = {
   deleteTagFromNote,
   updateTag
 };
+},{"../services":"services/index.js"}],"controllers/comments.controller.js":[function(require,module,exports) {
+const {
+  commentsService
+} = require("../services");
+
+const updateComment = async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+
+  try {
+    await commentsService.updateComment(req.body.comment_id, req.body.comment_text);
+    res.status(204).send("Successfully updated");
+  } catch (error) {
+    res.status(500).send("Something went wrong");
+  }
+};
+
+module.exports = {
+  updateComment
+};
 },{"../services":"services/index.js"}],"controllers/index.js":[function(require,module,exports) {
 const messages = require("./messages.controller");
 
@@ -1703,15 +1740,18 @@ const login = require("./login.controller");
 
 const tags = require("./tags.controller");
 
+const comments = require("./comments.controller");
+
 module.exports = {
   notes,
   messages,
   info,
   login,
   register,
-  tags
+  tags,
+  comments
 };
-},{"./messages.controller":"controllers/messages.controller.js","./notes.controller":"controllers/notes.controller.js","./info.controller":"controllers/info.controller.js","./register.controller":"controllers/register.controller.js","./login.controller":"controllers/login.controller.js","./tags.controller":"controllers/tags.controller.js"}],"routes/index.js":[function(require,module,exports) {
+},{"./messages.controller":"controllers/messages.controller.js","./notes.controller":"controllers/notes.controller.js","./info.controller":"controllers/info.controller.js","./register.controller":"controllers/register.controller.js","./login.controller":"controllers/login.controller.js","./tags.controller":"controllers/tags.controller.js","./comments.controller":"controllers/comments.controller.js"}],"routes/index.js":[function(require,module,exports) {
 /* eslint-disable object-curly-newline */
 const express = require("express");
 
@@ -1723,7 +1763,8 @@ const {
   info,
   register,
   login,
-  tags
+  tags,
+  comments
 } = require("../controllers");
 
 const router = express.Router();
@@ -1733,6 +1774,7 @@ router.get("/getDailyNotes", verify, notes.getDailyNotes);
 router.post("/searchNotes", verify, notes.searchNotes);
 router.delete("/deleteNote", verify, notes.deleteNote);
 router.put("/updateNote", verify, notes.updateNote);
+router.put("/updateComment", verify, comments.updateComment);
 router.get("/getInitInfo", verify, info.getInitInfo);
 router.post("/addExistingTag", verify, tags.addExistingTag);
 router.post("/addNewTag", verify, tags.addNewTag);
