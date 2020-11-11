@@ -23,6 +23,8 @@ router.post("/searchNotes", verify, notes.searchNotes);
 
 router.delete("/deleteNote", verify, notes.deleteNote);
 
+router.put("/updateNote", verify, notes.updateNote);
+
 router.get("/getInitInfo", verify, info.getInitInfo);
 
 router.post("/addExistingTag", verify, tags.addExistingTag);

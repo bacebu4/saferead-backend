@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 const db = require("../db");
 
 async function getRandomNotes(data, amount) {
@@ -81,9 +82,18 @@ async function deleteNote(id) {
   }
 }
 
+async function updateNote(note_id, note_text) {
+  try {
+    await db.updateNote(note_id, note_text);
+  } catch (error) {
+    throw new Error("Error updating note");
+  }
+}
+
 module.exports = {
   getNotes,
   getNotesWithTags,
   searchNotes,
   deleteNote,
+  updateNote,
 };

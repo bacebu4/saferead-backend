@@ -30,8 +30,19 @@ const deleteNote = async (req, res) => {
   }
 };
 
+const updateNote = async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  try {
+    await notesService.updateNote(req.body.note_id, req.body.note_text);
+    res.status(204).send("Successfully updated");
+  } catch (error) {
+    res.status(500).send("Something went wrong");
+  }
+};
+
 module.exports = {
   getDailyNotes,
   searchNotes,
   deleteNote,
+  updateNote,
 };

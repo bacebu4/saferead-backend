@@ -817,6 +817,26 @@ const updateTag = async (tag_name, tag_id, hue) => {
 module.exports = {
   updateTag
 };
+},{"./index":"db/index.js"}],"db/updateNote.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+/* eslint-disable camelcase */
+const updateTag = async (note_id, note_text) => {
+  const data = await _index.manager.query(
+  /* sql */
+  `
+    update note
+    set note_text = $1
+    where note_id = $2;
+  `, [note_text, note_id]);
+  return data;
+};
+
+module.exports = {
+  updateTag
+};
 },{"./index":"db/index.js"}],"db/index.js":[function(require,module,exports) {
 "use strict";
 
@@ -909,7 +929,11 @@ const {
 
 const {
   updateTag
-} = require("./updateTag"); // eslint-disable-next-line import/no-mutable-exports
+} = require("./updateTag");
+
+const {
+  updateNote
+} = require("./updateNote"); // eslint-disable-next-line import/no-mutable-exports
 
 
 let manager;
@@ -965,9 +989,10 @@ module.exports = {
   deleteTagFromNote,
   searchNotes,
   deleteNote,
-  updateTag
+  updateTag,
+  updateNote
 };
-},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js","./addNewTag":"db/addNewTag.js","./deleteTagFromNote":"db/deleteTagFromNote.js","./searchNotes":"db/searchNotes.js","./deleteNote":"db/deleteNote.js","./updateTag":"db/updateTag.js"}],"services/update.service.js":[function(require,module,exports) {
+},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js","./addNewTag":"db/addNewTag.js","./deleteTagFromNote":"db/deleteTagFromNote.js","./searchNotes":"db/searchNotes.js","./deleteNote":"db/deleteNote.js","./updateTag":"db/updateTag.js","./updateNote":"db/updateNote.js"}],"services/update.service.js":[function(require,module,exports) {
 const db = require('../db');
 
 const messageService = require('./messages.service');
@@ -1181,6 +1206,7 @@ module.exports = {
   deleteMessageById
 };
 },{"../utils":"utils/index.js","./update.service":"services/update.service.js"}],"services/notes.service.js":[function(require,module,exports) {
+/* eslint-disable camelcase */
 const db = require("../db");
 
 async function getRandomNotes(data, amount) {
@@ -1264,11 +1290,20 @@ async function deleteNote(id) {
   }
 }
 
+async function updateNote(note_id, note_text) {
+  try {
+    await db.updateNote(note_id, note_text);
+  } catch (error) {
+    throw new Error("Error updating note");
+  }
+}
+
 module.exports = {
   getNotes,
   getNotesWithTags,
   searchNotes,
-  deleteNote
+  deleteNote,
+  updateNote
 };
 },{"../db":"db/index.js"}],"services/info.service.js":[function(require,module,exports) {
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
@@ -1505,10 +1540,22 @@ const deleteNote = async (req, res) => {
   }
 };
 
+const updateNote = async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+
+  try {
+    await notesService.updateNote(req.body.note_id, req.body.note_text);
+    res.status(204).send("Successfully updated");
+  } catch (error) {
+    res.status(500).send("Something went wrong");
+  }
+};
+
 module.exports = {
   getDailyNotes,
   searchNotes,
-  deleteNote
+  deleteNote,
+  updateNote
 };
 },{"../services":"services/index.js"}],"controllers/info.controller.js":[function(require,module,exports) {
 const {
@@ -1660,6 +1707,7 @@ router.get("/allMessages", messages.listMessages);
 router.get("/getDailyNotes", verify, notes.getDailyNotes);
 router.post("/searchNotes", verify, notes.searchNotes);
 router.delete("/deleteNote", verify, notes.deleteNote);
+router.put("/updateNote", verify, notes.updateNote);
 router.get("/getInitInfo", verify, info.getInitInfo);
 router.post("/addExistingTag", verify, tags.addExistingTag);
 router.post("/addNewTag", verify, tags.addNewTag);

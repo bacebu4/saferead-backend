@@ -20,6 +20,7 @@ const { deleteTagFromNote } = require("./deleteTagFromNote");
 const { searchNotes } = require("./searchNotes");
 const { deleteNote } = require("./deleteNote");
 const { updateTag } = require("./updateTag");
+const { updateNote } = require("./updateNote");
 
 // eslint-disable-next-line import/no-mutable-exports
 let manager;
@@ -73,6 +74,7 @@ module.exports = {
   searchNotes,
   deleteNote,
   updateTag,
+  updateNote,
 };
 
 export {
