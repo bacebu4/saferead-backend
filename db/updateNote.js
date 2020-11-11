@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import { manager } from "./index";
 
-const updateTag = async (note_id, note_text) => {
+const updateNote = async (note_id, note_text) => {
   const data = await manager.query(
     /* sql */ `
     update note
@@ -15,5 +15,5 @@ const updateTag = async (note_id, note_text) => {
 };
 
 module.exports = {
-  updateTag,
+  updateNote,
 };

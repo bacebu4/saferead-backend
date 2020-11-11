@@ -823,7 +823,7 @@ module.exports = {
 var _index = require("./index");
 
 /* eslint-disable camelcase */
-const updateTag = async (note_id, note_text) => {
+const updateNote = async (note_id, note_text) => {
   const data = await _index.manager.query(
   /* sql */
   `
@@ -835,7 +835,27 @@ const updateTag = async (note_id, note_text) => {
 };
 
 module.exports = {
-  updateTag
+  updateNote
+};
+},{"./index":"db/index.js"}],"db/updateComment.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+/* eslint-disable camelcase */
+const updateComment = async (comment_id, comment_text) => {
+  const data = await _index.manager.query(
+  /* sql */
+  `
+    update comments
+    set comment_text = $1
+    where comment_id = $2;
+  `, [comment_text, comment_id]);
+  return data;
+};
+
+module.exports = {
+  updateComment
 };
 },{"./index":"db/index.js"}],"db/index.js":[function(require,module,exports) {
 "use strict";
@@ -933,7 +953,11 @@ const {
 
 const {
   updateNote
-} = require("./updateNote"); // eslint-disable-next-line import/no-mutable-exports
+} = require("./updateNote");
+
+const {
+  updateComment
+} = require("./updateComment"); // eslint-disable-next-line import/no-mutable-exports
 
 
 let manager;
@@ -990,9 +1014,10 @@ module.exports = {
   searchNotes,
   deleteNote,
   updateTag,
-  updateNote
+  updateNote,
+  updateComment
 };
-},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js","./addNewTag":"db/addNewTag.js","./deleteTagFromNote":"db/deleteTagFromNote.js","./searchNotes":"db/searchNotes.js","./deleteNote":"db/deleteNote.js","./updateTag":"db/updateTag.js","./updateNote":"db/updateNote.js"}],"services/update.service.js":[function(require,module,exports) {
+},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js","./addNewTag":"db/addNewTag.js","./deleteTagFromNote":"db/deleteTagFromNote.js","./searchNotes":"db/searchNotes.js","./deleteNote":"db/deleteNote.js","./updateTag":"db/updateTag.js","./updateNote":"db/updateNote.js","./updateComment":"db/updateComment.js"}],"services/update.service.js":[function(require,module,exports) {
 const db = require('../db');
 
 const messageService = require('./messages.service');
