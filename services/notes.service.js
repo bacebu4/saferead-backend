@@ -81,9 +81,9 @@ async function getNotesWithComments(notes) {
 async function searchNotes(id, substring) {
   try {
     const notes = await db.searchNotes(id, substring);
-    const notesSecond = await db.searchNotes(id, substring.toLowerCase());
+    // const notesSecond = await db.searchNotes(id, substring.toLowerCase());
 
-    return [...notes, ...notesSecond];
+    return notes;
   } catch (error) {
     throw new Error();
   }

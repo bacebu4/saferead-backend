@@ -4,13 +4,12 @@ import { manager } from "./index";
 const updateNote = async (note_id, note_text) => {
   const data = await manager.query(
     /* sql */ `
-    update note
+    update notes
     set note_text = $1
     where note_id = $2;
   `,
     [note_text, note_id],
   );
-
   return data;
 };
 

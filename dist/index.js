@@ -826,7 +826,7 @@ const updateNote = async (note_id, note_text) => {
   const data = await _index.manager.query(
   /* sql */
   `
-    update note
+    update notes
     set note_text = $1
     where note_id = $2;
   `, [note_text, note_id]);
@@ -1336,9 +1336,9 @@ async function getNotesWithComments(notes) {
 
 async function searchNotes(id, substring) {
   try {
-    const notes = await db.searchNotes(id, substring);
-    const notesSecond = await db.searchNotes(id, substring.toLowerCase());
-    return [...notes, ...notesSecond];
+    const notes = await db.searchNotes(id, substring); // const notesSecond = await db.searchNotes(id, substring.toLowerCase());
+
+    return notes;
   } catch (error) {
     throw new Error();
   }
