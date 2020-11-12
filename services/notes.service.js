@@ -65,6 +65,19 @@ async function getNotesWithTags(notes) {
   return noteWithTags;
 }
 
+async function getNotesWithComments(notes) {
+  const noteWithComments = [...notes];
+  const tagQueue = [];
+  notes.forEach((note) => {
+    tagQueue.push(db.getCommentNotes(note.note_id));
+  });
+  const tags = await Promise.all(tagQueue);
+  tags.forEach((t, i) => {
+    noteWithComments[i].comments = t;
+  });
+  return noteWithComments;
+}
+
 async function searchNotes(id, substring) {
   try {
     const notes = await db.searchNotes(id, substring);
@@ -96,4 +109,5 @@ module.exports = {
   searchNotes,
   deleteNote,
   updateNote,
+  getNotesWithComments,
 };
