@@ -27,7 +27,18 @@ const addComment = async (req, res) => {
   }
 };
 
+const deleteComment = async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  try {
+    await commentsService.deleteComment(req.body.comment_id);
+    res.status(204).send("Successfully deleted");
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
 module.exports = {
   addComment,
   updateComment,
+  deleteComment,
 };

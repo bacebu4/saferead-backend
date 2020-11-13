@@ -893,6 +893,25 @@ const addComment = async (note_id, comment_id, comment_text) => {
 module.exports = {
   addComment
 };
+},{"./index":"db/index.js"}],"db/deleteComment.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+/* eslint-disable camelcase */
+const deleteComment = async comment_id => {
+  const data = await _index.manager.query(
+  /* sql */
+  `
+    delete from comments
+    where comment_id = $1;
+  `, [comment_id]);
+  return data;
+};
+
+module.exports = {
+  deleteComment
+};
 },{"./index":"db/index.js"}],"db/index.js":[function(require,module,exports) {
 "use strict";
 
@@ -1001,7 +1020,11 @@ const {
 
 const {
   addComment
-} = require("./addComment"); // eslint-disable-next-line import/no-mutable-exports
+} = require("./addComment");
+
+const {
+  deleteComment
+} = require("./deleteComment"); // eslint-disable-next-line import/no-mutable-exports
 
 
 let manager;
@@ -1061,9 +1084,10 @@ module.exports = {
   updateNote,
   updateComment,
   getCommentNotes,
-  addComment
+  addComment,
+  deleteComment
 };
-},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js","./addNewTag":"db/addNewTag.js","./deleteTagFromNote":"db/deleteTagFromNote.js","./searchNotes":"db/searchNotes.js","./deleteNote":"db/deleteNote.js","./updateTag":"db/updateTag.js","./updateNote":"db/updateNote.js","./updateComment":"db/updateComment.js","./getCommentNotes":"db/getCommentNotes.js","./addComment":"db/addComment.js"}],"services/update.service.js":[function(require,module,exports) {
+},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js","./addNewTag":"db/addNewTag.js","./deleteTagFromNote":"db/deleteTagFromNote.js","./searchNotes":"db/searchNotes.js","./deleteNote":"db/deleteNote.js","./updateTag":"db/updateTag.js","./updateNote":"db/updateNote.js","./updateComment":"db/updateComment.js","./getCommentNotes":"db/getCommentNotes.js","./addComment":"db/addComment.js","./deleteComment":"db/deleteComment.js"}],"services/update.service.js":[function(require,module,exports) {
 const db = require('../db');
 
 const messageService = require('./messages.service');
@@ -1563,9 +1587,18 @@ async function addComment(note_id, comment_id, comment_text) {
   }
 }
 
+async function deleteComment(comment_id) {
+  try {
+    await db.deleteComment(comment_id);
+  } catch (error) {
+    throw new Error("Error deleting comment");
+  }
+}
+
 module.exports = {
   addComment,
-  updateComment
+  updateComment,
+  deleteComment
 };
 },{"../db":"db/index.js"}],"services/index.js":[function(require,module,exports) {
 const messagesService = require("./messages.service");
@@ -1806,9 +1839,21 @@ const addComment = async (req, res) => {
   }
 };
 
+const deleteComment = async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+
+  try {
+    await commentsService.deleteComment(req.body.comment_id);
+    res.status(204).send("Successfully deleted");
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
 module.exports = {
   addComment,
-  updateComment
+  updateComment,
+  deleteComment
 };
 },{"../services":"services/index.js"}],"controllers/index.js":[function(require,module,exports) {
 const messages = require("./messages.controller");
@@ -1858,6 +1903,7 @@ router.post("/searchNotes", verify, notes.searchNotes);
 router.delete("/deleteNote", verify, notes.deleteNote);
 router.put("/updateNote", verify, notes.updateNote);
 router.post("/addComment", verify, comments.addComment);
+router.delete("/deleteComment", verify, comments.deleteComment);
 router.put("/updateComment", verify, comments.updateComment);
 router.get("/getInitInfo", verify, info.getInitInfo);
 router.post("/addExistingTag", verify, tags.addExistingTag);

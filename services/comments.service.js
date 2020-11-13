@@ -17,7 +17,16 @@ async function addComment(note_id, comment_id, comment_text) {
   }
 }
 
+async function deleteComment(comment_id) {
+  try {
+    await db.deleteComment(comment_id);
+  } catch (error) {
+    throw new Error("Error deleting comment");
+  }
+}
+
 module.exports = {
   addComment,
   updateComment,
+  deleteComment,
 };

@@ -28,6 +28,8 @@ router.put("/updateNote", verify, notes.updateNote);
 
 router.post("/addComment", verify, comments.addComment);
 
+router.delete("/deleteComment", verify, comments.deleteComment);
+
 router.put("/updateComment", verify, comments.updateComment);
 
 router.get("/getInitInfo", verify, info.getInitInfo);
