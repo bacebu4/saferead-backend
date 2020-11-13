@@ -26,6 +26,8 @@ router.delete("/deleteNote", verify, notes.deleteNote);
 
 router.put("/updateNote", verify, notes.updateNote);
 
+router.post("/addComment", verify, comments.addComment);
+
 router.put("/updateComment", verify, comments.updateComment);
 
 router.get("/getInitInfo", verify, info.getInitInfo);

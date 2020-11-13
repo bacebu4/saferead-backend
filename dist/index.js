@@ -875,6 +875,24 @@ const getCommentNotes = async id => {
 module.exports = {
   getCommentNotes
 };
+},{"./index":"db/index.js"}],"db/addComment.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+/* eslint-disable camelcase */
+const addComment = async (note_id, comment_id, comment_text) => {
+  await _index.manager.query(
+  /* sql */
+  `
+    insert into comments(note_id, comment_text, createdAt, updatedAt, comment_id) 
+    VALUES ($1, $2, now(), now(), $3);
+  `, [note_id, comment_text, comment_id]);
+};
+
+module.exports = {
+  addComment
+};
 },{"./index":"db/index.js"}],"db/index.js":[function(require,module,exports) {
 "use strict";
 
@@ -979,7 +997,11 @@ const {
 
 const {
   getCommentNotes
-} = require("./getCommentNotes"); // eslint-disable-next-line import/no-mutable-exports
+} = require("./getCommentNotes");
+
+const {
+  addComment
+} = require("./addComment"); // eslint-disable-next-line import/no-mutable-exports
 
 
 let manager;
@@ -1038,9 +1060,10 @@ module.exports = {
   updateTag,
   updateNote,
   updateComment,
-  getCommentNotes
+  getCommentNotes,
+  addComment
 };
-},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js","./addNewTag":"db/addNewTag.js","./deleteTagFromNote":"db/deleteTagFromNote.js","./searchNotes":"db/searchNotes.js","./deleteNote":"db/deleteNote.js","./updateTag":"db/updateTag.js","./updateNote":"db/updateNote.js","./updateComment":"db/updateComment.js","./getCommentNotes":"db/getCommentNotes.js"}],"services/update.service.js":[function(require,module,exports) {
+},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js","./addNewTag":"db/addNewTag.js","./deleteTagFromNote":"db/deleteTagFromNote.js","./searchNotes":"db/searchNotes.js","./deleteNote":"db/deleteNote.js","./updateTag":"db/updateTag.js","./updateNote":"db/updateNote.js","./updateComment":"db/updateComment.js","./getCommentNotes":"db/getCommentNotes.js","./addComment":"db/addComment.js"}],"services/update.service.js":[function(require,module,exports) {
 const db = require('../db');
 
 const messageService = require('./messages.service');
@@ -1532,7 +1555,16 @@ async function updateComment(comment_id, comment_text) {
   }
 }
 
+async function addComment(note_id, comment_id, comment_text) {
+  try {
+    await db.addComment(note_id, comment_id, comment_text);
+  } catch (error) {
+    throw new Error("Error adding comment");
+  }
+}
+
 module.exports = {
+  addComment,
   updateComment
 };
 },{"../db":"db/index.js"}],"services/index.js":[function(require,module,exports) {
@@ -1759,11 +1791,23 @@ const updateComment = async (req, res) => {
     await commentsService.updateComment(req.body.comment_id, req.body.comment_text);
     res.status(204).send("Successfully updated");
   } catch (error) {
-    res.status(500).send("Something went wrong");
+    res.status(500).send(error.message);
+  }
+};
+
+const addComment = async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+
+  try {
+    await commentsService.addComment(req.body.note_id, req.body.comment_id, req.body.comment_text);
+    res.status(201).send("Successfully added");
+  } catch (error) {
+    res.status(500).send(error.message);
   }
 };
 
 module.exports = {
+  addComment,
   updateComment
 };
 },{"../services":"services/index.js"}],"controllers/index.js":[function(require,module,exports) {
@@ -1813,6 +1857,7 @@ router.get("/getDailyNotes", verify, notes.getDailyNotes);
 router.post("/searchNotes", verify, notes.searchNotes);
 router.delete("/deleteNote", verify, notes.deleteNote);
 router.put("/updateNote", verify, notes.updateNote);
+router.post("/addComment", verify, comments.addComment);
 router.put("/updateComment", verify, comments.updateComment);
 router.get("/getInitInfo", verify, info.getInitInfo);
 router.post("/addExistingTag", verify, tags.addExistingTag);
