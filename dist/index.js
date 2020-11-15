@@ -912,6 +912,29 @@ const deleteComment = async comment_id => {
 module.exports = {
   deleteComment
 };
+},{"./index":"db/index.js"}],"db/getNotesByBook.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+/* eslint-disable camelcase */
+const getNotesByBook = async (id, book_id) => {
+  const raw = await _index.manager.query(
+  /* sql */
+  `
+    select note_text, book_title, author_full_name, n.note_id
+    from users
+        join notes n on users.user_id = n.user_id
+        join books b on n.book_id = b.book_id
+        join authors a on b.author_id = a.author_id
+    where users.user_id = $1 and b.book_id = $2;
+  `, [id, book_id]);
+  return raw;
+};
+
+module.exports = {
+  getNotesByBook
+};
 },{"./index":"db/index.js"}],"db/index.js":[function(require,module,exports) {
 "use strict";
 
@@ -1024,7 +1047,11 @@ const {
 
 const {
   deleteComment
-} = require("./deleteComment"); // eslint-disable-next-line import/no-mutable-exports
+} = require("./deleteComment");
+
+const {
+  getNotesByBook
+} = require("./getNotesByBook"); // eslint-disable-next-line import/no-mutable-exports
 
 
 let manager;
@@ -1085,9 +1112,10 @@ module.exports = {
   updateComment,
   getCommentNotes,
   addComment,
-  deleteComment
+  deleteComment,
+  getNotesByBook
 };
-},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js","./addNewTag":"db/addNewTag.js","./deleteTagFromNote":"db/deleteTagFromNote.js","./searchNotes":"db/searchNotes.js","./deleteNote":"db/deleteNote.js","./updateTag":"db/updateTag.js","./updateNote":"db/updateNote.js","./updateComment":"db/updateComment.js","./getCommentNotes":"db/getCommentNotes.js","./addComment":"db/addComment.js","./deleteComment":"db/deleteComment.js"}],"services/update.service.js":[function(require,module,exports) {
+},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js","./addNewTag":"db/addNewTag.js","./deleteTagFromNote":"db/deleteTagFromNote.js","./searchNotes":"db/searchNotes.js","./deleteNote":"db/deleteNote.js","./updateTag":"db/updateTag.js","./updateNote":"db/updateNote.js","./updateComment":"db/updateComment.js","./getCommentNotes":"db/getCommentNotes.js","./addComment":"db/addComment.js","./deleteComment":"db/deleteComment.js","./getNotesByBook":"db/getNotesByBook.js"}],"services/update.service.js":[function(require,module,exports) {
 const db = require('../db');
 
 const messageService = require('./messages.service');
@@ -1407,13 +1435,23 @@ async function updateNote(note_id, note_text) {
   }
 }
 
+async function getNotesByBook(user_id, book_id) {
+  try {
+    const notes = await db.getNotesByBook(user_id, book_id);
+    return notes;
+  } catch (error) {
+    throw new Error("Error getting note");
+  }
+}
+
 module.exports = {
   getNotes,
   getNotesWithTags,
   searchNotes,
   deleteNote,
   updateNote,
-  getNotesWithComments
+  getNotesWithComments,
+  getNotesByBook
 };
 },{"../db":"db/index.js"}],"services/info.service.js":[function(require,module,exports) {
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
@@ -1665,6 +1703,12 @@ const getDailyNotes = async (req, res) => {
   res.json(notesWithComments);
 };
 
+const getNotesByBook = async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  const notes = await notesService.getNotesByBook(req.user.id, req.body.book_id);
+  res.json(notes);
+};
+
 const searchNotes = async (req, res) => {
   res.set("Access-Control-Allow-Origin", "*");
 
@@ -1702,7 +1746,8 @@ module.exports = {
   getDailyNotes,
   searchNotes,
   deleteNote,
-  updateNote
+  updateNote,
+  getNotesByBook
 };
 },{"../services":"services/index.js"}],"controllers/info.controller.js":[function(require,module,exports) {
 const {
@@ -1899,6 +1944,7 @@ const router = express.Router();
 router.get("/message", messages.getMessageById);
 router.get("/allMessages", messages.listMessages);
 router.get("/getDailyNotes", verify, notes.getDailyNotes);
+router.post("/getNotesByBook", verify, notes.getNotesByBook);
 router.post("/searchNotes", verify, notes.searchNotes);
 router.delete("/deleteNote", verify, notes.deleteNote);
 router.put("/updateNote", verify, notes.updateNote);
