@@ -105,6 +105,15 @@ async function updateNote(note_id, note_text) {
   }
 }
 
+async function getNotesByBook(user_id, book_id) {
+  try {
+    const notes = await db.getNotesByBook(user_id, book_id);
+    return notes;
+  } catch (error) {
+    throw new Error("Error getting note");
+  }
+}
+
 module.exports = {
   getNotes,
   getNotesWithTags,
@@ -112,4 +121,5 @@ module.exports = {
   deleteNote,
   updateNote,
   getNotesWithComments,
+  getNotesByBook,
 };

@@ -20,6 +20,8 @@ router.get("/allMessages", messages.listMessages);
 
 router.get("/getDailyNotes", verify, notes.getDailyNotes);
 
+router.get("/getNotesByBook", verify, notes.getNotesByBook);
+
 router.post("/searchNotes", verify, notes.searchNotes);
 
 router.delete("/deleteNote", verify, notes.deleteNote);

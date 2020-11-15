@@ -10,6 +10,15 @@ const getDailyNotes = async (req, res) => {
   res.json(notesWithComments);
 };
 
+const getNotesByBook = async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  const notes = await notesService.getNotesByBook(
+    req.user.id,
+    req.body.book_id,
+  );
+  res.json(notes);
+};
+
 const searchNotes = async (req, res) => {
   res.set("Access-Control-Allow-Origin", "*");
   try {
@@ -48,4 +57,5 @@ module.exports = {
   searchNotes,
   deleteNote,
   updateNote,
+  getNotesByBook,
 };
