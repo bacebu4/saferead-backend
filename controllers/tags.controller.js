@@ -24,7 +24,17 @@ const deleteTagFromNote = async (req, res) => {
   res.set("Access-Control-Allow-Origin", "*");
   try {
     await tagsService.deleteTagFromNote(req.body.note_id, req.body.tag_id);
-    res.status(204).send("Deleted  tag");
+    res.status(204).send("Deleted tag from note");
+  } catch (error) {
+    res.status(500).send("Something went wrong");
+  }
+};
+
+const deleteTag = async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  try {
+    await tagsService.deleteTag(req.body.tag_id);
+    res.status(204).send("Deleted tag");
   } catch (error) {
     res.status(500).send("Something went wrong");
   }
@@ -49,4 +59,5 @@ module.exports = {
   addNewTag,
   deleteTagFromNote,
   updateTag,
+  deleteTag,
 };

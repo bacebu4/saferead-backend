@@ -27,6 +27,14 @@ async function deleteTagFromNote(note_id, tag_id) {
   }
 }
 
+async function deleteTag(tag_id) {
+  try {
+    await db.deleteTag(tag_id);
+  } catch (error) {
+    throw new Error();
+  }
+}
+
 async function updateTag(tag_id, tag_name, hue) {
   try {
     await db.updateTag(tag_name, tag_id, hue);
@@ -40,4 +48,5 @@ module.exports = {
   addNewTag,
   addExistingTag,
   updateTag,
+  deleteTag,
 };
