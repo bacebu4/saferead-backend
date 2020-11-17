@@ -20,7 +20,7 @@ router.get("/allMessages", messages.listMessages);
 
 router.get("/getDailyNotes", verify, notes.getDailyNotes);
 
-router.get("/note/:id", verify, notes.getNote);
+router.get("/note/:id", notes.getNote);
 
 router.post("/getNotesByBook", verify, notes.getNotesByBook);
 

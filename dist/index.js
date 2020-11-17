@@ -2035,7 +2035,7 @@ const router = express.Router();
 router.get("/message", messages.getMessageById);
 router.get("/allMessages", messages.listMessages);
 router.get("/getDailyNotes", verify, notes.getDailyNotes);
-router.get("/note/:id", verify, notes.getNote);
+router.get("/note/:id", notes.getNote);
 router.post("/getNotesByBook", verify, notes.getNotesByBook);
 router.post("/searchNotes", verify, notes.searchNotes);
 router.delete("/deleteNote", verify, notes.deleteNote);
