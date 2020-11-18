@@ -1,6 +1,7 @@
 import { manager } from "./index";
 
 const searchNotes = async (id, substring) => {
+  const lowercaseSubstring = substring.toLowerCase();
   const raw = await manager.query(
     /* sql */ `
     select note_text, comment_text, book_title, author_full_name, n.note_id
@@ -10,9 +11,9 @@ const searchNotes = async (id, substring) => {
       join authors a on b.author_id = a.author_id
       left join comments c on n.note_id = c.note_id
     where users.user_id = $1
-      and note_text like $2
+      and (note_text like $2 or note_text like $3)
   `,
-    [id, `%${substring}%`],
+    [id, `% ${substring}%`, `% ${lowercaseSubstring}%`],
   );
   return raw;
 };

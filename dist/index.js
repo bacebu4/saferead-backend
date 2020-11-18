@@ -759,6 +759,7 @@ module.exports = {
 var _index = require("./index");
 
 const searchNotes = async (id, substring) => {
+  const lowercaseSubstring = substring.toLowerCase();
   const raw = await _index.manager.query(
   /* sql */
   `
@@ -769,8 +770,8 @@ const searchNotes = async (id, substring) => {
       join authors a on b.author_id = a.author_id
       left join comments c on n.note_id = c.note_id
     where users.user_id = $1
-      and note_text like $2
-  `, [id, `%${substring}%`]);
+      and (note_text like $2 or note_text like $3)
+  `, [id, `% ${substring}%`, `% ${lowercaseSubstring}%`]);
   return raw;
 };
 
