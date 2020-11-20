@@ -10,6 +10,15 @@ async function getInitInfo(id) {
   return { tags, accountInfo, latestBooks };
 }
 
+async function setReviewed(id) {
+  try {
+    await db.setReviewed(id);
+  } catch (error) {
+    throw new Error("Error setting");
+  }
+}
+
 module.exports = {
   getInitInfo,
+  setReviewed,
 };

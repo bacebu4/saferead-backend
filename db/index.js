@@ -28,6 +28,7 @@ const { deleteComment } = require("./deleteComment");
 const { getNotesByBook } = require("./getNotesByBook");
 const { deleteTag } = require("./deleteTag");
 const { getNote } = require("./getNote");
+const { setReviewed } = require("./setReviewed");
 
 // eslint-disable-next-line import/no-mutable-exports
 let manager;
@@ -89,6 +90,7 @@ module.exports = {
   getNotesByBook,
   deleteTag,
   getNote,
+  setReviewed,
 };
 
 export {
