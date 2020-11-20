@@ -997,6 +997,32 @@ const setReviewed = async id => {
 module.exports = {
   setReviewed
 };
+},{"./index":"db/index.js"}],"db/setNewDay.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+const setNewDay = async () => {
+  await _index.manager.query(
+  /* sql */
+  `
+    update users
+    set streak = 0,
+        missed = missed + 1
+    where reviewed = false;
+  `);
+  await _index.manager.query(
+  /* sql */
+  `
+    update users
+    set reviewed = true
+    where reviewed = false;
+  `);
+};
+
+module.exports = {
+  setNewDay
+};
 },{"./index":"db/index.js"}],"db/index.js":[function(require,module,exports) {
 "use strict";
 
@@ -1127,7 +1153,11 @@ const {
 
 const {
   setReviewed
-} = require("./setReviewed"); // eslint-disable-next-line import/no-mutable-exports
+} = require("./setReviewed");
+
+const {
+  setNewDay
+} = require("./setNewDay"); // eslint-disable-next-line import/no-mutable-exports
 
 
 let manager;
@@ -1136,6 +1166,7 @@ exports.manager = manager;
 const startSchedule = () => {
   schedule.scheduleJob("0 0 * * *", () => {
     console.log("this is schedule every day");
+    setNewDay();
   });
 };
 
@@ -1199,9 +1230,10 @@ module.exports = {
   getNotesByBook,
   deleteTag,
   getNote,
-  setReviewed
+  setReviewed,
+  setNewDay
 };
-},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js","./addNewTag":"db/addNewTag.js","./deleteTagFromNote":"db/deleteTagFromNote.js","./searchNotes":"db/searchNotes.js","./deleteNote":"db/deleteNote.js","./updateTag":"db/updateTag.js","./updateNote":"db/updateNote.js","./updateComment":"db/updateComment.js","./getCommentNotes":"db/getCommentNotes.js","./addComment":"db/addComment.js","./deleteComment":"db/deleteComment.js","./getNotesByBook":"db/getNotesByBook.js","./deleteTag":"db/deleteTag.js","./getNote":"db/getNote.js","./setReviewed":"db/setReviewed.js"}],"services/update.service.js":[function(require,module,exports) {
+},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js","./addNewTag":"db/addNewTag.js","./deleteTagFromNote":"db/deleteTagFromNote.js","./searchNotes":"db/searchNotes.js","./deleteNote":"db/deleteNote.js","./updateTag":"db/updateTag.js","./updateNote":"db/updateNote.js","./updateComment":"db/updateComment.js","./getCommentNotes":"db/getCommentNotes.js","./addComment":"db/addComment.js","./deleteComment":"db/deleteComment.js","./getNotesByBook":"db/getNotesByBook.js","./deleteTag":"db/deleteTag.js","./getNote":"db/getNote.js","./setReviewed":"db/setReviewed.js","./setNewDay":"db/setNewDay.js"}],"services/update.service.js":[function(require,module,exports) {
 const db = require('../db');
 
 const messageService = require('./messages.service');

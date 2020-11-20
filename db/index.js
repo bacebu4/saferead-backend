@@ -30,6 +30,7 @@ const { getNotesByBook } = require("./getNotesByBook");
 const { deleteTag } = require("./deleteTag");
 const { getNote } = require("./getNote");
 const { setReviewed } = require("./setReviewed");
+const { setNewDay } = require("./setNewDay");
 
 // eslint-disable-next-line import/no-mutable-exports
 let manager;
@@ -37,6 +38,7 @@ let manager;
 const startSchedule = () => {
   schedule.scheduleJob("0 0 * * *", () => {
     console.log("this is schedule every day");
+    setNewDay();
   });
 };
 
@@ -99,6 +101,7 @@ module.exports = {
   deleteTag,
   getNote,
   setReviewed,
+  setNewDay,
 };
 
 export {
