@@ -977,6 +977,26 @@ const getNote = async id => {
 module.exports = {
   getNote
 };
+},{"./index":"db/index.js"}],"db/setReviewed.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+const setReviewed = async id => {
+  await _index.manager.query(
+  /* sql */
+  `
+  update users
+    set reviewed = true, 
+        streak = streak + 1, 
+        missed = 0
+    where user_id = $1;
+  `, [id]);
+};
+
+module.exports = {
+  setReviewed
+};
 },{"./index":"db/index.js"}],"db/index.js":[function(require,module,exports) {
 "use strict";
 
@@ -988,6 +1008,8 @@ exports.manager = void 0;
 const {
   createConnection
 } = require("typeorm");
+
+const schedule = require("node-schedule");
 
 require("reflect-metadata");
 
@@ -1101,11 +1123,21 @@ const {
 
 const {
   getNote
-} = require("./getNote"); // eslint-disable-next-line import/no-mutable-exports
+} = require("./getNote");
+
+const {
+  setReviewed
+} = require("./setReviewed"); // eslint-disable-next-line import/no-mutable-exports
 
 
 let manager;
 exports.manager = manager;
+
+const startSchedule = () => {
+  schedule.scheduleJob("0 0 * * *", () => {
+    console.log("this is schedule every day");
+  });
+};
 
 const init = async () => {
   try {
@@ -1131,6 +1163,7 @@ const init = async () => {
     }
 
     exports.manager = manager = connection.manager;
+    startSchedule();
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }
@@ -1165,9 +1198,10 @@ module.exports = {
   deleteComment,
   getNotesByBook,
   deleteTag,
-  getNote
+  getNote,
+  setReviewed
 };
-},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js","./addNewTag":"db/addNewTag.js","./deleteTagFromNote":"db/deleteTagFromNote.js","./searchNotes":"db/searchNotes.js","./deleteNote":"db/deleteNote.js","./updateTag":"db/updateTag.js","./updateNote":"db/updateNote.js","./updateComment":"db/updateComment.js","./getCommentNotes":"db/getCommentNotes.js","./addComment":"db/addComment.js","./deleteComment":"db/deleteComment.js","./getNotesByBook":"db/getNotesByBook.js","./deleteTag":"db/deleteTag.js","./getNote":"db/getNote.js"}],"services/update.service.js":[function(require,module,exports) {
+},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js","./addNewTag":"db/addNewTag.js","./deleteTagFromNote":"db/deleteTagFromNote.js","./searchNotes":"db/searchNotes.js","./deleteNote":"db/deleteNote.js","./updateTag":"db/updateTag.js","./updateNote":"db/updateNote.js","./updateComment":"db/updateComment.js","./getCommentNotes":"db/getCommentNotes.js","./addComment":"db/addComment.js","./deleteComment":"db/deleteComment.js","./getNotesByBook":"db/getNotesByBook.js","./deleteTag":"db/deleteTag.js","./getNote":"db/getNote.js","./setReviewed":"db/setReviewed.js"}],"services/update.service.js":[function(require,module,exports) {
 const db = require('../db');
 
 const messageService = require('./messages.service');
@@ -1545,8 +1579,17 @@ async function getInitInfo(id) {
   };
 }
 
+async function setReviewed(id) {
+  try {
+    await db.setReviewed(id);
+  } catch (error) {
+    throw new Error("Error setting");
+  }
+}
+
 module.exports = {
-  getInitInfo
+  getInitInfo,
+  setReviewed
 };
 },{"../db":"db/index.js"}],"services/register.service.js":[function(require,module,exports) {
 /* eslint-disable object-curly-newline */
@@ -1840,8 +1883,20 @@ const getInitInfo = async (req, res) => {
   res.json(info);
 };
 
+const setReviewed = async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+
+  try {
+    await infoService.setReviewed(req.user.id);
+    res.status(204).send("Successfully set");
+  } catch (error) {
+    res.status(500).send("Something went wrong");
+  }
+};
+
 module.exports = {
-  getInitInfo
+  getInitInfo,
+  setReviewed
 };
 },{"../services":"services/index.js"}],"controllers/register.controller.js":[function(require,module,exports) {
 const {
@@ -2045,6 +2100,7 @@ router.post("/addComment", verify, comments.addComment);
 router.delete("/deleteComment", verify, comments.deleteComment);
 router.put("/updateComment", verify, comments.updateComment);
 router.get("/getInitInfo", verify, info.getInitInfo);
+router.post("/setReviewed", verify, info.setReviewed);
 router.post("/addExistingTag", verify, tags.addExistingTag);
 router.post("/addNewTag", verify, tags.addNewTag);
 router.delete("/deleteTagFromNote", verify, tags.deleteTagFromNote);
@@ -2055,37 +2111,37 @@ router.post("/register", register.register);
 router.post("/login", login.login);
 module.exports = router;
 },{"./verifyToken":"routes/verifyToken.js","../controllers":"controllers/index.js"}],"index.js":[function(require,module,exports) {
-require('dotenv').config();
+require("dotenv").config();
 
-const express = require('express');
+const express = require("express");
 
 const app = express();
 
-const cors = require('cors');
+const cors = require("cors");
 
-const routes = require('./routes');
+const routes = require("./routes");
 
 const {
   messagesService
-} = require('./services'); // const { notesService } = require('./services');
+} = require("./services"); // const { notesService } = require('./services');
 
 
-const db = require('./db');
+const db = require("./db");
 
 const init = async () => {
   app.use(express.json());
-  app.use('/api', routes);
+  app.use("/api", routes);
   app.use(cors()); // TODO configure before deployment
 
   await messagesService.init();
   await db.init(); // console.log(await notesService.getNotes(1, 3));
 
   const PORT = process.env.PORT || 3000;
-  app.get('*', (_, res) => {
-    res.send('hey');
+  app.get("*", (_, res) => {
+    res.send("hey");
   });
   app.listen(PORT, async () => {
-    console.log('Server has been started on port 3000...');
+    console.log("Server has been started on port 3000...");
     await messagesService.newMessageEvent();
   });
 };

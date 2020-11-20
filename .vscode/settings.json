@@ -1,3 +1,10 @@
 {
-  "prettier.trailingComma": "all"
+  "prettier.trailingComma": "all",
+  "files.associations": {
+    "__bit_reference": "cpp",
+    "algorithm": "cpp",
+    "string": "cpp",
+    "*.tcc": "cpp",
+    "iosfwd": "cpp"
+  }
 }

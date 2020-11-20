@@ -1,4 +1,5 @@
 const { createConnection } = require("typeorm");
+const schedule = require("node-schedule");
 require("reflect-metadata");
 const { getNotes } = require("./getNotes");
 const { getIdByEmail } = require("./getIdByEmail");
@@ -33,6 +34,12 @@ const { setReviewed } = require("./setReviewed");
 // eslint-disable-next-line import/no-mutable-exports
 let manager;
 
+const startSchedule = () => {
+  schedule.scheduleJob("0 0 * * *", () => {
+    console.log("this is schedule every day");
+  });
+};
+
 const init = async () => {
   try {
     let connection;
@@ -55,6 +62,7 @@ const init = async () => {
       console.log("Connected to DB locally");
     }
     manager = connection.manager;
+    startSchedule();
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }
