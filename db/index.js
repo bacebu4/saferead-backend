@@ -31,6 +31,8 @@ const { deleteTag } = require("./deleteTag");
 const { getNote } = require("./getNote");
 const { setReviewed } = require("./setReviewed");
 const { setNewDay } = require("./setNewDay");
+const { getNotesByTag } = require("./getNotesByTag");
+// const { deployDb } = require("./deployDb");
 
 // eslint-disable-next-line import/no-mutable-exports
 let manager;
@@ -65,6 +67,7 @@ const init = async () => {
     }
     manager = connection.manager;
     startSchedule();
+    // deployDb();
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }
@@ -102,6 +105,7 @@ module.exports = {
   getNote,
   setReviewed,
   setNewDay,
+  getNotesByTag,
 };
 
 export {

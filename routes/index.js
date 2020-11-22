@@ -24,6 +24,8 @@ router.get("/note/:id", notes.getNote);
 
 router.post("/getNotesByBook", verify, notes.getNotesByBook);
 
+router.post("/getNotesByTag", verify, notes.getNotesByTag);
+
 router.post("/searchNotes", verify, notes.searchNotes);
 
 router.delete("/deleteNote", verify, notes.deleteNote);

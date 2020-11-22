@@ -22,10 +22,13 @@ const getNote = async (req, res) => {
 
 const getNotesByBook = async (req, res) => {
   res.set("Access-Control-Allow-Origin", "*");
-  const notes = await notesService.getNotesByBook(
-    req.user.id,
-    req.body.book_id,
-  );
+  const notes = await notesService.getNotesByBook(req.user.id, req.body.id);
+  res.json(notes);
+};
+
+const getNotesByTag = async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  const notes = await notesService.getNotesByTag(req.user.id, req.body.id);
   res.json(notes);
 };
 
@@ -69,4 +72,5 @@ module.exports = {
   updateNote,
   getNotesByBook,
   getNote,
+  getNotesByTag,
 };
