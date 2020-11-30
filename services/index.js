@@ -6,6 +6,7 @@ const registerService = require("./register.service");
 const loginService = require("./login.service");
 const tagsService = require("./tags.service");
 const commentsService = require("./comments.service");
+const booksService = require("./books.service");
 
 module.exports = {
   messagesService,
@@ -16,4 +17,5 @@ module.exports = {
   loginService,
   registerService,
   commentsService,
+  booksService,
 };

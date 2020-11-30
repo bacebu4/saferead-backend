@@ -515,16 +515,16 @@ var _index = require("./index");
 
 const {
   v4: uuidv4
-} = require('uuid');
+} = require("uuid");
 
-const addBook = async (authorId, title) => {
+const addBook = async (authorId, title, userId) => {
   const data = await _index.manager.query(
   /* sql */
   `
     select book_id
     from books
-    where book_title = $1;
-  `, [title]);
+    where book_title = $1 and user_id = $2;
+  `, [title, userId]);
 
   if (data.length) {
     return data[0].book_id;
@@ -534,8 +534,8 @@ const addBook = async (authorId, title) => {
   await _index.manager.query(
   /* sql */
   `
-    insert into books(book_id, author_id, book_title) VALUES ($1, $2, $3);
-  `, [newGeneratedId, authorId, title]);
+    insert into books(book_id, author_id, book_title, user_id) VALUES ($1, $2, $3, $4);
+  `, [newGeneratedId, authorId, title, userId]);
   return newGeneratedId;
 };
 
@@ -549,15 +549,15 @@ var _index = require("./index");
 
 const {
   v4: uuidv4
-} = require('uuid');
+} = require("uuid");
 
 const addNote = async (userId, bookId, note) => {
   const newGeneratedNoteId = uuidv4();
   await _index.manager.query(
   /* sql */
   `
-    insert into notes(user_id, book_id, createdAt, updatedAt, note_text, seen, note_id)
-    VALUES ($1, $2, now(), now(), $3, false, $4);
+    insert into notes(user_id, book_id, createdAt, note_text, seen, note_id)
+    VALUES ($1, $2, now(), $3, false, $4);
   `, [userId, bookId, note.extractedNote, newGeneratedNoteId]);
 
   if (note === null || note === void 0 ? void 0 : note.extractedComment) {
@@ -565,7 +565,7 @@ const addNote = async (userId, bookId, note) => {
     await _index.manager.query(
     /* sql */
     `
-      insert into comments(note_id, comment_text, createdAt, updatedAt, comment_id) VALUES ($1, $2, now(), now(), $3);
+      insert into comments(note_id, comment_text, createdAt, comment_id) VALUES ($1, $2, now(), $3);
   `, [newGeneratedNoteId, note.extractedComment, newGeneratedCommentId]);
   }
 };
@@ -671,7 +671,7 @@ const getLatestBooks = async id => {
       select distinct book_title, author_full_name, createdAt, b.book_id from notes
           join books b on notes.book_id = b.book_id
           join authors a on a.author_id = b.author_id
-          where user_id = $1
+          where notes.user_id = $1
           order by createdAt desc
       ) as t
     limit 10
@@ -925,6 +925,7 @@ var _index = require("./index");
 
 /* eslint-disable camelcase */
 const getNotesByBook = async (id, book_id) => {
+  console.log("got");
   const raw = await _index.manager.query(
   /* sql */
   `
@@ -1052,6 +1053,25 @@ where users.user_id = $1 and nt.tag_id = $2;
 
 module.exports = {
   getNotesByTag
+};
+},{"./index":"db/index.js"}],"db/deleteBook.js":[function(require,module,exports) {
+"use strict";
+
+var _index = require("./index");
+
+/* eslint-disable camelcase */
+const deleteBook = async book_id => {
+  const data = await _index.manager.query(
+  /* sql */
+  `
+    delete from books
+    where book_id = $1;
+  `, [book_id]);
+  return data;
+};
+
+module.exports = {
+  deleteBook
 };
 },{"./index":"db/index.js"}],"db/index.js":[function(require,module,exports) {
 "use strict";
@@ -1191,7 +1211,11 @@ const {
 
 const {
   getNotesByTag
-} = require("./getNotesByTag"); // const { deployDb } = require("./deployDb");
+} = require("./getNotesByTag");
+
+const {
+  deleteBook
+} = require("./deleteBook"); // const { deployDb } = require("./deployDb");
 // eslint-disable-next-line import/no-mutable-exports
 
 
@@ -1267,28 +1291,29 @@ module.exports = {
   getNote,
   setReviewed,
   setNewDay,
-  getNotesByTag
+  getNotesByTag,
+  deleteBook
 };
-},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js","./addNewTag":"db/addNewTag.js","./deleteTagFromNote":"db/deleteTagFromNote.js","./searchNotes":"db/searchNotes.js","./deleteNote":"db/deleteNote.js","./updateTag":"db/updateTag.js","./updateNote":"db/updateNote.js","./updateComment":"db/updateComment.js","./getCommentNotes":"db/getCommentNotes.js","./addComment":"db/addComment.js","./deleteComment":"db/deleteComment.js","./getNotesByBook":"db/getNotesByBook.js","./deleteTag":"db/deleteTag.js","./getNote":"db/getNote.js","./setReviewed":"db/setReviewed.js","./setNewDay":"db/setNewDay.js","./getNotesByTag":"db/getNotesByTag.js"}],"services/update.service.js":[function(require,module,exports) {
-const db = require('../db');
+},{"./getNotes":"db/getNotes.js","./getIdByEmail":"db/getIdByEmail.js","./getIdPasswordByEmail":"db/getIdPasswordByEmail.js","./markAsSeen":"db/markAsSeen.js","./resetSeenFlag":"db/resetSeenFlag.js","./addAuthor":"db/addAuthor.js","./addBook":"db/addBook.js","./addNotes":"db/addNotes.js","./getTagNotes":"db/getTagNotes.js","./getAmount":"db/getAmount.js","./getAllTags":"db/getAllTags.js","./getAccountInfo":"db/getAccountInfo.js","./getLatestBooks":"db/getLatestBooks.js","./addUser":"db/addUser.js","./addExistingTag":"db/addExistingTag.js","./addNewTag":"db/addNewTag.js","./deleteTagFromNote":"db/deleteTagFromNote.js","./searchNotes":"db/searchNotes.js","./deleteNote":"db/deleteNote.js","./updateTag":"db/updateTag.js","./updateNote":"db/updateNote.js","./updateComment":"db/updateComment.js","./getCommentNotes":"db/getCommentNotes.js","./addComment":"db/addComment.js","./deleteComment":"db/deleteComment.js","./getNotesByBook":"db/getNotesByBook.js","./deleteTag":"db/deleteTag.js","./getNote":"db/getNote.js","./setReviewed":"db/setReviewed.js","./setNewDay":"db/setNewDay.js","./getNotesByTag":"db/getNotesByTag.js","./deleteBook":"db/deleteBook.js"}],"services/update.service.js":[function(require,module,exports) {
+const db = require("../db");
 
-const messageService = require('./messages.service');
+const messageService = require("./messages.service");
 
 async function start(data, id) {
   try {
     const authorId = await db.addAuthor(data.extractedAuthor);
-    console.log('authorId: ', authorId);
-    const bookId = await db.addBook(authorId, data.extractedTitle);
-    console.log('bookId: ', bookId);
+    console.log("authorId: ", authorId);
     const userId = await db.getIdByEmail(data.extractedEmail);
 
     if (userId) {
+      const bookId = await db.addBook(authorId, data.extractedTitle, userId);
+      console.log("bookId: ", bookId);
       await db.addNotes(userId, bookId, data.extractedNotes);
     } else {
-      console.log('User was not found');
+      console.log("User was not found");
     }
   } catch (error) {
-    console.log('Error during adding note to db. The message will be deleted');
+    console.log("Error during adding note to db. The message will be deleted");
     console.log(error);
     messageService.deleteMessageById(id);
   }
@@ -1830,6 +1855,23 @@ module.exports = {
   updateComment,
   deleteComment
 };
+},{"../db":"db/index.js"}],"services/books.service.js":[function(require,module,exports) {
+/* eslint-disable object-curly-newline */
+
+/* eslint-disable camelcase */
+const db = require("../db");
+
+async function deleteBook(book_id) {
+  try {
+    await db.deleteBook(book_id);
+  } catch (error) {
+    throw new Error();
+  }
+}
+
+module.exports = {
+  deleteBook
+};
 },{"../db":"db/index.js"}],"services/index.js":[function(require,module,exports) {
 const messagesService = require("./messages.service");
 
@@ -1847,6 +1889,8 @@ const tagsService = require("./tags.service");
 
 const commentsService = require("./comments.service");
 
+const booksService = require("./books.service");
+
 module.exports = {
   messagesService,
   notesService,
@@ -1855,9 +1899,10 @@ module.exports = {
   tagsService,
   loginService,
   registerService,
-  commentsService
+  commentsService,
+  booksService
 };
-},{"./messages.service":"services/messages.service.js","./notes.service":"services/notes.service.js","./update.service":"services/update.service.js","./info.service":"services/info.service.js","./register.service":"services/register.service.js","./login.service":"services/login.service.js","./tags.service":"services/tags.service.js","./comments.service":"services/comments.service.js"}],"controllers/messages.controller.js":[function(require,module,exports) {
+},{"./messages.service":"services/messages.service.js","./notes.service":"services/notes.service.js","./update.service":"services/update.service.js","./info.service":"services/info.service.js","./register.service":"services/register.service.js","./login.service":"services/login.service.js","./tags.service":"services/tags.service.js","./comments.service":"services/comments.service.js","./books.service":"services/books.service.js"}],"controllers/messages.controller.js":[function(require,module,exports) {
 const {
   messagesService
 } = require('../services');
@@ -2132,6 +2177,25 @@ module.exports = {
   updateComment,
   deleteComment
 };
+},{"../services":"services/index.js"}],"controllers/books.controller.js":[function(require,module,exports) {
+const {
+  booksService
+} = require("../services");
+
+const deleteBook = async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+
+  try {
+    await booksService.deleteBook(req.body.book_id);
+    res.status(204).send("Deleted book");
+  } catch (error) {
+    res.status(500).send("Error deleting book");
+  }
+};
+
+module.exports = {
+  deleteBook
+};
 },{"../services":"services/index.js"}],"controllers/index.js":[function(require,module,exports) {
 const messages = require("./messages.controller");
 
@@ -2147,6 +2211,8 @@ const tags = require("./tags.controller");
 
 const comments = require("./comments.controller");
 
+const books = require("./books.controller");
+
 module.exports = {
   notes,
   messages,
@@ -2154,9 +2220,10 @@ module.exports = {
   login,
   register,
   tags,
+  books,
   comments
 };
-},{"./messages.controller":"controllers/messages.controller.js","./notes.controller":"controllers/notes.controller.js","./info.controller":"controllers/info.controller.js","./register.controller":"controllers/register.controller.js","./login.controller":"controllers/login.controller.js","./tags.controller":"controllers/tags.controller.js","./comments.controller":"controllers/comments.controller.js"}],"routes/index.js":[function(require,module,exports) {
+},{"./messages.controller":"controllers/messages.controller.js","./notes.controller":"controllers/notes.controller.js","./info.controller":"controllers/info.controller.js","./register.controller":"controllers/register.controller.js","./login.controller":"controllers/login.controller.js","./tags.controller":"controllers/tags.controller.js","./comments.controller":"controllers/comments.controller.js","./books.controller":"controllers/books.controller.js"}],"routes/index.js":[function(require,module,exports) {
 /* eslint-disable object-curly-newline */
 const express = require("express");
 
@@ -2169,7 +2236,8 @@ const {
   register,
   login,
   tags,
-  comments
+  comments,
+  books
 } = require("../controllers");
 
 const router = express.Router();
@@ -2192,6 +2260,7 @@ router.post("/addNewTag", verify, tags.addNewTag);
 router.delete("/deleteTagFromNote", verify, tags.deleteTagFromNote);
 router.delete("/deleteTag", verify, tags.deleteTag);
 router.put("/updateTag", verify, tags.updateTag);
+router.delete("/deleteBook", verify, books.deleteBook);
 router.post("/post", messages.newMessageEvent);
 router.post("/register", register.register);
 router.post("/login", login.login);

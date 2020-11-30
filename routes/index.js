@@ -10,6 +10,7 @@ const {
   login,
   tags,
   comments,
+  books,
 } = require("../controllers");
 
 const router = express.Router();
@@ -51,6 +52,8 @@ router.delete("/deleteTagFromNote", verify, tags.deleteTagFromNote);
 router.delete("/deleteTag", verify, tags.deleteTag);
 
 router.put("/updateTag", verify, tags.updateTag);
+
+router.delete("/deleteBook", verify, books.deleteBook);
 
 router.post("/post", messages.newMessageEvent);
 

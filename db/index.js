@@ -32,6 +32,7 @@ const { getNote } = require("./getNote");
 const { setReviewed } = require("./setReviewed");
 const { setNewDay } = require("./setNewDay");
 const { getNotesByTag } = require("./getNotesByTag");
+const { deleteBook } = require("./deleteBook");
 // const { deployDb } = require("./deployDb");
 
 // eslint-disable-next-line import/no-mutable-exports
@@ -106,6 +107,7 @@ module.exports = {
   setReviewed,
   setNewDay,
   getNotesByTag,
+  deleteBook,
 };
 
 export {

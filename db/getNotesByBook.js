@@ -2,6 +2,7 @@
 import { manager } from "./index";
 
 const getNotesByBook = async (id, book_id) => {
+  console.log("got");
   const raw = await manager.query(
     /* sql */ `
     select note_text, book_title, author_full_name, n.note_id

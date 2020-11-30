@@ -5,6 +5,7 @@ const register = require("./register.controller");
 const login = require("./login.controller");
 const tags = require("./tags.controller");
 const comments = require("./comments.controller");
+const books = require("./books.controller");
 
 module.exports = {
   notes,
@@ -13,5 +14,6 @@ module.exports = {
   login,
   register,
   tags,
+  books,
   comments,
 };
