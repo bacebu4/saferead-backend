@@ -891,8 +891,8 @@ const addComment = async (note_id, comment_id, comment_text) => {
   await _index.manager.query(
   /* sql */
   `
-    insert into comments(note_id, comment_text, createdAt, updatedAt, comment_id) 
-    VALUES ($1, $2, now(), now(), $3);
+    insert into comments(note_id, comment_text, updatedAt, comment_id) 
+    VALUES ($1, $2, now(), $3);
   `, [note_id, comment_text, comment_id]);
 };
 
