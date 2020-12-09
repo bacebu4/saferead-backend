@@ -36,7 +36,6 @@ const { deleteBook } = require("./deleteBook");
 // const { deployDb } = require("./deployDb");
 
 // eslint-disable-next-line import/no-mutable-exports
-let manager;
 
 const startSchedule = () => {
   schedule.scheduleJob("0 0 * * *", () => {
@@ -47,15 +46,14 @@ const startSchedule = () => {
 
 const init = async () => {
   try {
-    let connection;
     if (process.env.DATABASE_URL) {
-      connection = await createConnection({
+      await createConnection({
         type: "postgres",
         url: process.env.DATABASE_URL,
       });
       console.log("Connected to DB @ heroku");
     } else {
-      connection = await createConnection({
+      await createConnection({
         type: "postgres",
         host: "localhost",
         port: process.env.DB_PORT,
@@ -66,7 +64,6 @@ const init = async () => {
       });
       console.log("Connected to DB locally");
     }
-    manager = connection.manager;
     startSchedule();
     // deployDb();
   } catch (error) {
@@ -108,9 +105,4 @@ module.exports = {
   setNewDay,
   getNotesByTag,
   deleteBook,
-};
-
-export {
-  // eslint-disable-next-line import/prefer-default-export
-  manager,
 };

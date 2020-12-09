@@ -1,7 +1,8 @@
 /* eslint-disable camelcase */
-import { manager } from "./index";
+const { getConnection } = require("typeorm");
 
 const updateNote = async (note_id, note_text) => {
+  const manager = await getConnection();
   const data = await manager.query(
     /* sql */ `
     update notes

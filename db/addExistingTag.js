@@ -1,7 +1,8 @@
 /* eslint-disable camelcase */
-import { manager } from "./index";
+const { getConnection } = require("typeorm");
 
 const addExistingTag = async (tag_id, note_id) => {
+  const manager = await getConnection();
   const data = await manager.query(
     /* sql */ `
     insert into notes_tags(tag_id, note_id) 

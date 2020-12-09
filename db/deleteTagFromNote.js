@@ -1,7 +1,8 @@
 /* eslint-disable camelcase */
-import { manager } from "./index";
+const { getConnection } = require("typeorm");
 
 const deleteTagFromNote = async (note_id, tag_id) => {
+  const manager = await getConnection();
   const data = await manager.query(
     /* sql */ `
     delete from notes_tags

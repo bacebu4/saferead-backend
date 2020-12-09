@@ -117,7 +117,27 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"routes/verifyToken.js":[function(require,module,exports) {
+})({"resolvers/hello.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.HelloResolver = void 0;
+
+/* eslint-disable class-methods-use-this */
+// import { Query, Resolver } from "type-graphql";
+
+/* eslint-disable import/prefer-default-export */
+class HelloResolver {
+  hello() {
+    return "hellow world";
+  }
+
+}
+
+exports.HelloResolver = HelloResolver;
+},{}],"routes/verifyToken.js":[function(require,module,exports) {
 /* eslint-disable func-names */
 const jwt = require("jsonwebtoken");
 
@@ -2266,13 +2286,25 @@ router.post("/register", register.register);
 router.post("/login", login.login);
 module.exports = router;
 },{"./verifyToken":"routes/verifyToken.js","../controllers":"controllers/index.js"}],"index.js":[function(require,module,exports) {
+"use strict";
+
+var _hello = require("./resolvers/hello");
+
 require("dotenv").config();
 
 const express = require("express");
 
+const {
+  ApolloServer
+} = require("apollo-server-express");
+
 const app = express();
 
 const cors = require("cors");
+
+const {
+  buildSchema
+} = require("graphql");
 
 const routes = require("./routes");
 
@@ -2285,9 +2317,19 @@ const db = require("./db");
 
 const init = async () => {
   app.use(express.json());
-  app.use("/api", routes);
+  app.use("/api", routes); // app.use("/graphql", graphqlExpress());
+
+  const apolloServer = new ApolloServer({
+    schema: await buildSchema({
+      resolvers: [_hello.HelloResolver],
+      validate: false
+    })
+  });
   app.use(cors()); // TODO configure before deployment
 
+  apolloServer.applyMiddleware({
+    app
+  });
   await messagesService.init();
   await db.init(); // console.log(await notesService.getNotes(1, 3));
 
@@ -2302,5 +2344,5 @@ const init = async () => {
 };
 
 init();
-},{"./routes":"routes/index.js","./services":"services/index.js","./db":"db/index.js"}]},{},["index.js"], null)
+},{"./resolvers/hello":"resolvers/hello.js","./routes":"routes/index.js","./services":"services/index.js","./db":"db/index.js"}]},{},["index.js"], null)
 //# sourceMappingURL=/index.js.map

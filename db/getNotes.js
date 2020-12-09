@@ -1,6 +1,7 @@
-import { manager } from "./index";
+const { getConnection } = require("typeorm");
 
 const getNotes = async (id) => {
+  const manager = await getConnection();
   const raw = await manager.query(
     /* sql */ `
     SELECT

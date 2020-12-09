@@ -1,11 +1,15 @@
-import { manager } from './index';
+const { getConnection } = require("typeorm");
 
 const resetSeenFlag = async (id) => {
-  await manager.query(/* sql */`
+  const manager = await getConnection();
+  await manager.query(
+    /* sql */ `
     update notes
     set seen = false
     where user_id = $1;
-  `, [id]);
+  `,
+    [id],
+  );
 };
 
 module.exports = {

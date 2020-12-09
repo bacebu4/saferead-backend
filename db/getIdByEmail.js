@@ -1,6 +1,7 @@
-import { manager } from "./index";
+const { getConnection } = require("typeorm");
 
 const getIdByEmail = async (email) => {
+  const manager = await getConnection();
   if (email.includes("@me.com")) {
     email = email.replace("@me.com", "@icloud.com");
   }

@@ -1,6 +1,7 @@
-import { manager } from "./index";
+const { getConnection } = require("typeorm");
 
 const addUser = async (id, email, password) => {
+  const manager = await getConnection();
   const data = await manager.query(
     /* sql */ `
     insert into 

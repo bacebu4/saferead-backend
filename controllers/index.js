@@ -6,6 +6,7 @@ const login = require("./login.controller");
 const tags = require("./tags.controller");
 const comments = require("./comments.controller");
 const books = require("./books.controller");
+// const graphql = require("./graphql.controller");
 
 module.exports = {
   notes,
@@ -16,4 +17,5 @@ module.exports = {
   tags,
   books,
   comments,
+  // graphql,
 };

@@ -1,6 +1,7 @@
-import { manager } from "./index";
+const { getConnection } = require("typeorm");
 
 const searchNotes = async (id, substring) => {
+  const manager = await getConnection();
   const lowercaseSubstring = substring.toLowerCase();
   const raw = await manager.query(
     /* sql */ `

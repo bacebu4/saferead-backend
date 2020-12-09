@@ -1,6 +1,7 @@
-import { manager } from "./index";
+const { getConnection } = require("typeorm");
 
 const setReviewed = async (id) => {
+  const manager = await getConnection();
   await manager.query(
     /* sql */ `
   update users

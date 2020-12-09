@@ -1,29 +1,38 @@
-const { decode } = require('./decode.util');
+/* eslint-disable operator-linebreak */
+const { decode } = require("./decode.util");
 
 const validate = (data) => {
   let encodedHtml;
-  if (data.data.payload.parts?.length > 1) {
+  if (data.data.payload.parts && data.data.payload.parts.length > 1) {
     encodedHtml = data.data.payload.parts[1].body.data;
   }
   if (encodedHtml) {
-    const html = decode(encodedHtml, 'utf-8');
-    const appleTagIndex = Math.max(html.indexOf('Apple Books. <br>'), html.indexOf('Книги. <br>'));
+    const html = decode(encodedHtml, "utf-8");
+    const appleTagIndex = Math.max(
+      html.indexOf("Apple Books. <br>"),
+      html.indexOf("Книги. <br>"),
+    );
     if (appleTagIndex !== -1) {
-      return 'ibooks';
+      return "ibooks";
     }
   } else {
     let attachmentId;
     let mimeType;
-    if (data.data.payload.parts?.length > 1) {
-      attachmentId = data.data.payload.parts[1].body?.attachmentId;
-      mimeType = data.data.payload.parts[1].mimeType;
+    if (data.data.payload.parts && data.data.payload.parts.length > 1) {
+      if (
+        data.data.payload.parts[1].body &&
+        data.data.payload.parts[1].body.attachmentId
+      ) {
+        attachmentId = data.data.payload.parts[1].body.attachmentId;
+        mimeType = data.data.payload.parts[1].mimeType;
+      }
     }
 
-    if (attachmentId && mimeType === 'text/plain') {
-      return 'litres';
+    if (attachmentId && mimeType === "text/plain") {
+      return "litres";
     }
   }
-  return 'empty';
+  return "empty";
 };
 
 module.exports = {

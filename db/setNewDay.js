@@ -1,6 +1,7 @@
-import { manager } from "./index";
+const { getConnection } = require("typeorm");
 
 const setNewDay = async () => {
+  const manager = await getConnection();
   await manager.query(/* sql */ `
     update users
     set streak = 0,

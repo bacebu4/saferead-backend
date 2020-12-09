@@ -1,7 +1,8 @@
 /* eslint-disable camelcase */
-import { manager } from "./index";
+const { getConnection } = require("typeorm");
 
 const addComment = async (note_id, comment_id, comment_text) => {
+  const manager = await getConnection();
   await manager.query(
     /* sql */ `
     insert into comments(note_id, comment_text, updatedAt, comment_id) 
