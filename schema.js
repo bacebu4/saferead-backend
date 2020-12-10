@@ -47,6 +47,10 @@ const typeDefs = gql`
     note(id: String): Note
     initInfo: InitInfo
   }
+
+  type Mutation {
+    addNewTag(name: String, hue: Int, id: String, noteId: String): Boolean
+  }
 `;
 
 module.exports = typeDefs;

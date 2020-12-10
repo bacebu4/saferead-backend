@@ -16,7 +16,11 @@ const init = async () => {
 
   const apolloServer = new ApolloServer({
     typeDefs,
-    resolvers: [resolvers.notesResolver, resolvers.infoResolver],
+    resolvers: [
+      resolvers.notesResolver,
+      resolvers.infoResolver,
+      resolvers.tagsResolver,
+    ],
   });
   app.use(cors()); // TODO configure before deployment
 
