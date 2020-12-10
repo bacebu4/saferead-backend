@@ -61,7 +61,6 @@ async function getNotesWithTags(notes) {
   tags.forEach((t, i) => {
     noteWithTags[i].tags = t;
     noteWithTags[i].deleted = false;
-    console.log(t);
   });
   return noteWithTags;
 }
