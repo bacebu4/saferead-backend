@@ -1,2 +1,6 @@
 node_modules
 .cache
+token.json
+.env
+services/credentials.json
+services/token.json

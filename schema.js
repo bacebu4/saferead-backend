@@ -5,20 +5,27 @@ const typeDefs = gql`
     id: ID!
     text: String!
     title: String!
-    authorFullName: String!
+    author: String!
     tags: [Tag]
     deleted: Boolean
-    # comments: [Comment]
+    comments: [Comment]!
   }
 
   type Tag {
     id: ID!
-    name: String
+    name: String!
+    hue: String!
+  }
+
+  type Comment {
+    id: ID!
+    text: String!
+    createdAt: String!
   }
 
   type Query {
-    hello: String
-    notes: [Note]
+    dailyNotes: [Note]
+    note(id: String): Note
   }
 `;
 
