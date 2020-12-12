@@ -20,6 +20,7 @@ const init = async () => {
       resolvers.notesResolver,
       resolvers.infoResolver,
       resolvers.tagsResolver,
+      resolvers.booksResolver,
     ],
   });
   app.use(cors()); // TODO configure before deployment

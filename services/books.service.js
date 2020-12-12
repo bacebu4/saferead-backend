@@ -10,6 +10,16 @@ async function deleteBook(book_id) {
   }
 }
 
+async function getAllBooks(userId) {
+  try {
+    const data = await db.getAllBooks(userId);
+    return data;
+  } catch (error) {
+    throw new Error();
+  }
+}
+
 module.exports = {
   deleteBook,
+  getAllBooks,
 };

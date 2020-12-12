@@ -5,14 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "cd dist && node index.js",
+    "start": "node index",
     "dev2": "cd dist && nodemon index.js",
     "deploy": "heroku builds:create -a saferead",
     "logs": "heroku logs --tail -a saferead",
     "watch": "npx parcel watch ./index.js --out-dir ./dist --no-hmr --target node",
     "server:stop": "heroku maintenance:on -a saferead",
     "server:start": "heroku maintenance:off -a saferead",
-    "dev": "npm run watch & npm run dev2"
+    "dev": "nodemon index"
   },
   "keywords": [],
   "author": "",

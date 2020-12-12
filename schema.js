@@ -46,6 +46,7 @@ const typeDefs = gql`
     dailyNotes: [Note]
     note(id: String): Note
     initInfo: InitInfo
+    books: [Book]
   }
 
   type Mutation {
