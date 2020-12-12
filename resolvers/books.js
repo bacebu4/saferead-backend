@@ -3,11 +3,14 @@ const { bookReducer } = require("../reducers");
 
 const booksResolver = {
   Query: {
-    books: async () => {
-      const data = await booksService.getAllBooks(
-        "57345d46-af1e-49a8-9f37-a2570a4f381d",
-      );
+    books: async (_, __, context) => {
       console.log("got");
+      console.log(context.userId);
+      if (!context.userId) {
+        return [];
+      }
+      const data = await booksService.getAllBooks(context.userId);
+      console.log(data);
       return data.map((b) => bookReducer(b));
     },
   },

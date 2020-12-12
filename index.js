@@ -4,6 +4,7 @@ const { ApolloServer } = require("apollo-server-express");
 
 const app = express();
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 const routes = require("./routes");
 const { messagesService } = require("./services");
 const db = require("./db");
@@ -22,6 +23,16 @@ const init = async () => {
       resolvers.tagsResolver,
       resolvers.booksResolver,
     ],
+    context: ({ req }) => {
+      const token = req.headers.authorization || "";
+      console.log(req.headers);
+      try {
+        const isVerified = jwt.verify(token, process.env.TOKEN_SECRET);
+        return { userId: isVerified.id };
+      } catch (error) {
+        return { userId: null };
+      }
+    },
   });
   app.use(cors()); // TODO configure before deployment
 
