@@ -7,7 +7,8 @@ async function getInitInfo(id) {
   const allAccountInfo = await db.getAccountInfo(id);
   const { user_id, createdat, email, ...accountInfo } = allAccountInfo[0];
   const latestBooks = await db.getLatestBooks(id);
-  return { tags, accountInfo, latestBooks };
+  const latestReviewDate = await db.getLatestReviewDate(id);
+  return { tags, accountInfo, latestBooks, latestReviewDate };
 }
 
 async function setReviewed(id) {

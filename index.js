@@ -25,7 +25,6 @@ const init = async () => {
     ],
     context: ({ req }) => {
       const token = req.headers.authorization || "";
-      console.log(req.headers);
       try {
         const isVerified = jwt.verify(token, process.env.TOKEN_SECRET);
         return { userId: isVerified.id };
