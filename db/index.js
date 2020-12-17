@@ -1,5 +1,4 @@
 const { createConnection } = require("typeorm");
-const schedule = require("node-schedule");
 require("reflect-metadata");
 const { getNotes } = require("./getNotes");
 const { getIdByEmail } = require("./getIdByEmail");
@@ -29,24 +28,12 @@ const { deleteComment } = require("./deleteComment");
 const { getNotesByBook } = require("./getNotesByBook");
 const { deleteTag } = require("./deleteTag");
 const { getNote } = require("./getNote");
-const { setReviewed } = require("./setReviewed");
-const { setNewDay } = require("./setNewDay");
 const { getNotesByTag } = require("./getNotesByTag");
 const { deleteBook } = require("./deleteBook");
 const { getAllBooks } = require("./getAllBooks");
 const { getLatestReviewDate } = require("./getLatestReviewDate");
 const { updateReviewHistory } = require("./updateReviewHistory");
 const { getStreakBeginning } = require("./getStreakBeginning");
-// const { deployDb } = require("./deployDb");
-
-// eslint-disable-next-line import/no-mutable-exports
-
-const startSchedule = () => {
-  schedule.scheduleJob("0 0 * * *", () => {
-    console.log("this is schedule every day");
-    setNewDay();
-  });
-};
 
 const init = async () => {
   try {
@@ -68,8 +55,6 @@ const init = async () => {
       });
       console.log("Connected to DB locally");
     }
-    startSchedule();
-    // deployDb();
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }
@@ -105,8 +90,6 @@ module.exports = {
   getNotesByBook,
   deleteTag,
   getNote,
-  setReviewed,
-  setNewDay,
   getNotesByTag,
   deleteBook,
   getAllBooks,
