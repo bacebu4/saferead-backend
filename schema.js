@@ -33,6 +33,8 @@ const typeDefs = gql`
     reviewAmount: Int!
     streak: Int!
     missed: Int!
+    current: Int!
+    createdAt: String!
     reviewed: Boolean!
   }
 
