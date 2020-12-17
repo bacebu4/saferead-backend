@@ -3,14 +3,12 @@ const { bookReducer } = require("../reducers");
 
 const booksResolver = {
   Query: {
-    books: async (_, __, context) => {
+    books: async (_, __, { userId }) => {
       console.log("got");
-      console.log("context.userId", context.userId);
-      if (!context.userId) {
+      if (!userId) {
         return [];
       }
-      const data = await booksService.getAllBooks(context.userId);
-      console.log("data", data);
+      const data = await booksService.getAllBooks(userId);
       return data.map((b) => bookReducer(b));
     },
   },
