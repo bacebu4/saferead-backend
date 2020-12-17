@@ -4,12 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index",
-    "dev2": "cd dist && nodemon index.js",
     "deploy": "heroku builds:create -a saferead",
     "logs": "heroku logs --tail -a saferead",
-    "watch": "npx parcel watch ./index.js --out-dir ./dist --no-hmr --target node",
     "server:stop": "heroku maintenance:on -a saferead",
     "server:start": "heroku maintenance:off -a saferead",
     "dev": "nodemon index"
@@ -43,7 +40,6 @@
     "eslint-plugin-jsx-a11y": "^6.3.1",
     "eslint-plugin-prettier": "^3.1.4",
     "nodemon": "^2.0.4",
-    "parcel-bundler": "^1.12.4",
     "prettier": "^2.1.2"
   }
 }
