@@ -35,6 +35,7 @@ const { getNotesByTag } = require("./getNotesByTag");
 const { deleteBook } = require("./deleteBook");
 const { getAllBooks } = require("./getAllBooks");
 const { getLatestReviewDate } = require("./getLatestReviewDate");
+const { updateReviewHistory } = require("./updateReviewHistory");
 // const { deployDb } = require("./deployDb");
 
 // eslint-disable-next-line import/no-mutable-exports
@@ -109,4 +110,5 @@ module.exports = {
   deleteBook,
   getAllBooks,
   getLatestReviewDate,
+  updateReviewHistory,
 };

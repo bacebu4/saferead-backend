@@ -14,6 +14,19 @@ const infoResolver = {
       };
     },
   },
+  Mutation: {
+    updateReviewHistory: async (_, { date }, { userId }) => {
+      if (!userId) {
+        return true;
+      }
+      try {
+        await infoService.updateReviewHistory(userId, date);
+        return true;
+      } catch (__) {
+        return false;
+      }
+    },
+  },
 };
 
 module.exports = infoResolver;
