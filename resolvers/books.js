@@ -4,7 +4,6 @@ const { bookReducer } = require("../reducers");
 const booksResolver = {
   Query: {
     books: async (_, __, { userId }) => {
-      console.log("got");
       if (!userId) {
         return [];
       }

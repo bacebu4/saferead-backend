@@ -21,6 +21,7 @@ const getNote = async (req, res) => {
 };
 
 const getNotesByBook = async (req, res) => {
+  console.log("controller note by book");
   res.set("Access-Control-Allow-Origin", "*");
   const notes = await notesService.getNotesByBook(req.user.id, req.body.id);
   res.json(notes);

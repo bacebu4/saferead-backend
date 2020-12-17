@@ -24,7 +24,6 @@ const init = async () => {
       resolvers.booksResolver,
     ],
     context: ({ req }) => {
-      console.log(req.headers);
       const token = req.headers.authorization || "";
       try {
         const isVerified = jwt.verify(token, process.env.TOKEN_SECRET);

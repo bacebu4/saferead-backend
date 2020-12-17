@@ -16,9 +16,6 @@ const infoResolver = {
   },
   Mutation: {
     updateReviewHistory: async (_, { date }, { userId }) => {
-      console.log("got mutation");
-      console.log(date);
-      console.log(userId);
       if (!userId) {
         return true;
       }

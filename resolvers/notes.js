@@ -3,10 +3,11 @@ const { noteReducer } = require("../reducers");
 
 const notesResolver = {
   Query: {
-    dailyNotes: async () => {
-      const data = await notesService.getNotes(
-        "57345d46-af1e-49a8-9f37-a2570a4f381d",
-      );
+    dailyNotes: async (_, __, { userId }) => {
+      if (!userId) {
+        return [];
+      }
+      const data = await notesService.getNotes(userId);
       const notesWithTags = await notesService.getNotesWithTags(data);
       const notesWithComments = await notesService.getNotesWithComments(
         notesWithTags,
