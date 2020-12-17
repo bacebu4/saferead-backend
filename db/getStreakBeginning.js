@@ -1,14 +1,17 @@
 const { getConnection } = require("typeorm");
 
-const getLatestReviewDate = async (userId) => {
+const getStreakBeginning = async (userId) => {
   const manager = await getConnection();
   const raw = await manager.query(
     /* sql */ `
-      select date
+    select * from (
+      select date, daterange_subdiff(date, lag(date) over (order by date)) as ds
       from review_history
       where "userId" = $1
-      order by date desc
-      limit 1;
+    ) as x
+    where ds != 1 or ds is null
+    order by date desc
+    limit 1;
   `,
     [userId],
   );
@@ -16,5 +19,5 @@ const getLatestReviewDate = async (userId) => {
 };
 
 module.exports = {
-  getLatestReviewDate,
+  getStreakBeginning,
 };

@@ -14,7 +14,14 @@ async function getInitInfo(id) {
   } = allAccountInfo[0];
   const latestBooks = await db.getLatestBooks(id);
   const latestReviewDate = await db.getLatestReviewDate(id);
-  return { tags, accountInfo, latestBooks, latestReviewDate };
+  const streakBeginningDate = await db.getStreakBeginning(id);
+  return {
+    tags,
+    accountInfo,
+    latestBooks,
+    latestReviewDate,
+    streakBeginningDate,
+  };
 }
 
 async function setReviewed(id) {
