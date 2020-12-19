@@ -55,6 +55,7 @@ const typeDefs = gql`
     addNewTag(name: String, hue: Int, id: String, noteId: String): Boolean
     updateReviewHistory(date: String): Boolean
     deleteNote(noteId: String): Boolean
+    updateNote(noteId: String, text: String): Boolean
   }
 `;
 

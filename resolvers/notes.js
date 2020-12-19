@@ -33,6 +33,14 @@ const notesResolver = {
         return false;
       }
     },
+    updateNote: async (_, { noteId, text }) => {
+      try {
+        await notesService.updateNote(noteId, text);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    },
   },
 };
 
