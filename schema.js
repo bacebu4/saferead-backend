@@ -54,6 +54,7 @@ const typeDefs = gql`
   type Mutation {
     addNewTag(name: String, hue: Int, id: String, noteId: String): Boolean
     updateReviewHistory(date: String): Boolean
+    deleteNote(noteId: String): Boolean
   }
 `;
 

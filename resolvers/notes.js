@@ -24,6 +24,16 @@ const notesResolver = {
       return noteReducer(notesWithComments[0]);
     },
   },
+  Mutation: {
+    deleteNote: async (_, { noteId }) => {
+      try {
+        await notesService.deleteNote(noteId);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    },
+  },
 };
 
 module.exports = notesResolver;
