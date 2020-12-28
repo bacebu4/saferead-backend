@@ -41,8 +41,6 @@ router.put("/updateComment", verify, comments.updateComment);
 
 router.get("/getInitInfo", verify, info.getInitInfo);
 
-router.post("/setReviewed", verify, info.setReviewed);
-
 router.post("/addExistingTag", verify, tags.addExistingTag);
 
 router.post("/addNewTag", verify, tags.addNewTag);

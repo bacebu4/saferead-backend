@@ -1,5 +1,15 @@
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable camelcase */
 const db = require("../db");
+
+async function getNote(note_id) {
+  try {
+    const note = await db.getNote(note_id);
+    return note;
+  } catch (error) {
+    throw new Error("Error getting note");
+  }
+}
 
 async function getRandomNotes(data, amount) {
   const markAsSeenQueue = [];
@@ -48,7 +58,25 @@ async function getNotes(id) {
   }
 
   const randomNotes = await getRandomNotes(data, amount);
+  console.log("randomNotes", randomNotes);
+  // await db.addDailyNotes(randomNotes, id);
   return randomNotes;
+}
+
+async function getDailyNotes(userId) {
+  const data = await db.getDailyNotes(userId);
+  console.log("daily notes ", data);
+  // if (data.length) {
+  //   const noteQueue = [];
+  //   for (const note of data) {
+  //     noteQueue.push(getNote(note));
+  //   }
+  //   const dailyNotes = await Promise.all(noteQueue);
+  //   console.log("dailyNotes2", dailyNotes);
+  //   return dailyNotes;
+  // }
+  const dailyNotes = await getNotes(userId);
+  return dailyNotes;
 }
 
 async function getNotesWithTags(notes) {
@@ -125,15 +153,6 @@ async function getNotesByTag(user_id, tag_id) {
   }
 }
 
-async function getNote(note_id) {
-  try {
-    const note = await db.getNote(note_id);
-    return note;
-  } catch (error) {
-    throw new Error("Error getting note");
-  }
-}
-
 module.exports = {
   getNotes,
   getNotesWithTags,
@@ -144,4 +163,5 @@ module.exports = {
   getNotesByBook,
   getNote,
   getNotesByTag,
+  getDailyNotes,
 };

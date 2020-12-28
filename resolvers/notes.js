@@ -7,7 +7,7 @@ const notesResolver = {
       if (!userId) {
         return [];
       }
-      const data = await notesService.getNotes(userId);
+      const data = await notesService.getDailyNotes(userId);
       const notesWithTags = await notesService.getNotesWithTags(data);
       const notesWithComments = await notesService.getNotesWithComments(
         notesWithTags,

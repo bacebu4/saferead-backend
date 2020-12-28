@@ -24,14 +24,6 @@ async function getInitInfo(id) {
   };
 }
 
-async function setReviewed(id) {
-  try {
-    await db.setReviewed(id);
-  } catch (error) {
-    throw new Error("Error setting");
-  }
-}
-
 async function updateReviewHistory(userId, date) {
   try {
     await db.updateReviewHistory(userId, date);
@@ -42,6 +34,5 @@ async function updateReviewHistory(userId, date) {
 
 module.exports = {
   getInitInfo,
-  setReviewed,
   updateReviewHistory,
 };
