@@ -36,7 +36,7 @@ const notesResolver = {
     updateNote: async (_, { noteId, text }) => {
       try {
         await notesService.updateNote(noteId, text);
-        return true;
+        return { id: noteId, text };
       } catch (error) {
         return false;
       }

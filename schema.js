@@ -51,11 +51,16 @@ const typeDefs = gql`
     books: [Book]
   }
 
+  type UpdatedNote {
+    id: ID!
+    text: String!
+  }
+
   type Mutation {
     addNewTag(name: String, hue: Int, id: String, noteId: String): Boolean
     updateReviewHistory(date: String): Boolean
     deleteNote(noteId: String): Boolean
-    updateNote(noteId: String, text: String): Boolean
+    updateNote(noteId: String, text: String): Note
   }
 `;
 
