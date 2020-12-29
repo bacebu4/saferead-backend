@@ -59,22 +59,21 @@ async function getNotes(id) {
 
   const randomNotes = await getRandomNotes(data, amount);
   console.log("randomNotes", randomNotes);
-  // await db.addDailyNotes(randomNotes, id);
+  await db.addDailyNotes(randomNotes, id);
   return randomNotes;
 }
 
 async function getDailyNotes(userId) {
   const data = await db.getDailyNotes(userId);
-  console.log("daily notes ", data);
-  // if (data.length) {
-  //   const noteQueue = [];
-  //   for (const note of data) {
-  //     noteQueue.push(getNote(note));
-  //   }
-  //   const dailyNotes = await Promise.all(noteQueue);
-  //   console.log("dailyNotes2", dailyNotes);
-  //   return dailyNotes;
-  // }
+  if (data.length) {
+    const noteQueue = [];
+    for (const note of data) {
+      noteQueue.push(getNote(note.noteId));
+    }
+    let dailyNotes = await Promise.all(noteQueue);
+    dailyNotes = dailyNotes.map((n) => n[0]);
+    return dailyNotes;
+  }
   const dailyNotes = await getNotes(userId);
   return dailyNotes;
 }
