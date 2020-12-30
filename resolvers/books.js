@@ -10,6 +10,13 @@ const booksResolver = {
       const data = await booksService.getAllBooks(userId);
       return data.map((b) => bookReducer(b));
     },
+    latestBooks: async (_, __, { userId }) => {
+      if (!userId) {
+        return [];
+      }
+      const data = await booksService.getLatestBooks(userId);
+      return data.map((b) => bookReducer(b));
+    },
   },
 };
 

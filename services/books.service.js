@@ -19,7 +19,17 @@ async function getAllBooks(userId) {
   }
 }
 
+async function getLatestBooks(userId) {
+  try {
+    const data = await db.getLatestBooks(userId);
+    return data;
+  } catch (error) {
+    throw new Error();
+  }
+}
+
 module.exports = {
   deleteBook,
   getAllBooks,
+  getLatestBooks,
 };

@@ -49,6 +49,7 @@ const typeDefs = gql`
     note(id: String): Note
     initInfo: InitInfo
     books: [Book]
+    latestBooks: [Book]
   }
 
   type UpdatedNote {
