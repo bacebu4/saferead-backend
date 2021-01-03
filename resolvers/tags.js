@@ -1,7 +1,17 @@
 /* eslint-disable object-curly-newline */
+const { tagReducer } = require("../reducers");
 const { tagsService } = require("../services");
 
 const tagsResolver = {
+  Query: {
+    latestTags: async (_, __, { userId }) => {
+      if (!userId) {
+        return [];
+      }
+      const data = await tagsService.getLatestTags(userId);
+      return data.map((n) => tagReducer(n));
+    },
+  },
   Mutation: {
     addNewTag: async (_, { name, hue, id, noteId }) => {
       const body = {

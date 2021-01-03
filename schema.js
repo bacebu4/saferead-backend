@@ -50,6 +50,7 @@ const typeDefs = gql`
     initInfo: InitInfo
     books: [Book]
     latestBooks: [Book]
+    latestTags: [Tag]
   }
 
   type UpdatedNote {

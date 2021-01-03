@@ -36,6 +36,7 @@ const { updateReviewHistory } = require("./updateReviewHistory");
 const { getStreakBeginning } = require("./getStreakBeginning");
 const { getDailyNotes } = require("./getDailyNotes");
 const { addDailyNotes } = require("./addDailyNotes");
+const { getLatestTags } = require("./getLatestTags");
 
 const init = async () => {
   try {
@@ -100,4 +101,5 @@ module.exports = {
   getStreakBeginning,
   getDailyNotes,
   addDailyNotes,
+  getLatestTags,
 };
