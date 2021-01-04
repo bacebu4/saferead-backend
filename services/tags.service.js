@@ -19,6 +19,15 @@ async function getLatestTags(userId) {
   }
 }
 
+async function getAllTags(userId) {
+  try {
+    const data = await db.getAllTags(userId);
+    return data;
+  } catch (error) {
+    throw new Error();
+  }
+}
+
 async function addNewTag(userId, payload) {
   try {
     await db.addNewTag(userId, payload);
@@ -59,4 +68,5 @@ module.exports = {
   updateTag,
   deleteTag,
   getLatestTags,
+  getAllTags,
 };

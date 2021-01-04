@@ -14,7 +14,7 @@ const typeDefs = gql`
   type Tag {
     id: ID!
     name: String!
-    hue: String!
+    hue: Int!
   }
 
   type Comment {
@@ -50,6 +50,7 @@ const typeDefs = gql`
     initInfo: InitInfo
     books: [Book]
     latestBooks: [Book]
+    tags: [Tag]
     latestTags: [Tag]
   }
 

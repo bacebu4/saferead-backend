@@ -11,6 +11,13 @@ const tagsResolver = {
       const data = await tagsService.getLatestTags(userId);
       return data.map((n) => tagReducer(n));
     },
+    tags: async (_, __, { userId }) => {
+      if (!userId) {
+        return [];
+      }
+      const data = await tagsService.getAllTags(userId);
+      return data.map((n) => tagReducer(n));
+    },
   },
   Mutation: {
     addNewTag: async (_, { name, hue, id, noteId }) => {
