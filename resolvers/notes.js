@@ -1,8 +1,5 @@
 const { notesService } = require("../services");
-const {
-  noteReducer,
-  noteReducerWithoutTagsAndComments,
-} = require("../reducers");
+const { noteReducer } = require("../reducers");
 
 const notesResolver = {
   Query: {
