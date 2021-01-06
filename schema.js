@@ -46,8 +46,8 @@ const typeDefs = gql`
 
   type Query {
     dailyNotes: [Note]
-    notesBy(id: String, type: String): [Note]
-    note(id: String): Note
+    notesBy(id: ID, type: String): [Note]
+    note(id: ID): Note
     initInfo: InitInfo
     books: [Book]
     latestBooks: [Book]
