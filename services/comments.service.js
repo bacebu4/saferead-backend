@@ -13,6 +13,7 @@ async function addComment(note_id, comment_id, comment_text) {
   try {
     await db.addComment(note_id, comment_id, comment_text);
   } catch (error) {
+    console.log(error);
     throw new Error("Error adding comment");
   }
 }

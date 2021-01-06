@@ -22,6 +22,7 @@ const init = async () => {
       resolvers.infoResolver,
       resolvers.tagsResolver,
       resolvers.booksResolver,
+      resolvers.commentsResolver,
     ],
     context: ({ req }) => {
       const token = req.headers.authorization || "";
