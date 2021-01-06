@@ -9,13 +9,9 @@ const commentsResolver = {
         if (!userId) {
           return false;
         }
-        console.log("noteId", noteId);
-        console.log("commentId", commentId);
-        console.log("text", text);
         await commentsService.addComment(noteId, commentId, text);
         return true;
       } catch (error) {
-        console.log(error);
         return false;
       }
     },

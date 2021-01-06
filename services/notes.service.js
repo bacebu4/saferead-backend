@@ -58,7 +58,6 @@ async function getNotes(id) {
   }
 
   const randomNotes = await getRandomNotes(data, amount);
-  console.log("randomNotes", randomNotes);
   await db.addDailyNotes(randomNotes, id);
   return randomNotes;
 }
