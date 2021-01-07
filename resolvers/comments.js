@@ -10,7 +10,6 @@ const commentsResolver = {
         if (!userId) {
           return {};
         }
-        console.log(noteId, commentId);
         await commentsService.addComment(noteId, commentId, text);
         const comments = await commentsService.getCommentNotes(noteId);
         const reducedComments = comments.map((c) => commentReducer(c));
