@@ -1,6 +1,15 @@
 /* eslint-disable camelcase */
 const db = require("../db");
 
+async function getCommentNotes(noteId) {
+  try {
+    const data = await db.getCommentNotes(noteId);
+    return data;
+  } catch (error) {
+    throw new Error("Error updating comment");
+  }
+}
+
 async function updateComment(comment_id, comment_text) {
   try {
     await db.updateComment(comment_id, comment_text);
@@ -30,4 +39,5 @@ module.exports = {
   addComment,
   updateComment,
   deleteComment,
+  getCommentNotes,
 };
