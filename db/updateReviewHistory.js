@@ -1,17 +1,16 @@
 const { getConnection } = require("typeorm");
 
-const resetSeenFlag = async (id) => {
+const updateReviewHistory = async (userId, date) => {
   const manager = await getConnection();
   await manager.query(
     /* sql */ `
-    update notes
-    set seen = false
-    where user_id = $1;
+    insert into review_history 
+    VALUES ($2, $1);
   `,
-    [id],
+    [userId, date],
   );
 };
 
 module.exports = {
-  resetSeenFlag,
+  updateReviewHistory,
 };

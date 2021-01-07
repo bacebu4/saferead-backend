@@ -1,8 +1,9 @@
-import { manager } from "./index";
+const { getConnection } = require("typeorm");
 
 const { v4: uuidv4 } = require("uuid");
 
 const addBook = async (authorId, title, userId) => {
+  const manager = await getConnection();
   const data = await manager.query(
     /* sql */ `
     select book_id

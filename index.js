@@ -1,21 +1,45 @@
 require("dotenv").config();
 const express = require("express");
+const { ApolloServer } = require("apollo-server-express");
 
 const app = express();
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 const routes = require("./routes");
 const { messagesService } = require("./services");
-// const { notesService } = require('./services');
 const db = require("./db");
+const resolvers = require("./resolvers");
+const typeDefs = require("./schema");
 
 const init = async () => {
   app.use(express.json());
   app.use("/api", routes);
+
+  const apolloServer = new ApolloServer({
+    typeDefs,
+    resolvers: [
+      resolvers.notesResolver,
+      resolvers.infoResolver,
+      resolvers.tagsResolver,
+      resolvers.booksResolver,
+      resolvers.commentsResolver,
+    ],
+    context: ({ req }) => {
+      const token = req.headers.authorization || "";
+      try {
+        const isVerified = jwt.verify(token, process.env.TOKEN_SECRET);
+        return { userId: isVerified.id };
+      } catch (error) {
+        return { userId: null };
+      }
+    },
+  });
   app.use(cors()); // TODO configure before deployment
+
+  apolloServer.applyMiddleware({ app });
 
   await messagesService.init();
   await db.init();
-  // console.log(await notesService.getNotes(1, 3));
 
   const PORT = process.env.PORT || 3000;
 

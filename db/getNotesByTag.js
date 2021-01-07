@@ -1,7 +1,8 @@
 /* eslint-disable camelcase */
-import { manager } from "./index";
+const { getConnection } = require("typeorm");
 
 const getNotesByTag = async (id, tag_id) => {
+  const manager = await getConnection();
   const raw = await manager.query(
     /* sql */ `
     select note_text, book_title, author_full_name, n.note_id, nt.tag_id, t.tag_name

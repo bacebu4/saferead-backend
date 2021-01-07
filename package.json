@@ -4,29 +4,29 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "cd dist && node index.js",
-    "dev2": "cd dist && nodemon index.js",
+    "start": "node index",
     "deploy": "heroku builds:create -a saferead",
     "logs": "heroku logs --tail -a saferead",
-    "watch": "npx parcel watch ./index.js --out-dir ./dist --no-hmr --target node",
     "server:stop": "heroku maintenance:on -a saferead",
     "server:start": "heroku maintenance:off -a saferead",
-    "dev": "npm run watch & npm run dev2"
+    "dev": "nodemon index"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "apollo-server-express": "^2.19.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "express-graphql": "^0.12.0",
     "googleapis": "^39.2.0",
+    "graphql": "^15.4.0",
     "jsonwebtoken": "^8.5.1",
-    "node-schedule": "^1.3.2",
     "pg": "^8.3.3",
     "reflect-metadata": "^0.1.13",
+    "type-graphql": "^1.1.1",
     "typeorm": "^0.2.28",
     "uuid": "^8.3.1"
   },
@@ -40,7 +40,6 @@
     "eslint-plugin-jsx-a11y": "^6.3.1",
     "eslint-plugin-prettier": "^3.1.4",
     "nodemon": "^2.0.4",
-    "parcel-bundler": "^1.12.4",
     "prettier": "^2.1.2"
   }
 }

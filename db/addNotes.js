@@ -1,9 +1,10 @@
-import { manager } from "./index";
+const { getConnection } = require("typeorm");
 
 const { v4: uuidv4 } = require("uuid");
 
 const addNote = async (userId, bookId, note) => {
   const newGeneratedNoteId = uuidv4();
+  const manager = await getConnection();
   await manager.query(
     /* sql */ `
     insert into notes(user_id, book_id, createdAt, note_text, seen, note_id)
@@ -12,7 +13,7 @@ const addNote = async (userId, bookId, note) => {
     [userId, bookId, note.extractedNote, newGeneratedNoteId],
   );
 
-  if (note?.extractedComment) {
+  if (note && note.extractedComment) {
     const newGeneratedCommentId = uuidv4();
     await manager.query(
       /* sql */ `

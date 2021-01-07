@@ -1,12 +1,13 @@
 const { getConnection } = require("typeorm");
 
-const getCommentNotes = async (id) => {
+const getAllBooks = async (id) => {
   const manager = await getConnection();
   const raw = await manager.query(
     /* sql */ `
     select *
-    from comments
-    where note_id = $1;
+    from books b
+    join authors a on a.author_id = b.author_id
+    where user_id = $1
   `,
     [id],
   );
@@ -14,5 +15,5 @@ const getCommentNotes = async (id) => {
 };
 
 module.exports = {
-  getCommentNotes,
+  getAllBooks,
 };

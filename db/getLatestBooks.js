@@ -1,6 +1,7 @@
-import { manager } from "./index";
+const { getConnection } = require("typeorm");
 
 const getLatestBooks = async (id) => {
+  const manager = await getConnection();
   const raw = await manager.query(
     /* sql */ `
     select distinct book_title, author_full_name, book_id from (

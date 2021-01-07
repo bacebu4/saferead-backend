@@ -1,5 +1,4 @@
 const { createConnection } = require("typeorm");
-const schedule = require("node-schedule");
 require("reflect-metadata");
 const { getNotes } = require("./getNotes");
 const { getIdByEmail } = require("./getIdByEmail");
@@ -29,33 +28,26 @@ const { deleteComment } = require("./deleteComment");
 const { getNotesByBook } = require("./getNotesByBook");
 const { deleteTag } = require("./deleteTag");
 const { getNote } = require("./getNote");
-const { setReviewed } = require("./setReviewed");
-const { setNewDay } = require("./setNewDay");
 const { getNotesByTag } = require("./getNotesByTag");
 const { deleteBook } = require("./deleteBook");
-// const { deployDb } = require("./deployDb");
-
-// eslint-disable-next-line import/no-mutable-exports
-let manager;
-
-const startSchedule = () => {
-  schedule.scheduleJob("0 0 * * *", () => {
-    console.log("this is schedule every day");
-    setNewDay();
-  });
-};
+const { getAllBooks } = require("./getAllBooks");
+const { getLatestReviewDate } = require("./getLatestReviewDate");
+const { updateReviewHistory } = require("./updateReviewHistory");
+const { getStreakBeginning } = require("./getStreakBeginning");
+const { getDailyNotes } = require("./getDailyNotes");
+const { addDailyNotes } = require("./addDailyNotes");
+const { getLatestTags } = require("./getLatestTags");
 
 const init = async () => {
   try {
-    let connection;
     if (process.env.DATABASE_URL) {
-      connection = await createConnection({
+      await createConnection({
         type: "postgres",
         url: process.env.DATABASE_URL,
       });
       console.log("Connected to DB @ heroku");
     } else {
-      connection = await createConnection({
+      await createConnection({
         type: "postgres",
         host: "localhost",
         port: process.env.DB_PORT,
@@ -66,9 +58,6 @@ const init = async () => {
       });
       console.log("Connected to DB locally");
     }
-    manager = connection.manager;
-    startSchedule();
-    // deployDb();
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }
@@ -104,13 +93,13 @@ module.exports = {
   getNotesByBook,
   deleteTag,
   getNote,
-  setReviewed,
-  setNewDay,
   getNotesByTag,
   deleteBook,
-};
-
-export {
-  // eslint-disable-next-line import/prefer-default-export
-  manager,
+  getAllBooks,
+  getLatestReviewDate,
+  updateReviewHistory,
+  getStreakBeginning,
+  getDailyNotes,
+  addDailyNotes,
+  getLatestTags,
 };
