@@ -21,6 +21,22 @@ const commentsResolver = {
         return {};
       }
     },
+    deleteComment: async (_, { commentId, noteId }, { userId }) => {
+      try {
+        if (!userId) {
+          return {};
+        }
+        await commentsService.deleteComment(commentId);
+        const comments = await commentsService.getCommentNotes(noteId);
+        const reducedComments = comments.map((c) => commentReducer(c));
+        return {
+          id: noteId,
+          comments: reducedComments,
+        };
+      } catch (error) {
+        return {};
+      }
+    },
     updateComment: async (_, { commentId, text }, { userId }) => {
       try {
         if (!userId) {

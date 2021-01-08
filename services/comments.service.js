@@ -10,6 +10,15 @@ async function getCommentNotes(noteId) {
   }
 }
 
+async function getNoteIdByCommentId(commentId) {
+  try {
+    const data = await db.getNoteIdByCommentId(commentId);
+    return data;
+  } catch (error) {
+    throw new Error("Error updating comment");
+  }
+}
+
 async function updateComment(comment_id, comment_text) {
   try {
     await db.updateComment(comment_id, comment_text);
@@ -40,4 +49,5 @@ module.exports = {
   updateComment,
   deleteComment,
   getCommentNotes,
+  getNoteIdByCommentId,
 };
