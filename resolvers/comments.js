@@ -21,6 +21,20 @@ const commentsResolver = {
         return {};
       }
     },
+    updateComment: async (_, { commentId, text }, { userId }) => {
+      try {
+        if (!userId) {
+          return {};
+        }
+        await commentsService.updateComment(commentId, text);
+        return {
+          id: commentId,
+          text,
+        };
+      } catch (error) {
+        return {};
+      }
+    },
   },
 };
 

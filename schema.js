@@ -66,6 +66,7 @@ const typeDefs = gql`
     updateReviewHistory(date: String): Boolean
     deleteNote(noteId: String): Boolean
     updateNote(noteId: String, text: String): Note
+    updateComment(commentId: ID, text: String): Comment
   }
 `;
 
