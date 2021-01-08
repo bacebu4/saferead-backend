@@ -21,6 +21,7 @@ const typeDefs = gql`
     id: ID!
     text: String!
     createdAt: String!
+    noteId: String!
   }
 
   type Book {
