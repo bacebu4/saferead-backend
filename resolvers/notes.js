@@ -3,16 +3,16 @@ const { noteReducer } = require("../reducers");
 
 const notesResolver = {
   Query: {
-    dailyNotes: async (_, __, { userId }) => {
-      if (!userId) {
+    dailyNotesIds: async (_, __, { userId }) => {
+      try {
+        if (!userId) {
+          throw new Error();
+        }
+        const data = await notesService.getDailyNotes(userId);
+        return data.map((n) => n.note_id);
+      } catch (error) {
         return [];
       }
-      const data = await notesService.getDailyNotes(userId);
-      const notesWithTags = await notesService.getNotesWithTags(data);
-      const notesWithComments = await notesService.getNotesWithComments(
-        notesWithTags,
-      );
-      return notesWithComments.map((n) => noteReducer(n));
     },
     note: async (_, { id }, { userId }) => {
       if (!userId) {
