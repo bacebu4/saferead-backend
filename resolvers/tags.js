@@ -32,6 +32,23 @@ const tagsResolver = {
 
       return true;
     },
+    addExistingTag: async (_, { noteId, tagId }, { userId }) => {
+      try {
+        if (!userId) {
+          throw new Error();
+        }
+
+        await tagsService.addExistingTag(tagId, noteId);
+        const tags = await tagsService.getTagNotes(noteId);
+
+        return {
+          id: noteId,
+          tags: tags.map((n) => tagReducer(n)),
+        };
+      } catch (error) {
+        return {};
+      }
+    },
   },
 };
 

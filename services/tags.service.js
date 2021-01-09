@@ -2,9 +2,9 @@
 /* eslint-disable camelcase */
 const db = require("../db");
 
-async function addExistingTag(payload) {
+async function addExistingTag(tagId, noteId) {
   try {
-    await db.addExistingTag(payload.tag_id, payload.note_id);
+    await db.addExistingTag(tagId, noteId);
   } catch (error) {
     throw new Error();
   }
@@ -22,6 +22,15 @@ async function getLatestTags(userId) {
 async function getAllTags(userId) {
   try {
     const data = await db.getAllTags(userId);
+    return data;
+  } catch (error) {
+    throw new Error();
+  }
+}
+
+async function getTagNotes(noteId) {
+  try {
+    const data = await db.getTagNotes(noteId);
     return data;
   } catch (error) {
     throw new Error();
@@ -69,4 +78,5 @@ module.exports = {
   deleteTag,
   getLatestTags,
   getAllTags,
+  getTagNotes,
 };
