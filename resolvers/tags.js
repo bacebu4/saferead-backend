@@ -84,6 +84,19 @@ const tagsResolver = {
         return {};
       }
     },
+    deleteTag: async (_, { tagId }, { userId }) => {
+      try {
+        if (!userId) {
+          throw new Error();
+        }
+
+        await tagsService.deleteTag(tagId);
+
+        return true;
+      } catch (error) {
+        return false;
+      }
+    },
   },
 };
 
