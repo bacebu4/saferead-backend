@@ -20,18 +20,6 @@ const tagsResolver = {
     },
   },
   Mutation: {
-    addNewTag: async (_, { name, hue, id, noteId }) => {
-      const body = {
-        tag_id: id,
-        tag_name: name,
-        hue,
-        note_id: noteId,
-      };
-
-      await tagsService.addNewTag("57345d46-af1e-49a8-9f37-a2570a4f381d", body);
-
-      return true;
-    },
     addExistingTag: async (_, { noteId, tagId }, { userId }) => {
       try {
         if (!userId) {
@@ -39,6 +27,23 @@ const tagsResolver = {
         }
 
         await tagsService.addExistingTag(tagId, noteId);
+        const tags = await tagsService.getTagNotes(noteId);
+
+        return {
+          id: noteId,
+          tags: tags.map((n) => tagReducer(n)),
+        };
+      } catch (error) {
+        return {};
+      }
+    },
+    addNewTag: async (_, { noteId, tagId, name, hue }, { userId }) => {
+      try {
+        if (!userId) {
+          throw new Error();
+        }
+
+        await tagsService.addNewTag(userId, tagId, noteId, name, hue);
         const tags = await tagsService.getTagNotes(noteId);
 
         return {

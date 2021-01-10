@@ -37,10 +37,10 @@ async function getTagNotes(noteId) {
   }
 }
 
-async function addNewTag(userId, payload) {
+async function addNewTag(userId, tagId, noteId, name, hue) {
   try {
-    await db.addNewTag(userId, payload);
-    await db.addExistingTag(payload.tag_id, payload.note_id);
+    await db.addNewTag(userId, tagId, noteId, name, hue);
+    await db.addExistingTag(tagId, noteId);
   } catch (error) {
     throw new Error();
   }
