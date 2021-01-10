@@ -46,9 +46,9 @@ async function addNewTag(userId, payload) {
   }
 }
 
-async function deleteTagFromNote(note_id, tag_id) {
+async function deleteTagFromNote(noteId, tagId) {
   try {
-    await db.deleteTagFromNote(note_id, tag_id);
+    await db.deleteTagFromNote(noteId, tagId);
   } catch (error) {
     throw new Error();
   }

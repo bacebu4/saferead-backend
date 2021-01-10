@@ -49,6 +49,23 @@ const tagsResolver = {
         return {};
       }
     },
+    deleteTagFromNote: async (_, { noteId, tagId }, { userId }) => {
+      try {
+        if (!userId) {
+          throw new Error();
+        }
+
+        await tagsService.deleteTagFromNote(noteId, tagId);
+        const tags = await tagsService.getTagNotes(noteId);
+
+        return {
+          id: noteId,
+          tags: tags.map((n) => tagReducer(n)),
+        };
+      } catch (error) {
+        return {};
+      }
+    },
   },
 };
 
