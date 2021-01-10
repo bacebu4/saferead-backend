@@ -54,6 +54,19 @@ const tagsResolver = {
         return {};
       }
     },
+    updateTag: async (_, { tagId, name, hue }, { userId }) => {
+      try {
+        if (!userId) {
+          throw new Error();
+        }
+
+        await tagsService.updateTag(tagId, name, hue);
+
+        return true;
+      } catch (error) {
+        return false;
+      }
+    },
     deleteTagFromNote: async (_, { noteId, tagId }, { userId }) => {
       try {
         if (!userId) {

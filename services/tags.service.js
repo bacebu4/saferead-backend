@@ -62,9 +62,9 @@ async function deleteTag(tag_id) {
   }
 }
 
-async function updateTag(tag_id, tag_name, hue) {
+async function updateTag(tagId, name, hue) {
   try {
-    await db.updateTag(tag_name, tag_id, hue);
+    await db.updateTag(name, tagId, hue);
   } catch (error) {
     throw new Error();
   }
