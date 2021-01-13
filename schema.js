@@ -34,13 +34,16 @@ const typeDefs = gql`
     reviewAmount: Int!
     latestReviewDate: String!
     streakBeginningDate: String!
+    streak: Int!
+    missed: Int!
+    reviewed: Boolean!
   }
 
   type Query {
     dailyNotesIds: [String]
     notesBy(id: ID, type: String): [Note]
     note(id: ID): Note
-    info(id: ID): Info
+    info: Info
     books: [Book]
     latestBooks: [Book]
     tags: [Tag]

@@ -1,3 +1,6 @@
+/* eslint-disable operator-linebreak */
+const differenceInCalendarDays = require("date-fns/differenceInCalendarDays");
+
 const { infoService } = require("../services");
 
 const infoResolver = {
@@ -8,7 +11,41 @@ const infoResolver = {
           throw new Error();
         }
         const data = await infoService.getInfo(userId);
-        return data;
+
+        const daysPast = differenceInCalendarDays(
+          Date.now(),
+          new Date(data.latestReviewDate).getTime(),
+        );
+
+        const streak =
+          differenceInCalendarDays(
+            new Date(data.latestReviewDate).getTime(),
+            new Date(data.streakBeginningDate).getTime(),
+          ) + 1;
+
+        let missed = 0;
+        let reviewed;
+
+        switch (daysPast) {
+          case 0:
+            reviewed = true;
+            break;
+
+          case 1:
+            reviewed = false;
+            break;
+
+          default:
+            reviewed = false;
+            missed = daysPast - 1;
+            break;
+        }
+        return {
+          ...data,
+          streak,
+          missed,
+          reviewed,
+        };
       } catch (error) {
         return {};
       }
