@@ -30,26 +30,17 @@ const typeDefs = gql`
     author: String!
   }
 
-  type AccountInfo {
+  type Info {
     reviewAmount: Int!
-    streak: Int!
-    missed: Int!
-    current: Int!
-    createdAt: String!
-    reviewed: Boolean!
-  }
-
-  type InitInfo {
-    tags: [Tag]!
-    latestBooks: [Book]!
-    accountInfo: AccountInfo
+    latestReviewDate: String!
+    streakBeginningDate: String!
   }
 
   type Query {
     dailyNotesIds: [String]
     notesBy(id: ID, type: String): [Note]
     note(id: ID): Note
-    initInfo: InitInfo
+    info(id: ID): Info
     books: [Book]
     latestBooks: [Book]
     tags: [Tag]
