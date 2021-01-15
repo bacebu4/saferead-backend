@@ -17,7 +17,7 @@ const infoResolver = {
           new Date(data.latestReviewDate).getTime(),
         );
 
-        const streak =
+        let streak =
           differenceInCalendarDays(
             new Date(data.latestReviewDate).getTime(),
             new Date(data.streakBeginningDate).getTime(),
@@ -33,6 +33,7 @@ const infoResolver = {
 
           case 1:
             reviewed = false;
+            streak = streak + 1;
             break;
 
           default:
