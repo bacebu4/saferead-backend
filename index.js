@@ -23,6 +23,7 @@ const init = async () => {
       resolvers.tagsResolver,
       resolvers.booksResolver,
       resolvers.commentsResolver,
+      resolvers.loginResolver,
     ],
     context: ({ req }) => {
       const token = req.headers.authorization || "";
