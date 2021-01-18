@@ -15,8 +15,6 @@ const init = async () => {
   app.use(express.json());
   app.use("/api", routes);
 
-  console.log(Object.values(resolvers));
-
   const apolloServer = new ApolloServer({
     typeDefs,
     resolvers: Object.values(resolvers),
