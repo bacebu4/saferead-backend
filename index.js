@@ -15,16 +15,11 @@ const init = async () => {
   app.use(express.json());
   app.use("/api", routes);
 
+  console.log(Object.values(resolvers));
+
   const apolloServer = new ApolloServer({
     typeDefs,
-    resolvers: [
-      resolvers.notesResolver,
-      resolvers.infoResolver,
-      resolvers.tagsResolver,
-      resolvers.booksResolver,
-      resolvers.commentsResolver,
-      resolvers.loginResolver,
-    ],
+    resolvers: Object.values(resolvers),
     context: ({ req }) => {
       const token = req.headers.authorization || "";
       try {
