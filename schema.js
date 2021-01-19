@@ -32,8 +32,8 @@ const typeDefs = gql`
 
   type Info {
     reviewAmount: Int!
-    latestReviewDate: String!
-    streakBeginningDate: String!
+    latestReviewDate: String
+    streakBeginningDate: String
     streak: Int!
     missed: Int!
     reviewed: Boolean!

@@ -12,7 +12,11 @@ const getLatestReviewDate = async (userId) => {
   `,
     [userId],
   );
-  return raw[0].date;
+
+  if (raw.length) {
+    return raw[0].date;
+  }
+  return null;
 };
 
 module.exports = {

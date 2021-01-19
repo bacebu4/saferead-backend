@@ -12,10 +12,12 @@ const infoResolver = {
         }
         const data = await infoService.getInfo(userId);
 
-        const daysPast = differenceInCalendarDays(
+        let daysPast = differenceInCalendarDays(
           Date.now(),
           new Date(data.latestReviewDate).getTime(),
         );
+
+        console.log("daysPast", daysPast);
 
         let streak =
           differenceInCalendarDays(
@@ -38,9 +40,15 @@ const infoResolver = {
 
           default:
             reviewed = false;
-            missed = daysPast - 1;
+            if (daysPast > 1000) {
+              missed = 0;
+              daysPast = 0;
+            } else {
+              missed = daysPast - 1;
+            }
             break;
         }
+
         return {
           ...data,
           streak,

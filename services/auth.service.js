@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const db = require("../db");
+const { v4: uuidv4 } = require("uuid");
 
 async function login(email, password) {
   try {
@@ -27,10 +28,13 @@ async function login(email, password) {
 
 async function register(email, password) {
   try {
+    console.log(email, password);
     const findResults = await db.getIdByEmail(email);
+    console.log("findResults", findResults);
     if (findResults !== "") {
       throw new Error("Not valid");
     }
+    console.log("here");
 
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
@@ -41,6 +45,7 @@ async function register(email, password) {
 
     return token;
   } catch (error) {
+    console.log(error.message);
     throw new Error(error.message);
   }
 }
