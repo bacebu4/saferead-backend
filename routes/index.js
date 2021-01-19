@@ -6,7 +6,6 @@ const {
   messages,
   notes,
   info,
-  register,
   login,
   tags,
   comments,
@@ -54,8 +53,6 @@ router.put("/updateTag", verify, tags.updateTag);
 router.delete("/deleteBook", verify, books.deleteBook);
 
 router.post("/post", messages.newMessageEvent);
-
-router.post("/register", register.register);
 
 router.post("/login", login.login);
 

@@ -68,6 +68,7 @@ const typeDefs = gql`
     updateNote(noteId: String, text: String): Note
     updateComment(commentId: ID, text: String): Comment
     login(email: String, password: String): String
+    register(email: String, password: String): String
   }
 `;
 

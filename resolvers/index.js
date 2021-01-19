@@ -3,10 +3,10 @@ const infoResolver = require("./info");
 const tagsResolver = require("./tags");
 const booksResolver = require("./books");
 const commentsResolver = require("./comments");
-const loginResolver = require("./login");
+const authResolver = require("./auth");
 
 module.exports = {
-  loginResolver,
+  authResolver,
   commentsResolver,
   booksResolver,
   tagsResolver,
