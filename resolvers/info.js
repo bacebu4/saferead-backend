@@ -17,8 +17,6 @@ const infoResolver = {
           new Date(data.latestReviewDate).getTime(),
         );
 
-        console.log("daysPast", daysPast);
-
         let streak =
           differenceInCalendarDays(
             new Date(data.latestReviewDate).getTime(),
