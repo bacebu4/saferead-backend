@@ -9,9 +9,13 @@ const notesResolver = {
           throw new Error();
         }
         const data = await notesService.getDailyNotes(userId);
+        if (!data.length) {
+          throw new Error();
+        }
+
         return data.map((n) => n.note_id);
       } catch (error) {
-        return [];
+        return [""];
       }
     },
     note: async (_, { id }, { userId }) => {
