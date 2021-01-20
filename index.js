@@ -5,7 +5,6 @@ const { ApolloServer } = require("apollo-server-express");
 const app = express();
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
-const routes = require("./routes");
 const { messagesService } = require("./services");
 const db = require("./db");
 const resolvers = require("./resolvers");
@@ -13,7 +12,6 @@ const typeDefs = require("./schema");
 
 const init = async () => {
   app.use(express.json());
-  app.use("/api", routes);
 
   const apolloServer = new ApolloServer({
     typeDefs,
