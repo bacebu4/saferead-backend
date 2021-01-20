@@ -69,6 +69,7 @@ const typeDefs = gql`
     updateComment(commentId: ID, text: String): Comment
     login(email: String, password: String): String
     register(email: String, password: String): String
+    searchNotes(substring: String): [Note]
   }
 `;
 

@@ -67,6 +67,14 @@ const notesResolver = {
         return false;
       }
     },
+    searchNotes: async (_, { substring }, { userId }) => {
+      try {
+        const notes = await notesService.searchNotes(userId, substring);
+        return notes.map((n) => noteReducer(n));
+      } catch (error) {
+        return [];
+      }
+    },
   },
 };
 
