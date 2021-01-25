@@ -37,6 +37,7 @@ const typeDefs = gql`
     streak: Int!
     missed: Int!
     reviewed: Boolean!
+    id: ID!
   }
 
   type Query {

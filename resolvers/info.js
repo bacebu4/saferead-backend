@@ -52,6 +52,7 @@ const infoResolver = {
           streak,
           missed,
           reviewed,
+          id: userId,
         };
       } catch (error) {
         return {};
