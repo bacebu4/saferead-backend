@@ -1,21 +1,20 @@
-/* eslint-disable object-curly-newline */
 const { tagReducer } = require("../reducers");
 const { tagsService } = require("../services");
 
 const tagsResolver = {
   Query: {
-    latestTags: async (_, __, { userId }) => {
+    tags: async (_, { type }, { userId }) => {
       if (!userId) {
         return [];
       }
-      const data = await tagsService.getLatestTags(userId);
-      return data.map((n) => tagReducer(n));
-    },
-    tags: async (_, __, { userId }) => {
-      if (!userId) {
-        return [];
+
+      let data;
+      if (type === "latest") {
+        data = await tagsService.getLatestTags(userId);
+      } else {
+        data = await tagsService.getAllTags(userId);
       }
-      const data = await tagsService.getAllTags(userId);
+
       return data.map((n) => tagReducer(n));
     },
   },
