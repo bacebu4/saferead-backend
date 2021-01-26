@@ -1,7 +1,4 @@
-/* eslint-disable operator-linebreak */
-const differenceInCalendarDays = require("date-fns/differenceInCalendarDays");
 const { infoReducer } = require("../reducers");
-
 const { infoService } = require("../services");
 
 const infoResolver = {
