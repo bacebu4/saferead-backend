@@ -1,5 +1,6 @@
 /* eslint-disable operator-linebreak */
 const differenceInCalendarDays = require("date-fns/differenceInCalendarDays");
+const { infoReducer } = require("../reducers");
 
 const { infoService } = require("../services");
 
@@ -12,48 +13,7 @@ const infoResolver = {
         }
         const data = await infoService.getInfo(userId);
 
-        let daysPast = differenceInCalendarDays(
-          Date.now(),
-          new Date(data.latestReviewDate).getTime(),
-        );
-
-        let streak =
-          differenceInCalendarDays(
-            new Date(data.latestReviewDate).getTime(),
-            new Date(data.streakBeginningDate).getTime(),
-          ) + 1;
-
-        let missed = 0;
-        let reviewed;
-
-        switch (daysPast) {
-          case 0:
-            reviewed = true;
-            break;
-
-          case 1:
-            reviewed = false;
-            streak = streak + 1;
-            break;
-
-          default:
-            reviewed = false;
-            if (daysPast > 1000) {
-              missed = 0;
-              daysPast = 0;
-            } else {
-              missed = daysPast - 1;
-            }
-            break;
-        }
-
-        return {
-          ...data,
-          streak,
-          missed,
-          reviewed,
-          id: userId,
-        };
+        return infoReducer(data, userId);
       } catch (error) {
         return {};
       }
@@ -71,6 +31,17 @@ const infoResolver = {
         return false;
       }
     },
+    // updateReviewAmount: async (_, { reviewAmount }, { userId }) => {
+    //   if (!userId) {
+    //     return true;
+    //   }
+    //   try {
+    //     await infoService.updateReviewHistory(userId, date);
+    //     return true;
+    //   } catch (__) {
+    //     return false;
+    //   }
+    // },
   },
 };
 
