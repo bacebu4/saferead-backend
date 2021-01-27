@@ -18,27 +18,32 @@ const infoResolver = {
   },
   Mutation: {
     updateReviewHistory: async (_, { date }, { userId }) => {
-      if (!userId) {
-        return true;
-      }
       try {
+        if (!userId) {
+          throw new Error();
+        }
+
         await infoService.updateReviewHistory(userId, date);
         return true;
       } catch (__) {
         return false;
       }
     },
-    // updateReviewAmount: async (_, { reviewAmount }, { userId }) => {
-    //   if (!userId) {
-    //     return true;
-    //   }
-    //   try {
-    //     await infoService.updateReviewHistory(userId, date);
-    //     return true;
-    //   } catch (__) {
-    //     return false;
-    //   }
-    // },
+    updateReviewAmount: async (_, { reviewAmount }, { userId }) => {
+      try {
+        if (!userId) {
+          throw new Error();
+        }
+
+        await infoService.updateReviewAmount(userId, reviewAmount);
+
+        const data = await infoService.getInfo(userId);
+
+        return infoReducer(data, userId);
+      } catch (__) {
+        return {};
+      }
+    },
   },
 };
 

@@ -37,6 +37,7 @@ const { getStreakBeginning } = require("./getStreakBeginning");
 const { getDailyNotes } = require("./getDailyNotes");
 const { addDailyNotes } = require("./addDailyNotes");
 const { getLatestTags } = require("./getLatestTags");
+const { updateReviewAmount } = require("./updateReviewAmount");
 
 const init = async () => {
   try {
@@ -102,4 +103,5 @@ module.exports = {
   getDailyNotes,
   addDailyNotes,
   getLatestTags,
+  updateReviewAmount,
 };
