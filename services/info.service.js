@@ -7,7 +7,7 @@ async function getInfo(id) {
   const latestReviewDate = await db.getLatestReviewDate(id);
   const streakBeginningDate = await db.getStreakBeginning(id);
   return {
-    reviewAmount: +allAccountInfo[0].review_amount,
+    reviewAmount: +allAccountInfo.review_amount,
     latestReviewDate,
     streakBeginningDate,
   };

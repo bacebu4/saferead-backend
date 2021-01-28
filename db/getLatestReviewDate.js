@@ -2,7 +2,8 @@ const { getConnection } = require("typeorm");
 
 const getLatestReviewDate = async (userId) => {
   const manager = await getConnection();
-  const raw = await manager.query(
+
+  const [data] = await manager.query(
     /* sql */ `
       select date
       from review_history
@@ -13,8 +14,8 @@ const getLatestReviewDate = async (userId) => {
     [userId],
   );
 
-  if (raw.length) {
-    return raw[0].date;
+  if (data && data.date) {
+    return data.date;
   }
   return null;
 };

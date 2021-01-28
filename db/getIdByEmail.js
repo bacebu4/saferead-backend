@@ -2,10 +2,12 @@ const { getConnection } = require("typeorm");
 
 const getIdByEmail = async (email) => {
   const manager = await getConnection();
+
   if (email.includes("@me.com")) {
     email = email.replace("@me.com", "@icloud.com");
   }
-  const data = await manager.query(
+
+  const [data] = await manager.query(
     /* sql */ `
     select user_id
     from users
@@ -14,8 +16,8 @@ const getIdByEmail = async (email) => {
     [email],
   );
 
-  if (data.length) {
-    return data[0].user_id;
+  if (data && data.user_id) {
+    return data.user_id;
   }
   return "";
 };

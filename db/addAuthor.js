@@ -4,7 +4,7 @@ const { v4: uuidv4 } = require("uuid");
 
 const addAuthor = async (author) => {
   const manager = await getConnection();
-  const data = await manager.query(
+  const [data] = await manager.query(
     /* sql */ `
     select author_id
     from authors
@@ -13,8 +13,8 @@ const addAuthor = async (author) => {
     [author],
   );
 
-  if (data.length) {
-    return data[0].author_id;
+  if (data && data.author_id) {
+    return data.author_id;
   }
 
   const newGeneratedId = uuidv4();

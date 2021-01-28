@@ -2,7 +2,7 @@ const { getConnection } = require("typeorm");
 
 const getAmount = async (id) => {
   const manager = await getConnection();
-  const raw = await manager.query(
+  const [data] = await manager.query(
     /* sql */ `
     select review_amount
     from users
@@ -10,7 +10,12 @@ const getAmount = async (id) => {
   `,
     [id],
   );
-  return raw[0].review_amount;
+
+  if (data && data.review_amount) {
+    return data.review_amount;
+  } else {
+    throw new Error();
+  }
 };
 
 module.exports = {

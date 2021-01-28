@@ -2,7 +2,7 @@ const { getConnection } = require("typeorm");
 
 const getStreakBeginning = async (userId) => {
   const manager = await getConnection();
-  const raw = await manager.query(
+  const [data] = await manager.query(
     /* sql */ `
     select * from (
       select date, daterange_subdiff(date, lag(date) over (order by date)) as ds
@@ -16,8 +16,8 @@ const getStreakBeginning = async (userId) => {
     [userId],
   );
 
-  if (raw.length) {
-    return raw[0].date;
+  if (data && data.date) {
+    return data.date;
   }
   return null;
 };

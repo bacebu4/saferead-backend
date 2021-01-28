@@ -70,7 +70,7 @@ async function getDailyNotes(userId) {
       noteQueue.push(getNote(note.noteId));
     }
     let dailyNotes = await Promise.all(noteQueue);
-    dailyNotes = dailyNotes.map((n) => n[0]);
+    dailyNotes = dailyNotes.map(([n]) => n);
     return dailyNotes;
   }
   const dailyNotes = await getNotes(userId);

@@ -2,7 +2,7 @@ const { getConnection } = require("typeorm");
 
 const getAccountInfo = async (id) => {
   const manager = await getConnection();
-  const raw = await manager.query(
+  const [data] = await manager.query(
     /* sql */ `
     select *
     from users
@@ -10,7 +10,7 @@ const getAccountInfo = async (id) => {
   `,
     [id],
   );
-  return raw;
+  return data;
 };
 
 module.exports = {
