@@ -37,6 +37,7 @@ const typeDefs = gql`
     streak: Int!
     missed: Int!
     reviewed: Boolean!
+    email: String!
     id: ID!
   }
 

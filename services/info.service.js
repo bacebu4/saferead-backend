@@ -8,6 +8,7 @@ async function getInfo(id) {
   const streakBeginningDate = await db.getStreakBeginning(id);
   return {
     reviewAmount: +allAccountInfo.review_amount,
+    email: allAccountInfo.email,
     latestReviewDate,
     streakBeginningDate,
   };
