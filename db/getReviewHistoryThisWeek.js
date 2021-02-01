@@ -16,7 +16,7 @@ const getReviewHistoryThisWeek = async (userId) => {
   );
 
   if (data && data.length) {
-    return data;
+    return data.map((record) => record.date);
   }
 
   return [];

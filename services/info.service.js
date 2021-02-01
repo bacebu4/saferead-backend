@@ -22,6 +22,14 @@ async function updateReviewHistory(userId, date) {
   }
 }
 
+async function getReviewHistoryThisWeek(userId) {
+  try {
+    return await db.getReviewHistoryThisWeek(userId);
+  } catch (error) {
+    throw new Error("Error setting");
+  }
+}
+
 async function updateReviewAmount(userId, reviewAmount) {
   try {
     await db.updateReviewAmount(userId, reviewAmount);
@@ -33,5 +41,6 @@ async function updateReviewAmount(userId, reviewAmount) {
 module.exports = {
   getInfo,
   updateReviewHistory,
+  getReviewHistoryThisWeek,
   updateReviewAmount,
 };

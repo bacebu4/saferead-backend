@@ -15,6 +15,17 @@ const infoResolver = {
         return {};
       }
     },
+    reviewHistoryThisWeek: async (_, __, { userId }) => {
+      try {
+        if (!userId) {
+          throw new Error();
+        }
+        const data = await infoService.getReviewHistoryThisWeek(userId);
+        return data;
+      } catch (error) {
+        return {};
+      }
+    },
   },
   Mutation: {
     updateReviewHistory: async (_, { date }, { userId }) => {

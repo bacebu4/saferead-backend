@@ -49,6 +49,7 @@ const typeDefs = gql`
     books: [Book]
     latestBooks: [Book]
     tags(type: String): [Tag]
+    reviewHistoryThisWeek: [String]
   }
 
   type UpdatedNote {
