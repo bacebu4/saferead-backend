@@ -35,9 +35,12 @@ const infoResolver = {
         }
 
         await infoService.updateReviewHistory(userId, date);
-        return true;
+
+        const data = await infoService.getInfo(userId);
+
+        return infoReducer(data, userId);
       } catch (__) {
-        return false;
+        return {};
       }
     },
     updateReviewAmount: async (_, { reviewAmount }, { userId }) => {

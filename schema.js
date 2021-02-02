@@ -65,7 +65,7 @@ const typeDefs = gql`
     deleteTag(tagId: ID): Boolean
     deleteTagFromNote(noteId: ID, tagId: ID): Note
     deleteComment(commentId: ID, noteId: ID): Note
-    updateReviewHistory(date: String): Boolean
+    updateReviewHistory(date: String): Info
     updateReviewAmount(reviewAmount: Int): Info
     deleteNote(noteId: String): Boolean
     updateNote(noteId: String, text: String): Note

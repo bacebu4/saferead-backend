@@ -23,11 +23,11 @@ const infoReducer = (data, userId) => {
 
     case 1:
       reviewed = false;
-      streak = streak + 1;
       break;
 
     default:
       reviewed = false;
+      streak = 0;
       if (daysPast > 1000) {
         missed = 0;
         daysPast = 0;
