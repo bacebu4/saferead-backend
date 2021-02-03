@@ -46,7 +46,22 @@ async function register(email, password) {
   }
 }
 
+async function isUserExists(userId) {
+  try {
+    const doesExists = await db.isUserExists(userId);
+
+    if (!doesExists) {
+      throw new Error();
+    }
+
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 module.exports = {
   login,
   register,
+  isUserExists,
 };

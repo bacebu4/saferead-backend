@@ -12,7 +12,7 @@ const infoResolver = {
 
         return infoReducer(data, userId);
       } catch (error) {
-        return {};
+        throw new Error("invalid user");
       }
     },
     reviewHistoryThisWeek: async (_, __, { userId }) => {

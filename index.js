@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const { ApolloServer } = require("apollo-server-express");
+const { authService } = require("./services");
 
 const app = express();
 const cors = require("cors");
@@ -16,21 +17,29 @@ const init = async () => {
   const apolloServer = new ApolloServer({
     typeDefs,
     resolvers: Object.values(resolvers),
-    context: ({ req }) => {
+    context: async ({ req }) => {
       const token = req.headers.authorization || "";
       try {
-        const isVerified = jwt.verify(token, process.env.TOKEN_SECRET);
-        return { userId: isVerified.id };
+        const { id } = jwt.verify(token, process.env.TOKEN_SECRET);
+        const doesExists = await authService.isUserExists(id);
+
+        if (!doesExists) {
+          throw new Error();
+        }
+
+        return { userId: id };
       } catch (error) {
         return { userId: null };
       }
     },
   });
+
   app.use(cors()); // TODO configure before deployment
 
   apolloServer.applyMiddleware({ app });
 
   await messagesService.init();
+
   await db.init();
 
   const PORT = process.env.PORT || 3000;
