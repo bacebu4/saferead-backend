@@ -1,5 +1,6 @@
 const { infoReducer } = require("../reducers");
 const { infoService } = require("../services");
+const { GraphQLScalarType, Kind } = require("graphql");
 
 const infoResolver = {
   Query: {
