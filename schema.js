@@ -3,6 +3,7 @@ const { gql } = require("apollo-server-express");
 const typeDefs = gql`
   scalar DateTime
 
+  #Core type of DB
   type Note {
     id: ID!
     text: String!
@@ -44,6 +45,9 @@ const typeDefs = gql`
   }
 
   type Query {
+    """
+    Get note ids to display in review mode
+    """
     dailyNotesIds: [String]
     notesBy(id: ID, type: String): [Note]
     note(id: ID): Note

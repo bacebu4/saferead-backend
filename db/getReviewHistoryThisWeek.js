@@ -10,7 +10,7 @@ const getReviewHistoryThisWeek = async (userId) => {
       from review_history
       where "userId" = $1
     ) as x
-    where days_diff < date_part('dow', now())
+    where days_diff < 7 - date_part('dow', now())
   `,
     [userId],
   );
