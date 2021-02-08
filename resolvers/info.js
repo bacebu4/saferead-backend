@@ -29,13 +29,13 @@ const infoResolver = {
     },
   },
   Mutation: {
-    updateReviewHistory: async (_, { date }, { userId }) => {
+    updateReviewHistory: async (_, __, { userId }) => {
       try {
         if (!userId) {
           throw new Error();
         }
 
-        await infoService.updateReviewHistory(userId, date);
+        await infoService.updateReviewHistory(userId);
 
         const data = await infoService.getInfo(userId);
 

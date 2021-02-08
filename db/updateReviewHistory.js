@@ -1,13 +1,13 @@
 const { getConnection } = require("typeorm");
 
-const updateReviewHistory = async (userId, date) => {
+const updateReviewHistory = async (userId) => {
   const manager = await getConnection();
   await manager.query(
     /* sql */ `
     insert into review_history 
-    VALUES ($2, $1);
+    VALUES (now(), $1);
   `,
-    [userId, date],
+    [userId],
   );
 };
 

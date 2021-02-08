@@ -14,9 +14,9 @@ async function getInfo(id) {
   };
 }
 
-async function updateReviewHistory(userId, date) {
+async function updateReviewHistory(userId) {
   try {
-    await db.updateReviewHistory(userId, date);
+    await db.updateReviewHistory(userId);
   } catch (error) {
     throw new Error("Error setting");
   }
