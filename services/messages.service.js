@@ -73,6 +73,7 @@ const getMessageById = async (id) => {
       ...htmlUtils.extractAll(data),
     };
   }
+
   if (validate === "litres") {
     if (
       data.data.payload.parts[1].body &&
@@ -91,7 +92,8 @@ const getMessageById = async (id) => {
       };
     }
   }
-  return validate;
+
+  return "empty";
 };
 
 const deleteMessageById = async (id) => {
