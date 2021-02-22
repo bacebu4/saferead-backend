@@ -11,7 +11,6 @@ const tagsResolver = {
       let data;
       if (type === "latest") {
         data = await tagsService.getLatestTags(userId);
-        console.log(data);
       } else {
         data = await tagsService.getAllTags(userId);
       }

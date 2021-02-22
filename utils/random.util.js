@@ -30,11 +30,11 @@ function sumAllNotesValues(notes) {
 function getRandomNoteId(notes) {
   const notesWithUpperBound = getNotesWithUpperBound(notes);
   const allNotesValue = sumAllNotesValues(notesWithUpperBound);
-  const randomValue = getRandomInt(0, allNotesValue);
+  const randomValue = getRandomInt(0, allNotesValue - 1);
 
   for (const note of notesWithUpperBound) {
     if (randomValue < note.upperBound) {
-      return note.id;
+      return note.note_id;
     }
   }
 }
