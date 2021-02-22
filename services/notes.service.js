@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax */
 /* eslint-disable camelcase */
 const db = require("../db");
 
@@ -12,6 +11,15 @@ async function getNote(noteId) {
 
 async function getRandomNotes(notesToChooseFrom, amount) {
   const markAsSeenQueue = [];
+
+  // fallback when overall amount of notes less than needed amount
+  if (notesToChooseFrom.length <= amount) {
+    for (let i = 0; i < notesToChooseFrom.length; i += 1) {
+      markAsSeenQueue.push(db.markAsSeen(notesToChooseFrom[i].note_id));
+    }
+    await Promise.all(markAsSeenQueue);
+    return notesToChooseFrom;
+  }
 
   const usedIndexes = new Set();
 
