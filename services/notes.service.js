@@ -2,10 +2,9 @@
 /* eslint-disable camelcase */
 const db = require("../db");
 
-async function getNote(note_id) {
+async function getNote(noteId) {
   try {
-    const note = await db.getNote(note_id);
-    return note;
+    return await db.getNote(noteId);
   } catch (error) {
     throw new Error("Error getting note");
   }
@@ -28,8 +27,10 @@ async function getRandomNotes(data, amount) {
   for (let i = 0; i < amount; i += 1) {
     let repeatedIndex = true;
     let newRandomIndex;
+
     while (repeatedIndex) {
       newRandomIndex = Math.floor(Math.random() * data.length);
+
       if (!usedIndexes.has(newRandomIndex)) {
         repeatedIndex = false;
         usedIndexes.add(newRandomIndex);
@@ -49,30 +50,34 @@ async function getRandomNotes(data, amount) {
   return newData;
 }
 
-async function getNotes(id) {
-  const amount = await db.getAmount(id);
-  let data = await db.getNotes(id);
+async function getNotes(userId) {
+  const amount = await db.getAmount(userId);
+  let data = await db.getNotes(userId);
+
   if (data.length < amount) {
-    await db.resetSeenFlag(id);
-    data = await db.getNotes(id);
+    await db.resetSeenFlag(userId);
+    data = await db.getNotes(userId);
   }
 
   const randomNotes = await getRandomNotes(data, amount);
-  await db.addDailyNotes(randomNotes, id);
+  await db.addDailyNotes(randomNotes, userId);
   return randomNotes;
 }
 
 async function getDailyNotes(userId) {
   const data = await db.getDailyNotes(userId);
+
   if (data.length) {
     const noteQueue = [];
+
     for (const note of data) {
       noteQueue.push(getNote(note.noteId));
     }
-    let dailyNotes = await Promise.all(noteQueue);
-    dailyNotes = dailyNotes.map(([n]) => n);
-    return dailyNotes;
+    const dailyNotes = await Promise.all(noteQueue);
+
+    return dailyNotes.map(([n]) => n);
   }
+
   const dailyNotes = await getNotes(userId);
   return dailyNotes;
 }
@@ -80,70 +85,74 @@ async function getDailyNotes(userId) {
 async function getNotesWithTags(notes) {
   const noteWithTags = [...notes];
   const tagQueue = [];
+
   notes.forEach((note) => {
     tagQueue.push(db.getTagNotes(note.note_id));
   });
+
   const tags = await Promise.all(tagQueue);
-  tags.forEach((t, i) => {
-    noteWithTags[i].tags = t;
+
+  tags.forEach((tag, i) => {
+    noteWithTags[i].tags = tag;
     noteWithTags[i].deleted = false;
   });
+
   return noteWithTags;
 }
 
 async function getNotesWithComments(notes) {
   const noteWithComments = [...notes];
+
   const tagQueue = [];
+
   notes.forEach((note) => {
     tagQueue.push(db.getCommentNotes(note.note_id));
   });
+
   const tags = await Promise.all(tagQueue);
-  tags.forEach((t, i) => {
-    noteWithComments[i].comments = t;
+
+  tags.forEach((tag, i) => {
+    noteWithComments[i].comments = tag;
   });
 
   return noteWithComments;
 }
 
-async function searchNotes(id, substring) {
+async function searchNotes(userId, substring) {
   try {
-    const notes = await db.searchNotes(id, substring);
-
-    return notes;
+    return await db.searchNotes(userId, substring);
   } catch (error) {
     throw new Error();
   }
 }
 
-async function deleteNote(id) {
+async function deleteNote(noteId) {
   try {
-    await db.deleteNote(id);
+    await db.deleteNote(noteId);
   } catch (error) {
     throw new Error("Error deleting note");
   }
 }
 
-async function updateNote(note_id, note_text) {
+async function updateNote(noteId, noteText) {
   try {
-    await db.updateNote(note_id, note_text);
+    await db.updateNote(noteId, noteText);
   } catch (error) {
     throw new Error("Error updating note");
   }
 }
 
-async function getNotesByBook(user_id, book_id) {
+async function getNotesByBook(userId, bookId) {
   try {
-    const notes = await db.getNotesByBook(user_id, book_id);
-    return notes;
+    return await db.getNotesByBook(userId, bookId);
   } catch (error) {
     throw new Error("Error getting notes");
   }
 }
 
-async function getNotesByTag(user_id, tag_id) {
+async function getNotesByTag(userId, tagId) {
   try {
-    const notes = await db.getNotesByTag(user_id, tag_id);
-    return notes;
+    return await db.getNotesByTag(userId, tagId);
   } catch (error) {
     throw new Error("Error getting notes");
   }
