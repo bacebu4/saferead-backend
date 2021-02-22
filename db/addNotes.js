@@ -5,15 +5,19 @@ const { v4: uuidv4 } = require("uuid");
 const addNote = async (userId, bookId, note) => {
   const newGeneratedNoteId = uuidv4();
   const manager = await getConnection();
+  const hasComment = note && note.extractedComment;
+
+  const noteValue = hasComment ? 2 : 1;
+
   await manager.query(
     /* sql */ `
     insert into notes(user_id, book_id, createdAt, note_text, note_id, current_value, initial_value)
-    VALUES ($1, $2, now(), $3, $4, 1, 1);
+    VALUES ($1, $2, now(), $3, $4, $5, $5);
   `,
-    [userId, bookId, note.extractedNote, newGeneratedNoteId],
+    [userId, bookId, note.extractedNote, newGeneratedNoteId, noteValue],
   );
 
-  if (note && note.extractedComment) {
+  if (hasComment) {
     const newGeneratedCommentId = uuidv4();
     await manager.query(
       /* sql */ `
