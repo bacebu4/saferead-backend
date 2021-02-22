@@ -9,7 +9,8 @@ const getNotes = async (id) => {
         note_text,
         book_title,
         author_full_name,
-        n.note_id
+        n.note_id,
+        n.current_value
       FROM
         notes n
         JOIN books ON n.book_id = books.book_id

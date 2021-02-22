@@ -13,7 +13,7 @@ const notesResolver = {
           throw new Error();
         }
 
-        return data.map((n) => n.note_id);
+        return data;
       } catch (error) {
         return [""];
       }
