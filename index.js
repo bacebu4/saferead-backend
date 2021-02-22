@@ -10,6 +10,7 @@ const { messagesService } = require("./services");
 const db = require("./db");
 const resolvers = require("./resolvers");
 const typeDefs = require("./schema");
+const { IS_DEV } = require("./variables");
 
 const init = async () => {
   app.use(express.json());
@@ -20,14 +21,17 @@ const init = async () => {
     context: async ({ req }) => {
       const token = req.headers.authorization || "";
       try {
-        const { id } = jwt.verify(token, process.env.TOKEN_SECRET);
-        const doesExists = await authService.isUserExists(id);
+        if (!IS_DEV) {
+          const { id } = jwt.verify(token, process.env.TOKEN_SECRET);
+          const doesExists = await authService.isUserExists(id);
 
-        if (!doesExists) {
-          throw new Error();
+          if (!doesExists) {
+            throw new Error();
+          }
+
+          return { userId: id };
         }
-
-        return { userId: id };
+        return { userId: "57345d46-af1e-49a8-9f37-a2570a4f381d" };
       } catch (error) {
         return { userId: null };
       }
