@@ -1,6 +1,6 @@
 /* eslint-disable operator-linebreak */
 const { decode } = require("./decode.util");
-const { openNoteTag } = require("./html.util");
+const { openNoteTag } = require("./ibooks.util");
 
 /**
  * @param {*} data - gmail response from getting email

@@ -1,10 +1,9 @@
-/* eslint-disable operator-linebreak */
 const { google } = require("googleapis");
 const fs = require("fs");
 const path = require("path");
-const { htmlUtils } = require("../utils");
+const { ibooksUtils } = require("../utils");
 const { emailUtils } = require("../utils");
-const { txtUtils } = require("../utils");
+const { litresUtils } = require("../utils");
 const { validateUtils } = require("../utils");
 const updateService = require("./update.service");
 
@@ -54,7 +53,7 @@ const init = () => {
   });
 };
 
-const getExtractedDataById = async (id) => {
+const getExtractedDataByMessageId = async (id) => {
   const auth = CLIENT;
   const gmail = google.gmail({ version: "v1", auth });
   const data = await gmail.users.messages.get({
@@ -64,21 +63,18 @@ const getExtractedDataById = async (id) => {
 
   const extractedEmail = emailUtils.extractEmail(data);
 
-  const validate = validateUtils.validate(data);
+  const serviceName = validateUtils.validate(data);
 
-  if (validate === "ibooks") {
-    return {
-      extractedEmail,
-      ...htmlUtils.extractAll(data),
-    };
-  }
+  switch (serviceName) {
+    case "ibooks":
+      return {
+        extractedEmail,
+        ...ibooksUtils.extractAll(data),
+      };
 
-  if (validate === "litres") {
-    if (
-      data.data.payload.parts[1].body &&
-      data.data.payload.parts[1].body.attachmentId
-    ) {
+    case "litres":
       const { attachmentId } = data.data.payload.parts[1].body;
+
       const attachment = await gmail.users.messages.attachments.get({
         userId: "me",
         messageId: id,
@@ -87,12 +83,12 @@ const getExtractedDataById = async (id) => {
 
       return {
         extractedEmail,
-        ...txtUtils.extractAll(data, attachment),
+        ...litresUtils.extractAll(data, attachment),
       };
-    }
-  }
 
-  return "empty";
+    default:
+      return "empty";
+  }
 };
 
 const deleteMessageById = async (id) => {
@@ -127,7 +123,7 @@ const newMessageEvent = async () => {
       const deletingQueue = [];
 
       messagesId.forEach((messageId) => {
-        getMessageQueue.push(getExtractedDataById(messageId));
+        getMessageQueue.push(getExtractedDataByMessageId(messageId));
       });
 
       const data = await Promise.all(getMessageQueue);
@@ -156,8 +152,8 @@ const newMessageEvent = async () => {
 };
 
 module.exports = {
-  getExtractedDataById,
-  listMessages: listMessagesId,
+  getExtractedDataByMessageId,
+  listMessagesId,
   newMessageEvent,
   init,
   deleteMessageById,
