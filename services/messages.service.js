@@ -102,7 +102,7 @@ const deleteMessageById = async (id) => {
   });
 };
 
-const listMessages = async () => {
+const listMessagesId = async () => {
   const auth = CLIENT;
   const gmail = google.gmail({ version: "v1", auth });
   const data = await gmail.users.messages.list({
@@ -118,16 +118,18 @@ const listMessages = async () => {
 const newMessageEvent = async () => {
   try {
     console.log("Checking inbox");
-    const messages = await listMessages();
-    if (messages.length) {
+    const messagesId = await listMessagesId();
+    if (messagesId.length) {
       const getMessageQueue = [];
       const updatingQueue = [];
       const deletingQueue = [];
 
-      messages.forEach((m) => {
-        getMessageQueue.push(getMessageById(m));
+      messagesId.forEach((messageId) => {
+        getMessageQueue.push(getMessageById(messageId));
       });
+
       const data = await Promise.all(getMessageQueue);
+
       data.forEach((d) => {
         if (d !== "empty") {
           updatingQueue.push(updateService.start(d));
@@ -135,9 +137,10 @@ const newMessageEvent = async () => {
           console.log("empty");
         }
       });
+
       await Promise.all(updatingQueue);
 
-      messages.forEach((m) => {
+      messagesId.forEach((m) => {
         deletingQueue.push(deleteMessageById(m));
       });
 
@@ -152,7 +155,7 @@ const newMessageEvent = async () => {
 
 module.exports = {
   getMessageById,
-  listMessages,
+  listMessages: listMessagesId,
   newMessageEvent,
   init,
   deleteMessageById,

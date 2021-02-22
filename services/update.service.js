@@ -1,7 +1,6 @@
 const db = require("../db");
-const messageService = require("./messages.service");
 
-async function start(extractedData, id) {
+async function start(extractedData) {
   try {
     const userId = await db.getIdByEmail(extractedData.extractedEmail);
 
@@ -23,7 +22,6 @@ async function start(extractedData, id) {
   } catch (error) {
     console.log("Error during adding note to db. The message will be deleted");
     console.log(error);
-    messageService.deleteMessageById(id);
   }
 }
 
