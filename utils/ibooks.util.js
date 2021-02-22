@@ -3,12 +3,12 @@ const { decode } = require("./decode.util");
 
 const openNoteTag = '<p class="annotationrepresentativetext">\r\n';
 
-/* eslint-disable no-useless-escape */
 const extractNotes = (html) => {
   const openTag = '<p class="annotationrepresentativetext">\r\n';
   const closeTag = "</p>\r\n";
   const openCommentTag = '<p class="annotationnote">\r\n';
   const extractedNotes = [];
+
   while (html.indexOf(openTag) !== -1) {
     html = extractAndCut(html, openTag, closeTag, extractedNotes, "note");
     html = extractAndCut(
