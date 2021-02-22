@@ -74,22 +74,17 @@ const getExtractedDataByMessageId = async (id) => {
       };
 
     case "litres":
-      if (
-        data.data.payload.parts[1].body &&
-        data.data.payload.parts[1].body.attachmentId
-      ) {
-        const { attachmentId } = data.data.payload.parts[1].body;
-        const attachment = await gmail.users.messages.attachments.get({
-          userId: "me",
-          messageId: id,
-          id: attachmentId,
-        });
+      const { attachmentId } = data.data.payload.parts[1].body;
+      const attachment = await gmail.users.messages.attachments.get({
+        userId: "me",
+        messageId: id,
+        id: attachmentId,
+      });
 
-        return {
-          extractedEmail,
-          ...txtUtils.extractAll(data, attachment),
-        };
-      }
+      return {
+        extractedEmail,
+        ...txtUtils.extractAll(data, attachment),
+      };
 
     default:
       return "empty";
