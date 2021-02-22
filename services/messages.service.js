@@ -54,7 +54,7 @@ const init = () => {
   });
 };
 
-const getExtractedDataById = async (id) => {
+const getExtractedDataByMessageId = async (id) => {
   const auth = CLIENT;
   const gmail = google.gmail({ version: "v1", auth });
   const data = await gmail.users.messages.get({
@@ -128,7 +128,7 @@ const newMessageEvent = async () => {
       const deletingQueue = [];
 
       messagesId.forEach((messageId) => {
-        getMessageQueue.push(getExtractedDataById(messageId));
+        getMessageQueue.push(getExtractedDataByMessageId(messageId));
       });
 
       const data = await Promise.all(getMessageQueue);
@@ -157,7 +157,7 @@ const newMessageEvent = async () => {
 };
 
 module.exports = {
-  getExtractedDataById,
+  getExtractedDataByMessageId,
   listMessages: listMessagesId,
   newMessageEvent,
   init,
