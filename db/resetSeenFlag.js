@@ -5,7 +5,7 @@ const resetSeenFlag = async (userId) => {
   await manager.query(
     /* sql */ `
     update notes
-    set seen = false
+    set current_value = initial_value
     where user_id = $1;
   `,
     [userId],

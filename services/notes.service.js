@@ -45,14 +45,19 @@ async function getRandomNotes(notesToChooseFrom, amount) {
 
 async function generateAndGetDailyNotes(userId) {
   const amount = await db.getAmount(userId);
+  console.log("amount", amount);
   let unseenNotes = await db.getNotes(userId);
+  console.log("unseen notes length = ", unseenNotes.length);
 
   if (unseenNotes.length < amount) {
+    console.log("resetting");
     await db.resetSeenFlag(userId);
     unseenNotes = await db.getNotes(userId);
+    console.log("unseen notes new length = ", unseenNotes.length);
   }
 
   const randomNotes = await getRandomNotes(unseenNotes, amount);
+  console.log("random notes length = ", randomNotes.length);
   await db.addDailyNotes(randomNotes, userId);
   return randomNotes;
 }
@@ -70,7 +75,7 @@ async function getDailyNotes(userId) {
 
     return dailyNotes.map(([n]) => n);
   }
-
+  console.log("got");
   const dailyNotes = await generateAndGetDailyNotes(userId);
   return dailyNotes;
 }

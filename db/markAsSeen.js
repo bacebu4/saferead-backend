@@ -5,7 +5,7 @@ const markAsSeen = async (id) => {
   await manager.query(
     /* sql */ `
     update notes
-    set seen = true
+    set current_value = current_value - 1
     where note_id = $1;
   `,
     [id],
