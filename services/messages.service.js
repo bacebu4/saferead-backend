@@ -26,15 +26,14 @@ function startWatch(auth) {
 }
 
 function authorize(credentials) {
-  // eslint-disable-next-line camelcase
-  const { client_secret, client_id, redirect_uris } = credentials.installed;
+  const { clientSecret, clientId, redirectUris } = credentials.installed;
   const oAuth2Client = new google.auth.OAuth2(
-    client_id,
-    client_secret,
-    redirect_uris[0],
+    clientId,
+    clientSecret,
+    redirectUris[0],
   );
 
-  fs.readFile(TOKEN_PATH, async (err, token) => {
+  fs.readFile(TOKEN_PATH, async (_, token) => {
     const parsedToken = JSON.parse(token);
     oAuth2Client.setCredentials(parsedToken);
     CLIENT = oAuth2Client;
@@ -55,7 +54,7 @@ const init = () => {
   });
 };
 
-const getMessageById = async (id) => {
+const getExtractedDataById = async (id) => {
   const auth = CLIENT;
   const gmail = google.gmail({ version: "v1", auth });
   const data = await gmail.users.messages.get({
@@ -105,7 +104,7 @@ const deleteMessageById = async (id) => {
   });
 };
 
-const listMessages = async () => {
+const listMessagesId = async () => {
   const auth = CLIENT;
   const gmail = google.gmail({ version: "v1", auth });
   const data = await gmail.users.messages.list({
@@ -121,16 +120,18 @@ const listMessages = async () => {
 const newMessageEvent = async () => {
   try {
     console.log("Checking inbox");
-    const messages = await listMessages();
-    if (messages.length) {
+    const messagesId = await listMessagesId();
+    if (messagesId.length) {
       const getMessageQueue = [];
       const updatingQueue = [];
       const deletingQueue = [];
 
-      messages.forEach((m) => {
-        getMessageQueue.push(getMessageById(m));
+      messagesId.forEach((messageId) => {
+        getMessageQueue.push(getExtractedDataById(messageId));
       });
+
       const data = await Promise.all(getMessageQueue);
+
       data.forEach((d) => {
         if (d !== "empty") {
           updatingQueue.push(updateService.start(d));
@@ -138,9 +139,10 @@ const newMessageEvent = async () => {
           console.log("empty");
         }
       });
+
       await Promise.all(updatingQueue);
 
-      messages.forEach((m) => {
+      messagesId.forEach((m) => {
         deletingQueue.push(deleteMessageById(m));
       });
 
@@ -154,8 +156,8 @@ const newMessageEvent = async () => {
 };
 
 module.exports = {
-  getMessageById,
-  listMessages,
+  getExtractedDataById,
+  listMessages: listMessagesId,
   newMessageEvent,
   init,
   deleteMessageById,
