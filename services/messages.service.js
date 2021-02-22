@@ -2,7 +2,7 @@
 const { google } = require("googleapis");
 const fs = require("fs");
 const path = require("path");
-const { htmlUtils } = require("../utils");
+const { ibooksUtils } = require("../utils");
 const { emailUtils } = require("../utils");
 const { txtUtils } = require("../utils");
 const { validateUtils } = require("../utils");
@@ -70,11 +70,12 @@ const getExtractedDataByMessageId = async (id) => {
     case "ibooks":
       return {
         extractedEmail,
-        ...htmlUtils.extractAll(data),
+        ...ibooksUtils.extractAll(data),
       };
 
     case "litres":
       const { attachmentId } = data.data.payload.parts[1].body;
+
       const attachment = await gmail.users.messages.attachments.get({
         userId: "me",
         messageId: id,

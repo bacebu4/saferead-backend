@@ -1,11 +1,11 @@
-const htmlUtils = require('./html.util');
-const emailUtils = require('./email.util');
-const decodeUtils = require('./decode.util');
-const txtUtils = require('./txt.util');
-const validateUtils = require('./validate.util');
+const ibooksUtils = require("./ibooks.util");
+const emailUtils = require("./email.util");
+const decodeUtils = require("./decode.util");
+const txtUtils = require("./txt.util");
+const validateUtils = require("./validate.util");
 
 module.exports = {
-  htmlUtils,
+  ibooksUtils,
   emailUtils,
   decodeUtils,
   txtUtils,
