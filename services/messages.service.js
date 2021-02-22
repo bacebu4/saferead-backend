@@ -1,10 +1,9 @@
-/* eslint-disable operator-linebreak */
 const { google } = require("googleapis");
 const fs = require("fs");
 const path = require("path");
 const { ibooksUtils } = require("../utils");
 const { emailUtils } = require("../utils");
-const { txtUtils } = require("../utils");
+const { litresUtils } = require("../utils");
 const { validateUtils } = require("../utils");
 const updateService = require("./update.service");
 
@@ -84,7 +83,7 @@ const getExtractedDataByMessageId = async (id) => {
 
       return {
         extractedEmail,
-        ...txtUtils.extractAll(data, attachment),
+        ...litresUtils.extractAll(data, attachment),
       };
 
     default:
