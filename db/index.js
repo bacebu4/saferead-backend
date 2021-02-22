@@ -40,6 +40,8 @@ const { getLatestTags } = require("./getLatestTags");
 const { updateReviewAmount } = require("./updateReviewAmount");
 const { getReviewHistoryThisWeek } = require("./getReviewHistoryThisWeek");
 const { isUserExists } = require("./isUserExists");
+const { decreaseNoteValue } = require("./decreaseNoteValue");
+const { increaseNoteValue } = require("./increaseNoteValue");
 
 const init = async () => {
   try {
@@ -108,4 +110,6 @@ module.exports = {
   updateReviewAmount,
   getReviewHistoryThisWeek,
   isUserExists,
+  decreaseNoteValue,
+  increaseNoteValue,
 };
