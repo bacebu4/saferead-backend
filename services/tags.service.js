@@ -41,6 +41,7 @@ async function addNewTag(userId, tagId, noteId, name, hue) {
   try {
     await db.addNewTag(userId, tagId, noteId, name, hue);
     await db.addExistingTag(tagId, noteId);
+    await db.increaseNoteValue(noteId);
   } catch (error) {
     throw new Error();
   }
@@ -49,6 +50,7 @@ async function addNewTag(userId, tagId, noteId, name, hue) {
 async function deleteTagFromNote(noteId, tagId) {
   try {
     await db.deleteTagFromNote(noteId, tagId);
+    await db.decreaseNoteValue(noteId);
   } catch (error) {
     throw new Error();
   }
