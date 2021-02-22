@@ -64,35 +64,36 @@ const getExtractedDataById = async (id) => {
 
   const extractedEmail = emailUtils.extractEmail(data);
 
-  const validate = validateUtils.validate(data);
+  const serviceName = validateUtils.validate(data);
 
-  if (validate === "ibooks") {
-    return {
-      extractedEmail,
-      ...htmlUtils.extractAll(data),
-    };
-  }
-
-  if (validate === "litres") {
-    if (
-      data.data.payload.parts[1].body &&
-      data.data.payload.parts[1].body.attachmentId
-    ) {
-      const { attachmentId } = data.data.payload.parts[1].body;
-      const attachment = await gmail.users.messages.attachments.get({
-        userId: "me",
-        messageId: id,
-        id: attachmentId,
-      });
-
+  switch (serviceName) {
+    case "ibooks":
       return {
         extractedEmail,
-        ...txtUtils.extractAll(data, attachment),
+        ...htmlUtils.extractAll(data),
       };
-    }
-  }
 
-  return "empty";
+    case "litres":
+      if (
+        data.data.payload.parts[1].body &&
+        data.data.payload.parts[1].body.attachmentId
+      ) {
+        const { attachmentId } = data.data.payload.parts[1].body;
+        const attachment = await gmail.users.messages.attachments.get({
+          userId: "me",
+          messageId: id,
+          id: attachmentId,
+        });
+
+        return {
+          extractedEmail,
+          ...txtUtils.extractAll(data, attachment),
+        };
+      }
+
+    default:
+      return "empty";
+  }
 };
 
 const deleteMessageById = async (id) => {
