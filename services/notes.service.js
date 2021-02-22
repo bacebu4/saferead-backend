@@ -10,17 +10,8 @@ async function getNote(noteId) {
   }
 }
 
-async function getRandomNotes(data, amount) {
+async function getRandomNotes(notesToChooseFrom, amount) {
   const markAsSeenQueue = [];
-
-  // fallback when amount of notes less than needed amount
-  if (data.length <= amount) {
-    for (let i = 0; i < data.length; i += 1) {
-      markAsSeenQueue.push(db.markAsSeen(data[i].note_id));
-    }
-    await Promise.all(markAsSeenQueue);
-    return data;
-  }
 
   const usedIndexes = new Set();
 
@@ -29,12 +20,14 @@ async function getRandomNotes(data, amount) {
     let newRandomIndex;
 
     while (repeatedIndex) {
-      newRandomIndex = Math.floor(Math.random() * data.length);
+      newRandomIndex = Math.floor(Math.random() * notesToChooseFrom.length);
 
       if (!usedIndexes.has(newRandomIndex)) {
         repeatedIndex = false;
         usedIndexes.add(newRandomIndex);
-        markAsSeenQueue.push(db.markAsSeen(data[newRandomIndex].note_id));
+        markAsSeenQueue.push(
+          db.markAsSeen(notesToChooseFrom[newRandomIndex].note_id),
+        );
       }
     }
   }
@@ -44,22 +37,22 @@ async function getRandomNotes(data, amount) {
   const newData = [];
 
   usedIndexes.forEach((i) => {
-    newData.push(data[i]);
+    newData.push(notesToChooseFrom[i]);
   });
 
   return newData;
 }
 
-async function getNotes(userId) {
+async function generateAndGetDailyNotes(userId) {
   const amount = await db.getAmount(userId);
-  let data = await db.getNotes(userId);
+  let unseenNotes = await db.getNotes(userId);
 
-  if (data.length < amount) {
+  if (unseenNotes.length < amount) {
     await db.resetSeenFlag(userId);
-    data = await db.getNotes(userId);
+    unseenNotes = await db.getNotes(userId);
   }
 
-  const randomNotes = await getRandomNotes(data, amount);
+  const randomNotes = await getRandomNotes(unseenNotes, amount);
   await db.addDailyNotes(randomNotes, userId);
   return randomNotes;
 }
@@ -78,7 +71,7 @@ async function getDailyNotes(userId) {
     return dailyNotes.map(([n]) => n);
   }
 
-  const dailyNotes = await getNotes(userId);
+  const dailyNotes = await generateAndGetDailyNotes(userId);
   return dailyNotes;
 }
 
@@ -159,7 +152,7 @@ async function getNotesByTag(userId, tagId) {
 }
 
 module.exports = {
-  getNotes,
+  getNotes: generateAndGetDailyNotes,
   getNotesWithTags,
   searchNotes,
   deleteNote,

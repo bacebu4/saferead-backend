@@ -1,6 +1,6 @@
 const { getConnection } = require("typeorm");
 
-const resetSeenFlag = async (id) => {
+const resetSeenFlag = async (userId) => {
   const manager = await getConnection();
   await manager.query(
     /* sql */ `
@@ -8,7 +8,7 @@ const resetSeenFlag = async (id) => {
     set seen = false
     where user_id = $1;
   `,
-    [id],
+    [userId],
   );
 };
 
