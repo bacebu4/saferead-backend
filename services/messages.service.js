@@ -158,7 +158,7 @@ const newMessageEvent = async () => {
 
 module.exports = {
   getExtractedDataByMessageId,
-  listMessages: listMessagesId,
+  listMessagesId,
   newMessageEvent,
   init,
   deleteMessageById,
