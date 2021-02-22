@@ -7,8 +7,8 @@ const addNote = async (userId, bookId, note) => {
   const manager = await getConnection();
   await manager.query(
     /* sql */ `
-    insert into notes(user_id, book_id, createdAt, note_text, seen, note_id)
-    VALUES ($1, $2, now(), $3, false, $4);
+    insert into notes(user_id, book_id, createdAt, note_text, note_id, current_value, initial_value)
+    VALUES ($1, $2, now(), $3, $4, 1, 1);
   `,
     [userId, bookId, note.extractedNote, newGeneratedNoteId],
   );
@@ -25,11 +25,12 @@ const addNote = async (userId, bookId, note) => {
 };
 
 const addNotes = async (userId, bookId, notes) => {
-  // TODO delete restricted syntax
-  // eslint-disable-next-line no-restricted-syntax
+  const addNotesQueue = [];
   for (const note of notes) {
-    await addNote(userId, bookId, note);
+    addNotesQueue.push(addNote(userId, bookId, note));
   }
+
+  await Promise.all(addNotesQueue);
 };
 
 module.exports = {
