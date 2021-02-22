@@ -33,7 +33,7 @@ function authorize(credentials) {
     redirectUris[0],
   );
 
-  fs.readFile(TOKEN_PATH, async (err, token) => {
+  fs.readFile(TOKEN_PATH, async (_, token) => {
     const parsedToken = JSON.parse(token);
     oAuth2Client.setCredentials(parsedToken);
     CLIENT = oAuth2Client;
