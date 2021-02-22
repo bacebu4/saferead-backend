@@ -19,26 +19,28 @@ async function getNoteIdByCommentId(commentId) {
   }
 }
 
-async function updateComment(comment_id, comment_text) {
+async function updateComment(commentId, commentText) {
   try {
-    await db.updateComment(comment_id, comment_text);
+    await db.updateComment(commentId, commentText);
   } catch (error) {
     throw new Error("Error updating comment");
   }
 }
 
-async function addComment(note_id, comment_id, comment_text) {
+async function addComment(noteId, commentId, commentText) {
   try {
-    await db.addComment(note_id, comment_id, comment_text);
+    await db.addComment(noteId, commentId, commentText);
+    await db.increaseNoteValue(noteId);
   } catch (error) {
     console.log(error);
     throw new Error("Error adding comment");
   }
 }
 
-async function deleteComment(comment_id) {
+async function deleteComment(commentId, noteId) {
   try {
-    await db.deleteComment(comment_id);
+    await db.deleteComment(commentId);
+    await db.decreaseNoteValue(noteId);
   } catch (error) {
     throw new Error("Error deleting comment");
   }

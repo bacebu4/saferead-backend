@@ -26,7 +26,7 @@ const commentsResolver = {
         if (!userId) {
           return {};
         }
-        await commentsService.deleteComment(commentId);
+        await commentsService.deleteComment(commentId, noteId);
         const comments = await commentsService.getCommentNotes(noteId);
         const reducedComments = comments.map((c) => commentReducer(c));
         return {
