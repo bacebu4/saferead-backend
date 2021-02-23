@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 const { getConnection } = require("typeorm");
 
 const updateTag = async (tagName, tagId, hue) => {
