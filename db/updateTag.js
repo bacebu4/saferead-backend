@@ -1,15 +1,19 @@
-/* eslint-disable camelcase */
 const { getConnection } = require("typeorm");
 
-const updateTag = async (tag_name, tag_id, hue) => {
+const updateTag = async (tagName, tagId, hue) => {
   const manager = await getConnection();
   const data = await manager.query(
     /* sql */ `
-    update tags
-    set tag_name = $1, hue = $2
-    where tag_id = $3;
+    UPDATE
+      tags
+    SET
+      tag_name = $1,
+      hue = $2,
+      updated_at = now()
+    WHERE
+      tag_id = $3;
   `,
-    [tag_name, hue, tag_id],
+    [tagName, hue, tagId],
   );
 
   return data;

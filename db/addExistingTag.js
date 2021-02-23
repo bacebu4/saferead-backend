@@ -1,14 +1,25 @@
-/* eslint-disable camelcase */
 const { getConnection } = require("typeorm");
 
-const addExistingTag = async (tag_id, note_id) => {
+const addExistingTag = async (tagId, noteId) => {
   const manager = await getConnection();
   const data = await manager.query(
     /* sql */ `
     insert into notes_tags(tag_id, note_id) 
     VALUES ($1, $2);
   `,
-    [tag_id, note_id],
+    [tagId, noteId],
+  );
+
+  await manager.query(
+    /* sql */ `
+    UPDATE
+      tags
+    SET
+      updated_at = now()
+    WHERE
+      tag_id = $1;
+    `,
+    [tagId],
   );
 
   return data;
