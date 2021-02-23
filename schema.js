@@ -1,8 +1,6 @@
 const { gql } = require("apollo-server-express");
 
 const typeDefs = gql`
-  scalar DateTime
-
   #Core type of DB
   type Note {
     id: ID!
@@ -55,7 +53,7 @@ const typeDefs = gql`
     books: [Book]
     latestBooks: [Book]
     tags(type: String): [Tag]
-    reviewHistoryThisWeek: [DateTime]
+    reviewHistoryThisWeek: [String]
   }
 
   type UpdatedNote {
