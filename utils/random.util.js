@@ -39,6 +39,25 @@ function getRandomNoteId(notes) {
   }
 }
 
+function getRandomNotesIds(notesToChooseFrom, amount) {
+  // fallback when overall amount of notes less than needed amount
+  if (notesToChooseFrom.length <= amount) {
+    return notesToChooseFrom.map((n) => n.note_id);
+  }
+
+  const usedIds = [];
+
+  for (let i = 0; i < amount; i += 1) {
+    const newRandomId = getRandomNoteId(notesToChooseFrom);
+    usedIds.push(newRandomId);
+    notesToChooseFrom = notesToChooseFrom.filter(
+      (note) => note.note_id !== newRandomId,
+    );
+  }
+
+  return usedIds;
+}
+
 module.exports = {
-  getRandomNoteId,
+  getRandomNotesIds,
 };

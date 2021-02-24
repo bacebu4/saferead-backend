@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 const db = require("../db");
-const { getRandomNoteId } = require("../utils/random.util");
+const { getRandomNotesIds } = require("../utils/random.util");
 
 async function getNote(noteId) {
   try {
@@ -10,57 +10,32 @@ async function getNote(noteId) {
   }
 }
 
-async function getRandomNotesIds(notesToChooseFrom, amount) {
-  const markAsSeenQueue = [];
-
-  // fallback when overall amount of notes less than needed amount
-  if (notesToChooseFrom.length <= amount) {
-    for (let i = 0; i < notesToChooseFrom.length; i += 1) {
-      markAsSeenQueue.push(db.markAsSeen(notesToChooseFrom[i].note_id));
-    }
-    await Promise.all(markAsSeenQueue);
-    return notesToChooseFrom.map((n) => n.note_id);
-  }
-
-  const usedIds = [];
-
-  for (let i = 0; i < amount; i += 1) {
-    const newRandomId = getRandomNoteId(notesToChooseFrom);
-    console.log("newRandomId", newRandomId);
-    usedIds.push(newRandomId);
-    markAsSeenQueue.push(db.markAsSeen(newRandomId));
-    notesToChooseFrom = notesToChooseFrom.filter(
-      (note) => note.note_id !== newRandomId,
-    );
-  }
-
-  await Promise.all(markAsSeenQueue);
-  return usedIds;
-}
-
 async function generateAndGetDailyNotesIds(userId) {
   const amount = await db.getAmount(userId);
   let unseenNotes = await db.getNotes(userId);
-  console.log("unseen notes length = ", unseenNotes.length);
 
   if (unseenNotes.length < amount) {
-    console.log("resetting");
     await db.resetSeenFlag(userId);
     unseenNotes = await db.getNotes(userId);
-    console.log("unseen notes new length = ", unseenNotes.length);
   }
 
   const randomNotesIds = await getRandomNotesIds(unseenNotes, amount);
-  console.log("random notes length = ", randomNotesIds.length);
+
+  markAsSeenQueue = [];
+  randomNotesIds.forEach((noteId) => {
+    markAsSeenQueue.push(db.markAsSeen(noteId));
+  });
+  await Promise.all(markAsSeenQueue);
   await db.addDailyNotes(randomNotesIds, userId);
+
   return randomNotesIds;
 }
 
 async function getDailyNotesIds(userId) {
-  const data = await db.getDailyNotes(userId);
+  const generatedDailyNotesIds = await db.getDailyNotes(userId);
 
-  if (data && data.length) {
-    return data.map((el) => el.noteId);
+  if (generatedDailyNotesIds && generatedDailyNotesIds.length) {
+    return generatedDailyNotesIds.map((note) => note.noteId);
   }
 
   return await generateAndGetDailyNotesIds(userId);
@@ -143,7 +118,6 @@ async function getNotesByTag(userId, tagId) {
 }
 
 module.exports = {
-  getNotes: generateAndGetDailyNotesIds,
   getNotesWithTags,
   searchNotes,
   deleteNote,
