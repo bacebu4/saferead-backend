@@ -6,7 +6,7 @@ const { authService } = require("./services");
 const app = express();
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
-const { messagesService } = require("./services");
+const { gmailService } = require("./services");
 const db = require("./db");
 const resolvers = require("./resolvers");
 const typeDefs = require("./schema");
@@ -42,7 +42,7 @@ const init = async () => {
 
   apolloServer.applyMiddleware({ app });
 
-  await messagesService.init();
+  await gmailService.init();
 
   await db.init();
 
@@ -54,7 +54,7 @@ const init = async () => {
 
   app.listen(PORT, async () => {
     console.log("Server has been started on port 3000...");
-    await messagesService.newMessageEvent();
+    await gmailService.newMessageEvent();
   });
 };
 
