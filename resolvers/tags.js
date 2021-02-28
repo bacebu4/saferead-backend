@@ -4,10 +4,6 @@ const { tagsService } = require("../services");
 const tagsResolver = {
   Query: {
     tags: async (_, { type }, { userId }) => {
-      if (!userId) {
-        return [];
-      }
-
       let data;
       if (type === "latest") {
         data = await tagsService.getLatestTags(userId);
@@ -21,10 +17,6 @@ const tagsResolver = {
   Mutation: {
     addExistingTag: async (_, { noteId, tagId }, { userId }) => {
       try {
-        if (!userId) {
-          throw new Error();
-        }
-
         await tagsService.addExistingTag(tagId, noteId);
         const tags = await tagsService.getTagNotes(noteId);
 
@@ -38,10 +30,6 @@ const tagsResolver = {
     },
     addNewTag: async (_, { noteId, tagId, name, hue }, { userId }) => {
       try {
-        if (!userId) {
-          throw new Error();
-        }
-
         await tagsService.addNewTag(userId, tagId, noteId, name, hue);
         const tags = await tagsService.getTagNotes(noteId);
 
@@ -55,10 +43,6 @@ const tagsResolver = {
     },
     updateTag: async (_, { tagId, name, hue }, { userId }) => {
       try {
-        if (!userId) {
-          throw new Error();
-        }
-
         await tagsService.updateTag(tagId, name, hue);
 
         return true;
@@ -68,10 +52,6 @@ const tagsResolver = {
     },
     deleteTagFromNote: async (_, { noteId, tagId }, { userId }) => {
       try {
-        if (!userId) {
-          throw new Error();
-        }
-
         await tagsService.deleteTagFromNote(noteId, tagId);
         const tags = await tagsService.getTagNotes(noteId);
 
@@ -85,10 +65,6 @@ const tagsResolver = {
     },
     deleteTag: async (_, { tagId }, { userId }) => {
       try {
-        if (!userId) {
-          throw new Error();
-        }
-
         await tagsService.deleteTag(tagId);
 
         return true;

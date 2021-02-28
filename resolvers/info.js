@@ -6,9 +6,6 @@ const infoResolver = {
   Query: {
     info: async (_, __, { userId }) => {
       try {
-        if (!userId) {
-          throw new Error();
-        }
         const data = await infoService.getInfo(userId);
 
         return infoReducer(data, userId);
@@ -18,9 +15,6 @@ const infoResolver = {
     },
     reviewHistoryThisWeek: async (_, __, { userId }) => {
       try {
-        if (!userId) {
-          throw new Error();
-        }
         const data = await infoService.getReviewHistoryThisWeek(userId);
         return data;
       } catch (error) {
@@ -31,10 +25,6 @@ const infoResolver = {
   Mutation: {
     updateReviewHistory: async (_, __, { userId }) => {
       try {
-        if (!userId) {
-          throw new Error();
-        }
-
         await infoService.updateReviewHistory(userId);
 
         const data = await infoService.getInfo(userId);
@@ -46,10 +36,6 @@ const infoResolver = {
     },
     updateReviewAmount: async (_, { reviewAmount }, { userId }) => {
       try {
-        if (!userId) {
-          throw new Error();
-        }
-
         await infoService.updateReviewAmount(userId, reviewAmount);
 
         const data = await infoService.getInfo(userId);
