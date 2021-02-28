@@ -41,7 +41,7 @@ const tagsResolver = {
         return {};
       }
     },
-    updateTag: async (_, { tagId, name, hue }, { userId }) => {
+    updateTag: async (_, { tagId, name, hue }) => {
       try {
         await tagsService.updateTag(tagId, name, hue);
 
@@ -50,7 +50,7 @@ const tagsResolver = {
         return false;
       }
     },
-    deleteTagFromNote: async (_, { noteId, tagId }, { userId }) => {
+    deleteTagFromNote: async (_, { noteId, tagId }) => {
       try {
         await tagsService.deleteTagFromNote(noteId, tagId);
         const tags = await tagsService.getTagNotes(noteId);
@@ -63,7 +63,7 @@ const tagsResolver = {
         return {};
       }
     },
-    deleteTag: async (_, { tagId }, { userId }) => {
+    deleteTag: async (_, { tagId }) => {
       try {
         await tagsService.deleteTag(tagId);
 
