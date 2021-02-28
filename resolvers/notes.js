@@ -5,9 +5,6 @@ const notesResolver = {
   Query: {
     dailyNotesIds: async (_, __, { userId }) => {
       try {
-        if (!userId) {
-          throw new Error();
-        }
         const data = await notesService.getDailyNotes(userId);
         if (!data.length) {
           throw new Error();
@@ -19,9 +16,6 @@ const notesResolver = {
       }
     },
     note: async (_, { id }, { userId }) => {
-      if (!userId) {
-        return {};
-      }
       const data = await notesService.getNote(id);
       const notesWithTags = await notesService.getNotesWithTags(data);
       const notesWithComments = await notesService.getNotesWithComments(
@@ -30,10 +24,6 @@ const notesResolver = {
       return noteReducer(notesWithComments[0]);
     },
     notesBy: async (_, { type, id }, { userId }) => {
-      if (!userId) {
-        return [];
-      }
-
       let data;
       switch (type) {
         case "Book":

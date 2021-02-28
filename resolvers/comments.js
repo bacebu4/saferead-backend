@@ -7,9 +7,6 @@ const commentsResolver = {
   Mutation: {
     addComment: async (_, { noteId, commentId, text }, { userId }) => {
       try {
-        if (!userId) {
-          return {};
-        }
         await commentsService.addComment(noteId, commentId, text);
         const comments = await commentsService.getCommentNotes(noteId);
         const reducedComments = comments.map((c) => commentReducer(c));
@@ -23,9 +20,6 @@ const commentsResolver = {
     },
     deleteComment: async (_, { commentId, noteId }, { userId }) => {
       try {
-        if (!userId) {
-          return {};
-        }
         await commentsService.deleteComment(commentId, noteId);
         const comments = await commentsService.getCommentNotes(noteId);
         const reducedComments = comments.map((c) => commentReducer(c));
@@ -39,9 +33,6 @@ const commentsResolver = {
     },
     updateComment: async (_, { commentId, text }, { userId }) => {
       try {
-        if (!userId) {
-          return {};
-        }
         await commentsService.updateComment(commentId, text);
         return {
           id: commentId,
