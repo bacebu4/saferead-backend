@@ -2,9 +2,9 @@
 /* eslint-disable camelcase */
 const db = require("../db");
 
-async function deleteBook(book_id) {
+async function deleteBook(bookId) {
   try {
-    await db.deleteBook(book_id);
+    await db.deleteBook(bookId);
   } catch (error) {
     throw new Error();
   }

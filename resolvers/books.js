@@ -12,6 +12,12 @@ const booksResolver = {
       return data.map((b) => bookReducer(b));
     },
   },
+  Mutation: {
+    deleteBook: async (_, { bookId }) => {
+      const data = await booksService.deleteBook(bookId);
+      return true;
+    },
+  },
 };
 
 module.exports = booksResolver;
