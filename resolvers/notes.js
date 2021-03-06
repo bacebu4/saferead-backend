@@ -15,8 +15,8 @@ const notesResolver = {
         return [""];
       }
     },
-    note: async (_, { id }, { userId }) => {
-      const data = await notesService.getNote(id);
+    note: async (_, { id: noteId }) => {
+      const data = await notesService.getNote(noteId);
       const notesWithTags = await notesService.getNotesWithTags(data);
       const notesWithComments = await notesService.getNotesWithComments(
         notesWithTags,
