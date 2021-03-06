@@ -1,6 +1,4 @@
 const { google } = require("googleapis");
-const fs = require("fs");
-const path = require("path");
 const { ibooksUtils } = require("../utils");
 const { emailUtils } = require("../utils");
 const { litresUtils } = require("../utils");
@@ -8,7 +6,7 @@ const { validateUtils } = require("../utils");
 const updateService = require("./update.service");
 const oAuth2Client = require("../gmailClient");
 
-function init() {
+function startWatchingForNewMessages() {
   const auth = oAuth2Client;
   const gmail = google.gmail({ version: "v1", auth });
   console.log("New watching started: once in 7 days");
@@ -125,6 +123,6 @@ module.exports = {
   getExtractedDataByMessageId,
   listMessagesId,
   newMessageEvent,
-  init,
+  startWatchingForNewMessages,
   deleteMessageById,
 };

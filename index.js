@@ -12,7 +12,7 @@ const resolvers = require("./resolvers");
 const typeDefs = require("./schema");
 const { IS_DEV } = require("./variables");
 
-const init = async () => {
+const bootstrap = async () => {
   app.use(express.json());
 
   const apolloServer = new ApolloServer({
@@ -42,7 +42,7 @@ const init = async () => {
 
   apolloServer.applyMiddleware({ app });
 
-  await gmailService.init();
+  await gmailService.startWatchingForNewMessages();
 
   await db.init();
 
@@ -58,4 +58,4 @@ const init = async () => {
   });
 };
 
-init();
+bootstrap();
