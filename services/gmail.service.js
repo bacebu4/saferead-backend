@@ -6,15 +6,14 @@ const { emailUtils } = require("../utils");
 const { litresUtils } = require("../utils");
 const { validateUtils } = require("../utils");
 const updateService = require("./update.service");
+const oAuth2Client = require("../gmailClient");
 
-let CLIENT;
-const TOKEN_PATH = path.join(__dirname, "token.json");
-
-function startWatch(auth) {
+function init() {
+  const auth = oAuth2Client;
   const gmail = google.gmail({ version: "v1", auth });
   console.log("New watching started: once in 7 days");
   setTimeout(() => {
-    startWatch(CLIENT);
+    startWatch();
   }, 1000 * 60 * 60 * 24 * 6);
   return gmail.users.watch({
     userId: "me",
@@ -24,37 +23,8 @@ function startWatch(auth) {
   });
 }
 
-function authorize(credentials) {
-  const { clientSecret, clientId, redirectUris } = credentials.installed;
-  const oAuth2Client = new google.auth.OAuth2(
-    clientId,
-    clientSecret,
-    redirectUris[0],
-  );
-
-  fs.readFile(TOKEN_PATH, async (_, token) => {
-    const parsedToken = JSON.parse(token);
-    oAuth2Client.setCredentials(parsedToken);
-    CLIENT = oAuth2Client;
-    await startWatch(CLIENT);
-  });
-}
-
-const init = () => {
-  const pathToCredentials = path.join(__dirname, "credentials.json");
-  fs.readFile(pathToCredentials, (err, content) => {
-    if (err) {
-      return console.log(
-        "Error loading client secret file:",
-        pathToCredentials,
-      );
-    }
-    authorize(JSON.parse(content));
-  });
-};
-
 const getExtractedDataByMessageId = async (id) => {
-  const auth = CLIENT;
+  const auth = oAuth2Client;
   const gmail = google.gmail({ version: "v1", auth });
   const data = await gmail.users.messages.get({
     userId: "me",
@@ -92,7 +62,7 @@ const getExtractedDataByMessageId = async (id) => {
 };
 
 const deleteMessageById = async (id) => {
-  const auth = CLIENT;
+  const auth = oAuth2Client;
   const gmail = google.gmail({ version: "v1", auth });
   await gmail.users.messages.trash({
     userId: "me",
@@ -101,7 +71,7 @@ const deleteMessageById = async (id) => {
 };
 
 const listMessagesId = async () => {
-  const auth = CLIENT;
+  const auth = oAuth2Client;
   const gmail = google.gmail({ version: "v1", auth });
   const data = await gmail.users.messages.list({
     userId: "me",
