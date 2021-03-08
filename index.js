@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const { ApolloServer } = require("apollo-server-express");
 const { authService } = require("./services");
+const routes = require("./routes");
 
 const app = express();
 const cors = require("cors");
@@ -14,6 +15,7 @@ const { IS_DEV } = require("./variables");
 
 const bootstrap = async () => {
   app.use(express.json());
+  app.use("/api", routes);
 
   const apolloServer = new ApolloServer({
     typeDefs,
