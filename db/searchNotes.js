@@ -13,7 +13,7 @@ const searchNotes = async (id, substring) => {
     where users.user_id = $1
       and (note_text like $2 or note_text like $3)
   `,
-    [id, `% ${substring}%`, `% ${lowercaseSubstring}%`],
+    [id, `%${substring}%`, `%${lowercaseSubstring}%`],
   );
   return raw;
 };
