@@ -1,5 +1,5 @@
-const messages = require("./messages.controller");
+const gmail = require("./gmail.controller");
 
 module.exports = {
-  messages,
+  gmail,
 };
