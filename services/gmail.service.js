@@ -11,7 +11,7 @@ function startWatchingForNewMessages() {
   const gmail = google.gmail({ version: "v1", auth });
   console.log("New watching started: once in 7 days");
   setTimeout(() => {
-    startWatch();
+    startWatchingForNewMessages();
   }, 1000 * 60 * 60 * 24 * 6);
   return gmail.users.watch({
     userId: "me",
